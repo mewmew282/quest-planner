@@ -230,8 +230,8 @@
 
   /* ---------- add quest form ---------- */
   .fab{
-    position:fixed;bottom:88px;left:50%;
-    transform:translateX(calc(-50% + 190px));
+    position:fixed;bottom:88px;
+    right:calc(max(0px, (100vw - 480px)/2) + 18px);
     width:52px;height:52px;border-radius:50%;
     background:linear-gradient(180deg,#F0C463,#D9A438);
     color:#1B1300;font-size:26px;font-weight:700;
@@ -239,7 +239,7 @@
     box-shadow:0 6px 18px -4px rgba(0,0,0,0.5);
     z-index:15;
   }
-  .fab:active{transform:translateX(calc(-50% + 190px)) scale(0.94);}
+  .fab:active{transform:scale(0.94);}
 
   .sheet-overlay{
     position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:40;
