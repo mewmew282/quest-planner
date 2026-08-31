@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>QUEST PLANNER</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#14101F">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Quest Planner">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+  :root{
+    --bg:#14101F;
+    --bg-elev:#1B1730;
+    --card:#221C3B;
+    --card-hi:#2C2450;
+    --border:#372C55;
+    --text:#F4EFEA;
+    --text-dim:#A196C0;
+    --text-faint:#6E6390;
+    --gold:#E7B549;
+    --gold-dim:#8A6E2E;
+    --danger:#E0665C;
+    --success:#5FB88A;
+    --warrior:#D9503F;
+    --mage:#5B8DEF;
+    --archer:#4FAE7A;
+    --rogue:#A15DE8;
+    --paladin:#E8C468;
+    --alchemist:#43BFC0;
+    --radius-s:10px;
+    --radius-m:16px;
+    --radius-l:24px;
+    --font-display:Georgia,'Noto Serif KR','Apple SD Gothic Neo',serif;
+    --font-body:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--font-body);}
+  body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+  }
+  #app{
+    width:100%;
+    max-width:480px;
+    min-height:100vh;
+    background:
+      radial-gradient(ellipse 600px 300px at 50% -10%, rgba(231,181,73,0.10), transparent 60%),
+      var(--bg);
+    position:relative;
+    display:flex;
+    flex-direction:column;
+  }
+  ::-webkit-scrollbar{width:0;height:0;}
+
+  /* ---------- generic ---------- */
+  button{font-family:inherit;cursor:pointer;border:none;}
+  .btn{
+    background:var(--card-hi);
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:var(--radius-s);
+    padding:14px 18px;
+    font-size:15px;
+    font-weight:600;
+    transition:transform .12s ease, background .12s ease;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-gold{
+    background:linear-gradient(180deg,#F0C463,#D9A438);
+    color:#1B1300;
+    border:none;
+  }
+  .btn-block{width:100%;display:block;}
+  .btn-ghost{
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text-dim);
+  }
+  .hidden{display:none !important;}
+  .pill{
+    display:inline-flex;align-items:center;gap:4px;
+    padding:3px 10px;border-radius:999px;
+    font-size:11px;font-weight:600;
+    background:var(--bg-elev);color:var(--text-dim);
+    border:1px solid var(--border);
+  }
+  .screen{padding:20px 18px 100px;flex:1;}
+  h1,h2,h3{font-family:var(--font-display);margin:0;font-weight:700;}
+
+  /* ---------- onboarding ---------- */
+  #onboarding{
+    display:flex;flex-direction:column;justify-content:center;
+    min-height:100vh;padding:32px 24px;
+  }
+  .ob-logo{text-align:center;margin-bottom:36px;}
+  .ob-logo .mark{font-size:46px;}
+  .ob-logo h1{font-size:26px;letter-spacing:2px;margin-top:8px;}
+  .ob-logo p{color:var(--text-dim);font-size:13px;margin-top:6px;}
+  .ob-step{display:none;}
+  .ob-step.active{display:block;animation:fadeUp .35s ease;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  .ob-label{font-size:13px;color:var(--text-dim);margin-bottom:10px;}
+  input[type=text]{
+    width:100%;
+    background:var(--card);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:var(--radius-s);
+    padding:14px 16px;
+    font-size:16px;
+    margin-bottom:22px;
+  }
+  input[type=text]:focus{outline:none;border-color:var(--gold-dim);}
+  input[type=date]{
+    width:100%;
+    background:var(--card);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:var(--radius-s);
+    padding:12px 16px;
+    font-size:15px;
+    color-scheme:dark;
+  }
+  input[type=date]:focus{outline:none;border-color:var(--gold-dim);}
+  .quest-date-pill{background:var(--bg-elev);color:var(--text-dim);}
+  .quest-date-pill.overdue{background:rgba(224,102,92,0.15);color:var(--danger);border-color:var(--danger);}
+  .class-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px;
+  }
+  .class-card{
+    background:var(--card);
+    border:1.5px solid var(--border);
+    border-radius:var(--radius-m);
+    padding:16px 10px;
+    text-align:center;
+    transition:border-color .15s, background .15s;
+  }
+  .class-card .ic{font-size:28px;display:block;margin-bottom:6px;}
+  .class-card .nm{font-size:14px;font-weight:700;}
+  .class-card .desc{font-size:11px;color:var(--text-faint);margin-top:2px;}
+  .class-card.selected{border-color:var(--class-color,var(--gold));background:var(--card-hi);}
+
+  /* ---------- top bar ---------- */
+  #topbar{
+    position:sticky;top:0;z-index:20;
+    background:rgba(20,16,31,0.92);backdrop-filter:blur(6px);
+    padding:14px 18px 12px;
+    border-bottom:1px solid var(--border);
+  }
+  .tb-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .tb-id{display:flex;align-items:center;gap:8px;}
+  .tb-id .cls-ic{font-size:18px;}
+  .tb-name{font-weight:700;font-size:14px;}
+  .tb-title{font-size:11px;color:var(--text-dim);}
+  .tb-gold{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:var(--gold);}
+  .xp-wrap{display:flex;align-items:center;gap:8px;}
+  .lv-badge{
+    font-family:var(--font-display);font-weight:700;font-size:13px;
+    background:var(--gold);color:#1B1300;border-radius:8px;padding:3px 8px;flex-shrink:0;
+  }
+  .xp-bar-track{flex:1;height:8px;background:var(--bg-elev);border-radius:5px;overflow:hidden;border:1px solid var(--border);}
+  .xp-bar-fill{height:100%;background:linear-gradient(90deg,#D9A438,#F0C463);border-radius:5px;transition:width .5s ease;}
+  .xp-num{font-size:10px;color:var(--text-faint);white-space:nowrap;}
+
+  /* ---------- home ---------- */
+  .char-stage{
+    display:flex;flex-direction:column;align-items:center;
+    padding:28px 0 18px;
+  }
+  .char-aura{
+    width:150px;height:150px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 50% 40%, var(--card-hi), var(--card) 70%);
+    border:2px solid var(--class-color,var(--gold));
+    box-shadow:0 0 0 6px rgba(231,181,73,0.06), 0 0 30px -8px var(--class-color,var(--gold));
+    font-size:64px;
+    position:relative;
+  }
+  .char-badges{display:flex;gap:6px;margin-top:12px;min-height:22px;}
+  .char-badges span{font-size:16px;}
+  .char-title{font-family:var(--font-display);font-size:19px;font-weight:700;margin-top:14px;text-align:center;}
+  .char-sub{font-size:12px;color:var(--text-dim);margin-top:3px;}
+
+  .section-head{display:flex;justify-content:space-between;align-items:baseline;margin:26px 0 12px;}
+  .section-head h2{font-size:15px;}
+  .section-head .meta{font-size:12px;color:var(--text-faint);}
+
+  .quest-card{
+    display:flex;align-items:center;gap:12px;
+    background:var(--card);border:1px solid var(--border);
+    border-radius:var(--radius-m);padding:13px 14px;margin-bottom:9px;
+    transition:opacity .3s, transform .3s;
+  }
+  .quest-card.done{opacity:0.45;}
+  .quest-check{
+    width:24px;height:24px;border-radius:7px;border:2px solid var(--text-faint);
+    flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;
+    transition:all .15s;
+  }
+  .quest-card.done .quest-check{background:var(--success);border-color:var(--success);}
+  .quest-body{flex:1;min-width:0;}
+  .quest-title{font-size:14px;font-weight:600;}
+  .quest-card.done .quest-title{text-decoration:line-through;color:var(--text-faint);}
+  .quest-meta{font-size:11px;color:var(--text-faint);margin-top:2px;display:flex;gap:6px;align-items:center;}
+  .quest-reward{font-size:11px;color:var(--gold);font-weight:700;white-space:nowrap;}
+  .quest-del{color:var(--text-faint);font-size:16px;padding:4px 6px;background:none;}
+
+  .empty-note{
+    text-align:center;color:var(--text-faint);font-size:13px;
+    padding:26px 10px;border:1px dashed var(--border);border-radius:var(--radius-m);
+  }
+
+  .progress-strip{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius-m);
+    padding:14px 16px;margin-top:4px;
+  }
+  .progress-strip .top{display:flex;justify-content:space-between;font-size:12px;color:var(--text-dim);margin-bottom:8px;}
+  .progress-track{height:9px;background:var(--bg-elev);border-radius:6px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--success),#7ED4A8);border-radius:6px;transition:width .4s;}
+
+  .streak-row{display:flex;gap:8px;align-items:center;margin-top:14px;}
+  .streak-flame{font-size:20px;}
+  .streak-text{font-size:12px;color:var(--text-dim);}
+  .streak-text b{color:var(--text);}
+
+  /* ---------- add quest form ---------- */
+  .fab{
+    position:fixed;bottom:88px;
+    right:calc(max(0px, (100vw - 480px)/2) + 18px);
+    width:52px;height:52px;border-radius:50%;
+    background:linear-gradient(180deg,#F0C463,#D9A438);
+    color:#1B1300;font-size:26px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 18px -4px rgba(0,0,0,0.5);
+    z-index:15;
+  }
+  .fab:active{transform:scale(0.94);}
+
+  .sheet-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:40;
+    display:flex;align-items:flex-end;justify-content:center;
+    opacity:0;pointer-events:none;transition:opacity .2s;
+  }
+  .sheet-overlay.show{opacity:1;pointer-events:auto;}
+  .sheet{
+    width:100%;max-width:480px;background:var(--bg-elev);
+    border-radius:22px 22px 0 0;border:1px solid var(--border);border-bottom:none;
+    padding:22px 20px 28px;
+    transform:translateY(100%);transition:transform .25s ease;
+    max-height:85vh;overflow-y:auto;
+  }
+  .sheet-overlay.show .sheet{transform:translateY(0);}
+  .sheet h3{font-size:17px;margin-bottom:16px;}
+  .field-label{font-size:12px;color:var(--text-dim);margin:14px 0 8px;}
+  .field-label:first-of-type{margin-top:0;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{
+    padding:9px 14px;border-radius:999px;border:1px solid var(--border);
+    background:var(--card);color:var(--text-dim);font-size:13px;font-weight:600;
+  }
+  .chip.active{background:var(--gold);border-color:var(--gold);color:#1B1300;}
+
+  /* ---------- character screen ---------- */
+  .stat-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .stat-label{width:74px;font-size:13px;color:var(--text-dim);display:flex;align-items:center;gap:5px;flex-shrink:0;}
+  .stat-track{flex:1;height:9px;background:var(--bg-elev);border-radius:6px;overflow:hidden;border:1px solid var(--border);}
+  .stat-fill{height:100%;border-radius:6px;background:var(--gold);transition:width .5s;}
+  .stat-val{width:32px;text-align:right;font-size:12px;color:var(--text-faint);font-variant-numeric:tabular-nums;}
+
+  .evo-timeline{border-left:2px solid var(--border);margin-left:8px;padding-left:18px;}
+  .evo-item{position:relative;padding-bottom:22px;}
+  .evo-item:last-child{padding-bottom:0;}
+  .evo-item::before{
+    content:'';position:absolute;left:-23px;top:3px;width:10px;height:10px;border-radius:50%;
+    background:var(--border);
+  }
+  .evo-item.reached::before{background:var(--gold);}
+  .evo-lv{font-size:11px;color:var(--text-faint);}
+  .evo-name{font-size:14px;font-weight:700;margin-top:1px;}
+  .evo-item.reached .evo-name{color:var(--text);}
+  .evo-item:not(.reached) .evo-name{color:var(--text-faint);}
+
+  /* ---------- growth screen ---------- */
+  .stat-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;}
+  .metric-card{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius-m);
+    padding:14px 16px;
+  }
+  .metric-card .num{font-family:var(--font-display);font-size:22px;font-weight:700;}
+  .metric-card .lbl{font-size:11px;color:var(--text-faint);margin-top:2px;}
+
+  .achv-card{
+    display:flex;align-items:center;gap:12px;
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius-m);
+    padding:13px 14px;margin-bottom:9px;
+  }
+  .achv-card.locked{opacity:0.4;}
+  .achv-ic{font-size:24px;width:32px;text-align:center;}
+  .achv-name{font-size:13.5px;font-weight:700;}
+  .achv-desc{font-size:11.5px;color:var(--text-faint);margin-top:2px;}
+
+  /* ---------- bottom nav ---------- */
+  #bottomnav{
+    position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+    width:100%;max-width:480px;
+    background:rgba(27,23,48,0.95);backdrop-filter:blur(8px);
+    border-top:1px solid var(--border);
+    display:flex;z-index:30;
+    padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+  }
+  .nav-item{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+    padding:6px 0;color:var(--text-faint);font-size:10px;font-weight:600;background:none;
+  }
+  .nav-item .ic{font-size:19px;}
+  .nav-item.active{color:var(--gold);}
+
+  /* ---------- overlays: quest clear / level up ---------- */
+  .fx-overlay{
+    position:fixed;inset:0;z-index:60;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(10,8,18,0.7);
+    opacity:0;pointer-events:none;transition:opacity .2s;
+  }
+  .fx-overlay.show{opacity:1;pointer-events:auto;}
+  .fx-card{
+    background:var(--bg-elev);border:1px solid var(--gold-dim);border-radius:20px;
+    padding:34px 30px;text-align:center;min-width:250px;
+    transform:scale(0.8);transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .fx-overlay.show .fx-card{transform:scale(1);}
+  .fx-clear-ic{font-size:40px;}
+  .fx-clear-title{font-family:var(--font-display);font-size:12px;letter-spacing:3px;color:var(--gold);margin:10px 0 6px;}
+  .fx-quest-name{font-size:17px;font-weight:700;margin-bottom:16px;}
+  .fx-reward-row{display:flex;justify-content:center;gap:18px;font-size:14px;font-weight:700;}
+  .fx-reward-row .xp{color:var(--gold);}
+  .fx-reward-row .gold{color:#F0C463;}
+
+  .lu-arrow{font-size:20px;color:var(--text-faint);margin:2px 0;}
+  .lu-lv{font-family:var(--font-display);font-size:34px;font-weight:700;}
+  .lu-lv.new{color:var(--gold);}
+  .lu-unlock{font-size:12px;color:var(--text-dim);margin-top:14px;}
+  .lu-new-title{font-family:var(--font-display);font-size:16px;color:var(--gold);margin-top:4px;}
+
+  .toast{
+    position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-20px);
+    background:var(--card-hi);border:1px solid var(--border);border-radius:12px;
+    padding:10px 18px;font-size:13px;z-index:70;opacity:0;transition:all .25s;
+    pointer-events:none;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* ---------- settings screen ---------- */
+  .settings-card{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius-m);
+    padding:16px;margin-bottom:16px;
+  }
+  .settings-card h3{font-size:14px;margin-bottom:4px;}
+  .settings-card .hint{font-size:11.5px;color:var(--text-faint);margin-bottom:12px;}
+  .settings-card input[type=text]{margin-bottom:12px;}
+  .settings-row{display:flex;gap:8px;}
+  .settings-row .btn{flex:1;}
+  .current-tag{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--bg-elev);border:1px solid var(--border);border-radius:999px;
+    padding:5px 12px;font-size:12px;color:var(--text-dim);margin-bottom:14px;
+  }
+  .current-tag b{color:var(--text);}
+  .class-grid.compact .class-card{padding:12px 8px;}
+  .class-grid.compact .ic{font-size:22px;}
+  .danger-card{border-color:var(--danger);}
+  .danger-card h3{color:var(--danger);}
+  .btn-danger{
+    background:transparent;border:1.5px solid var(--danger);color:var(--danger);
+  }
+  .btn-danger:active{background:rgba(224,102,92,0.12);}
+
+  /* ---------- confirm modal ---------- */
+  .confirm-overlay{
+    position:fixed;inset:0;z-index:80;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(10,8,18,0.72);padding:24px;
+    opacity:0;pointer-events:none;transition:opacity .2s;
+  }
+  .confirm-overlay.show{opacity:1;pointer-events:auto;}
+  .confirm-card{
+    width:100%;max-width:340px;background:var(--bg-elev);
+    border:1px solid var(--danger);border-radius:var(--radius-m);
+    padding:26px 22px 20px;text-align:center;
+    transform:scale(0.9);transition:transform .25s cubic-bezier(.34,1.56,.64,1);
+  }
+  .confirm-overlay.show .confirm-card{transform:scale(1);}
+  .confirm-ic{font-size:32px;margin-bottom:8px;}
+  .confirm-title{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--danger);margin-bottom:12px;}
+  .confirm-body{font-size:13px;color:var(--text-dim);line-height:1.6;margin-bottom:22px;}
+  .confirm-body b{color:var(--text);}
+  .confirm-btn-row{display:flex;gap:10px;}
+  .confirm-btn-row .btn{flex:1;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ===================== ONBOARDING ===================== -->
+  <div id="onboarding">
+    <div class="ob-logo">
+      <div class="mark">⚔️</div>
+      <h1>QUEST PLANNER</h1>
+      <p>현실의 하루를 퀘스트로, 나를 캐릭터로</p>
+    </div>
+
+    <div class="ob-step active" id="ob-step-1">
+      <div class="ob-label">모험가의 이름을 입력하세요</div>
+      <input type="text" id="ob-nickname" maxlength="10" placeholder="닉네임 (최대 10자)">
+      <button class="btn btn-gold btn-block" onclick="obNext()">다음</button>
+    </div>
+
+    <div class="ob-step" id="ob-step-2">
+      <div class="ob-label">직업을 선택하세요</div>
+      <div class="class-grid" id="class-grid"></div>
+      <button class="btn btn-gold btn-block" id="ob-start-btn" onclick="createCharacter()" disabled>모험 시작하기</button>
+      <button class="btn btn-ghost btn-block" style="margin-top:8px;" onclick="obBack()">이전</button>
+    </div>
+  </div>
+
+  <!-- ===================== MAIN APP ===================== -->
+  <div id="mainapp" class="hidden">
+
+    <div id="topbar">
+      <div class="tb-row">
+        <div class="tb-id">
+          <span class="cls-ic" id="tb-cls-ic"></span>
+          <div>
+            <div class="tb-name" id="tb-name"></div>
+            <div class="tb-title" id="tb-title"></div>
+          </div>
+        </div>
+        <div class="tb-gold">🪙 <span id="tb-gold-val">0</span></div>
+      </div>
+      <div class="xp-wrap">
+        <div class="lv-badge">Lv.<span id="tb-level">1</span></div>
+        <div class="xp-bar-track"><div class="xp-bar-fill" id="tb-xp-fill" style="width:0%"></div></div>
+        <div class="xp-num" id="tb-xp-num">0/1000</div>
+      </div>
+    </div>
+
+    <!-- HOME -->
+    <div class="screen" id="screen-home">
+      <div class="char-stage">
+        <div class="char-aura" id="home-char-aura"><span id="home-char-emoji">🧍</span></div>
+        <div class="char-badges" id="home-char-badges"></div>
+        <div class="char-title" id="home-char-title">훈련병</div>
+        <div class="char-sub" id="home-char-sub"></div>
+      </div>
+
+      <div class="progress-strip">
+        <div class="top"><span>오늘의 진행도</span><span id="today-progress-txt">0/0</span></div>
+        <div class="progress-track"><div class="progress-fill" id="today-progress-fill" style="width:0%"></div></div>
+        <div class="streak-row">
+          <span class="streak-flame">🔥</span>
+          <span class="streak-text"><b id="streak-num">0</b>일 연속 출석</span>
+          <button class="btn btn-gold" style="margin-left:auto;padding:7px 12px;font-size:12px;" id="checkin-btn" onclick="doCheckIn()">출석 체크</button>
+        </div>
+      </div>
+
+      <div class="section-head"><h2>오늘의 퀘스트</h2><span class="meta" id="home-date"></span></div>
+      <div id="today-quest-list"></div>
+    </div>
+
+    <!-- QUEST LIST -->
+    <div class="screen hidden" id="screen-quest">
+      <div class="section-head"><h2>전체 퀘스트</h2><span class="meta" id="quest-count-meta"></span></div>
+      <div id="all-quest-list"></div>
+    </div>
+
+    <!-- CHARACTER -->
+    <div class="screen hidden" id="screen-character">
+      <div class="char-stage" style="padding-top:6px;">
+        <div class="char-aura" id="char-char-aura" style="width:120px;height:120px;font-size:50px;"><span id="char-char-emoji">🧍</span></div>
+        <div class="char-title" id="char-char-title" style="font-size:17px;"></div>
+        <div class="char-sub" id="char-char-sub"></div>
+      </div>
+
+      <div class="section-head"><h2>능력치</h2></div>
+      <div id="stat-list"></div>
+
+      <div class="section-head"><h2>성장 단계</h2></div>
+      <div class="evo-timeline" id="evo-timeline"></div>
+    </div>
+
+    <!-- GROWTH -->
+    <div class="screen hidden" id="screen-growth">
+      <div class="section-head" style="margin-top:4px;"><h2>이번 주 리포트</h2></div>
+      <div class="stat-grid-2">
+        <div class="metric-card"><div class="num" id="m-cleared">0</div><div class="lbl">완료 퀘스트</div></div>
+        <div class="metric-card"><div class="num" id="m-xp">0</div><div class="lbl">획득 XP</div></div>
+        <div class="metric-card"><div class="num" id="m-rate">0%</div><div class="lbl">완료율</div></div>
+        <div class="metric-card"><div class="num" id="m-streak">0일</div><div class="lbl">연속 출석</div></div>
+      </div>
+
+      <div class="section-head"><h2>업적</h2><span class="meta" id="achv-meta"></span></div>
+      <div id="achv-list"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="screen hidden" id="screen-settings">
+      <div class="section-head" style="margin-top:4px;"><h2>설정</h2></div>
+
+      <div class="settings-card">
+        <h3>닉네임 변경</h3>
+        <div class="hint">모험가 이름을 새로 정할 수 있습니다.</div>
+        <input type="text" id="set-nickname" maxlength="10" placeholder="닉네임 (최대 10자)">
+        <button class="btn btn-gold btn-block" onclick="changeNickname()">닉네임 저장</button>
+      </div>
+
+      <div class="settings-card">
+        <h3>보직 변경</h3>
+        <div class="hint">직업을 변경하면 캐릭터 모습과 성장 단계가 바뀝니다. 레벨과 경험치는 유지됩니다.</div>
+        <div id="set-current-cls-tag"></div>
+        <div class="class-grid compact" id="set-class-grid"></div>
+        <button class="btn btn-gold btn-block" id="set-cls-btn" onclick="changeClass()" disabled>보직 변경하기</button>
+      </div>
+
+      <div class="settings-card">
+        <h3>📅 캘린더 연동</h3>
+        <div class="hint">일일 퀘스트는 매일 반복 일정으로, 날짜지정 퀘스트는 해당 날짜 일정으로 내보냅니다. 내려받은 .ics 파일을 캘린더 앱에서 "가져오기" 하세요.</div>
+        <button class="btn btn-block" onclick="exportToCalendar()">캘린더 파일(.ics) 내보내기</button>
+      </div>
+
+      <div class="settings-card">
+        <h3>🔔 알림</h3>
+        <div class="hint" id="notif-status-hint">앱이 켜져 있는 동안 미완료 퀘스트를 알려드려요. (기기 브라우저 알림 권한 필요)</div>
+        <div class="settings-row">
+          <button class="btn" id="notif-permission-btn" onclick="requestNotifPermission()">알림 켜기</button>
+          <button class="btn btn-ghost" onclick="sendTestNotification()">테스트 알림</button>
+        </div>
+      </div>
+
+      <div class="settings-card" id="pwa-install-card">
+        <h3>📱 앱으로 설치</h3>
+        <div class="hint">홈 화면에 추가하면 앱처럼 아이콘을 눌러 바로 실행할 수 있어요.</div>
+        <button class="btn btn-gold btn-block" id="pwa-install-btn" onclick="installPWA()" disabled>홈 화면에 추가</button>
+      </div>
+
+      <div class="settings-card danger-card">
+        <h3>회귀</h3>
+        <div class="hint">캐릭터를 처음부터 다시 시작합니다. 닉네임, 보직, 레벨, 퀘스트, 업적이 모두 초기화되며 되돌릴 수 없습니다.</div>
+        <button class="btn btn-danger btn-block" onclick="openRegressConfirm()">회귀하기</button>
+      </div>
+    </div>
+
+    <div class="fab" onclick="openAddSheet()">+</div>
+
+    <div id="bottomnav">
+      <button class="nav-item active" data-tab="home" onclick="switchTab('home')"><span class="ic">🏠</span>홈</button>
+      <button class="nav-item" data-tab="quest" onclick="switchTab('quest')"><span class="ic">⚔️</span>퀘스트</button>
+      <button class="nav-item" data-tab="character" onclick="switchTab('character')"><span class="ic">🧙</span>캐릭터</button>
+      <button class="nav-item" data-tab="growth" onclick="switchTab('growth')"><span class="ic">🏆</span>성장</button>
+      <button class="nav-item" data-tab="settings" onclick="switchTab('settings')"><span class="ic">⚙️</span>설정</button>
+    </div>
+  </div>
+
+  <!-- ADD QUEST SHEET -->
+  <div class="sheet-overlay" id="add-sheet-overlay" onclick="closeAddSheetOnBg(event)">
+    <div class="sheet" onclick="event.stopPropagation()">
+      <h3>새 퀘스트 등록</h3>
+      <input type="text" id="nq-title" placeholder="퀘스트 이름 (예: 30분 운동하기)">
+
+      <div class="field-label">종류</div>
+      <div class="chip-row" id="nq-type-row">
+        <button class="chip active" data-val="daily" onclick="selectChip(this,'nq-type-row');onQuestTypeChange()">일일 퀘스트</button>
+        <button class="chip" data-val="once" onclick="selectChip(this,'nq-type-row');onQuestTypeChange()">일회성</button>
+        <button class="chip" data-val="dated" onclick="selectChip(this,'nq-type-row');onQuestTypeChange()">날짜지정</button>
+      </div>
+
+      <div class="field-label hidden" id="nq-date-label">수행할 날짜</div>
+      <input type="date" id="nq-date" class="hidden" style="margin-bottom:14px;">
+
+      <div class="field-label">카테고리</div>
+      <div class="chip-row" id="nq-cat-row">
+        <button class="chip active" data-val="운동" onclick="selectChip(this,'nq-cat-row')">🏃 운동</button>
+        <button class="chip" data-val="공부" onclick="selectChip(this,'nq-cat-row')">📚 공부</button>
+        <button class="chip" data-val="창작" onclick="selectChip(this,'nq-cat-row')">🎨 창작</button>
+        <button class="chip" data-val="생활" onclick="selectChip(this,'nq-cat-row')">🧹 생활</button>
+        <button class="chip" data-val="사회" onclick="selectChip(this,'nq-cat-row')">🤝 사회</button>
+        <button class="chip" data-val="기타" onclick="selectChip(this,'nq-cat-row')">✨ 기타</button>
+      </div>
+
+      <div class="field-label">난이도 · 보상</div>
+      <div class="chip-row" id="nq-diff-row">
+        <button class="chip" data-val="easy" data-xp="50" onclick="selectChip(this,'nq-diff-row')">쉬움 +50XP</button>
+        <button class="chip active" data-val="normal" data-xp="100" onclick="selectChip(this,'nq-diff-row')">보통 +100XP</button>
+        <button class="chip" data-val="hard" data-xp="200" onclick="selectChip(this,'nq-diff-row')">어려움 +200XP</button>
+        <button class="chip" data-val="veryhard" data-xp="500" onclick="selectChip(this,'nq-diff-row')">매우어려움 +500XP</button>
+      </div>
+
+      <button class="btn btn-gold btn-block" style="margin-top:22px;" onclick="submitNewQuest()">퀘스트 등록</button>
+    </div>
+  </div>
+
+  <!-- QUEST CLEAR FX -->
+  <div class="fx-overlay" id="fx-clear-overlay">
+    <div class="fx-card">
+      <div class="fx-clear-ic">⚔️</div>
+      <div class="fx-clear-title">QUEST CLEAR</div>
+      <div class="fx-quest-name" id="fx-quest-name"></div>
+      <div class="fx-reward-row">
+        <span class="xp" id="fx-xp-reward"></span>
+        <span class="gold" id="fx-gold-reward"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEVEL UP FX -->
+  <div class="fx-overlay" id="fx-levelup-overlay">
+    <div class="fx-card">
+      <div class="fx-clear-ic">✨</div>
+      <div class="fx-clear-title">LEVEL UP</div>
+      <div class="lu-lv" id="lu-old-lv"></div>
+      <div class="lu-arrow">↓</div>
+      <div class="lu-lv new" id="lu-new-lv"></div>
+      <div class="lu-unlock">새로운 모습이 해금되었습니다</div>
+      <div class="lu-new-title" id="lu-new-title"></div>
+    </div>
+  </div>
+
+  <!-- REGRESSION CONFIRM MODAL -->
+  <div class="confirm-overlay" id="regress-confirm-overlay">
+    <div class="confirm-card">
+      <div class="confirm-ic">⏳</div>
+      <div class="confirm-title">회귀</div>
+      <div class="confirm-body" id="regress-confirm-body"></div>
+      <div class="confirm-btn-row">
+        <button class="btn btn-ghost" onclick="closeRegressConfirm()">아니오</button>
+        <button class="btn btn-danger" onclick="confirmRegress()">예</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+</div>
+
+<script>
+/* ===================== DATA ===================== */
+const CLASSES = {
+  warrior:{ name:'전사', color:'var(--warrior)', icon:'⚔️', desc:'힘과 체력',
+    evo:[
+      {lv:1,title:'훈련병',emoji:'🧍',badges:[]},
+      {lv:5,title:'견습 모험가',emoji:'🗡️',badges:['🗡️']},
+      {lv:10,title:'초급 용사',emoji:'⚔️',badges:['⚔️','🛡️']},
+      {lv:20,title:'기사',emoji:'🛡️',badges:['⚔️','🛡️','🎖️']},
+      {lv:30,title:'왕국 친위대장',emoji:'👑',badges:['⚔️','🛡️','👑']},
+      {lv:50,title:'전설의 영웅',emoji:'🔥',badges:['⚔️','🔥','👑','✨']},
+      {lv:100,title:'전쟁의 신',emoji:'💥',badges:['⚔️','🔥','👑','✨','🌟']},
+    ]},
+  mage:{ name:'마법사', color:'var(--mage)', icon:'🧙', desc:'지능과 마력',
+    evo:[
+      {lv:1,title:'견습 마도사',emoji:'🧑‍🎓',badges:[]},
+      {lv:5,title:'초급 마법사',emoji:'🔮',badges:['🔮']},
+      {lv:10,title:'원소술사',emoji:'✨',badges:['🔮','📘']},
+      {lv:20,title:'궁정 마법사',emoji:'🧙',badges:['🔮','📘','🎖️']},
+      {lv:30,title:'대마도사',emoji:'🌌',badges:['🔮','📘','🌌']},
+      {lv:50,title:'현자',emoji:'⚡',badges:['🔮','⚡','📘','✨']},
+      {lv:100,title:'시공의 지배자',emoji:'🌠',badges:['🔮','⚡','🌌','✨','🌟']},
+    ]},
+  archer:{ name:'궁수', color:'var(--archer)', icon:'🏹', desc:'민첩과 정확도',
+    evo:[
+      {lv:1,title:'견습 사냥꾼',emoji:'🧍',badges:[]},
+      {lv:5,title:'숲의 관찰자',emoji:'🏹',badges:['🏹']},
+      {lv:10,title:'정예 궁수',emoji:'🎯',badges:['🏹','🎯']},
+      {lv:20,title:'바람의 저격수',emoji:'🍃',badges:['🏹','🎯','🎖️']},
+      {lv:30,title:'왕실 궁수대장',emoji:'👑',badges:['🏹','🎯','👑']},
+      {lv:50,title:'전설의 명궁',emoji:'🔥',badges:['🏹','🎯','🔥','✨']},
+      {lv:100,title:'천리의 신궁',emoji:'🌟',badges:['🏹','🎯','🔥','✨','🌟']},
+    ]},
+  rogue:{ name:'도적', color:'var(--rogue)', icon:'🗡️', desc:'민첩과 은신',
+    evo:[
+      {lv:1,title:'뒷골목 소년',emoji:'🧍',badges:[]},
+      {lv:5,title:'그림자 견습생',emoji:'🥷',badges:['🗡️']},
+      {lv:10,title:'날쌘 도적',emoji:'⚡',badges:['🗡️','🌑']},
+      {lv:20,title:'그림자 무희',emoji:'🌑',badges:['🗡️','🌑','🎖️']},
+      {lv:30,title:'암살단 부단주',emoji:'💀',badges:['🗡️','🌑','💀']},
+      {lv:50,title:'전설의 그림자',emoji:'🔮',badges:['🗡️','💀','🔮','✨']},
+      {lv:100,title:'밤의 지배자',emoji:'🌌',badges:['🗡️','💀','🔮','✨','🌟']},
+    ]},
+  paladin:{ name:'성기사', color:'var(--paladin)', icon:'🛡️', desc:'의지와 방어',
+    evo:[
+      {lv:1,title:'신전 견습생',emoji:'🧍',badges:[]},
+      {lv:5,title:'수련 성기사',emoji:'🛡️',badges:['🛡️']},
+      {lv:10,title:'서약의 기사',emoji:'✝️',badges:['🛡️','✝️']},
+      {lv:20,title:'빛의 수호자',emoji:'💫',badges:['🛡️','✝️','🎖️']},
+      {lv:30,title:'신전 기사단장',emoji:'👑',badges:['🛡️','✝️','👑']},
+      {lv:50,title:'전설의 성기사',emoji:'🔆',badges:['🛡️','👑','🔆','✨']},
+      {lv:100,title:'빛의 대심판관',emoji:'🌟',badges:['🛡️','👑','🔆','✨','🌟']},
+    ]},
+  alchemist:{ name:'연금술사', color:'var(--alchemist)', icon:'🔮', desc:'창의력과 지능',
+    evo:[
+      {lv:1,title:'견습 연금술사',emoji:'🧑‍🔬',badges:[]},
+      {lv:5,title:'초급 조제사',emoji:'⚗️',badges:['⚗️']},
+      {lv:10,title:'물질 변환가',emoji:'🧪',badges:['⚗️','🧪']},
+      {lv:20,title:'궁정 연금술사',emoji:'💠',badges:['⚗️','🧪','🎖️']},
+      {lv:30,title:'현자의 돌 수호자',emoji:'💎',badges:['⚗️','🧪','💎']},
+      {lv:50,title:'전설의 연금왕',emoji:'🌈',badges:['⚗️','💎','🌈','✨']},
+      {lv:100,title:'창조의 대가',emoji:'🌟',badges:['⚗️','💎','🌈','✨','🌟']},
+    ]},
+};
+
+const CATEGORY_STAT = {
+  '운동':{stat:'체력',amt:5},
+  '공부':{stat:'지능',amt:5},
+  '창작':{stat:'창의력',amt:5},
+  '생활':{stat:'의지',amt:3},
+  '사회':{stat:'사회성',amt:3},
+  '기타':{stat:'힘',amt:3},
+};
+const STAT_ORDER = ['힘','체력','지능','민첩','의지','창의력','사회성'];
+const STAT_ICON = {힘:'💪',체력:'❤️',지능:'🧠',민첩:'⚡',의지:'🔥',창의력:'🎨',사회성:'🤝'};
+
+const ACHIEVEMENTS = [
+  {id:'first_quest', name:'첫 번째 퀘스트', desc:'첫 퀘스트를 완료했습니다', icon:'🏆', cond:s=>s.totalCleared>=1},
+  {id:'diligent_50', name:'성실한 모험가', desc:'퀘스트 50개 완료', icon:'🏅', cond:s=>s.totalCleared>=50},
+  {id:'streak_7', name:'불굴의 의지', desc:'7일 연속 출석', icon:'🔥', cond:s=>s.streak>=7},
+  {id:'streak_30', name:'전설의 습관', desc:'30일 연속 출석', icon:'🌟', cond:s=>s.streak>=30},
+  {id:'lv10', name:'전설의 시작', desc:'Lv.10 달성', icon:'⚔️', cond:s=>s.level>=10},
+  {id:'lv30', name:'왕국의 인재', desc:'Lv.30 달성', icon:'👑', cond:s=>s.level>=30},
+  {id:'lv50', name:'인간계 최강', desc:'Lv.50 달성', icon:'🌈', cond:s=>s.level>=50},
+];
+
+/* ===================== STATE ===================== */
+let state = null;
+const STORAGE_KEY = 'quest-planner-state';
+
+function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+function defaultState(){
+  return {
+    character:null, // {nickname, cls}
+    totalXP:0,
+    gold:0,
+    stats:{힘:10,체력:10,지능:10,민첩:10,의지:10,창의력:10,사회성:10},
+    quests:[], // {id,title,type,category,difficulty,xp,gold,status,completedDate}
+    streak:0,
+    lastCheckIn:null,
+    lastQuestDate:null,
+    totalCleared:0,
+    unlockedAchv:[],
+    weekLog:[], // {date, xp, cleared:bool count}
+    lastNotifyDate:null,
+  };
+}
+
+async function loadState(){
+  try{
+    if(window.storage){
+      const res = await window.storage.get(STORAGE_KEY);
+      state = (res && res.value) ? JSON.parse(res.value) : defaultState();
+    } else {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      state = raw ? JSON.parse(raw) : defaultState();
+    }
+  }catch(e){ state = defaultState(); }
+  state = Object.assign(defaultState(), state);
+}
+async function saveState(){
+  try{
+    if(window.storage){ await window.storage.set(STORAGE_KEY, JSON.stringify(state)); }
+    else { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  }catch(e){ console.error('save failed', e); }
+}
+
+/* ===================== LEVEL / XP MATH ===================== */
+function levelFromXP(xp){ return Math.floor(xp/1000)+1; }
+function xpIntoLevel(xp){ return xp % 1000; }
+function evoStageFor(cls, level){
+  const stages = CLASSES[cls].evo;
+  let cur = stages[0];
+  for(const st of stages){ if(level>=st.lv) cur = st; }
+  return cur;
+}
+function nextEvoStage(cls, level){
+  const stages = CLASSES[cls].evo;
+  for(const st of stages){ if(st.lv>level) return st; }
+  return null;
+}
+
+/* ===================== ONBOARDING ===================== */
+let selectedClass = null;
+function renderClassGrid(){
+  const grid = document.getElementById('class-grid');
+  grid.innerHTML='';
+  Object.entries(CLASSES).forEach(([key,c])=>{
+    const div = document.createElement('div');
+    div.className='class-card';
+    div.style.setProperty('--class-color', c.color);
+    div.onclick = ()=>{ selectedClass=key;
+      document.querySelectorAll('.class-card').forEach(el=>el.classList.remove('selected'));
+      div.classList.add('selected');
+      document.getElementById('ob-start-btn').disabled=false;
+    };
+    div.innerHTML = `<span class="ic">${c.icon}</span><span class="nm">${c.name}</span><span class="desc">${c.desc}</span>`;
+    grid.appendChild(div);
+  });
+}
+function obNext(){
+  const nick = document.getElementById('ob-nickname').value.trim();
+  if(!nick){ toast('닉네임을 입력해주세요'); return; }
+  document.getElementById('ob-step-1').classList.remove('active');
+  document.getElementById('ob-step-2').classList.add('active');
+}
+function obBack(){
+  document.getElementById('ob-step-2').classList.remove('active');
+  document.getElementById('ob-step-1').classList.add('active');
+}
+async function createCharacter(){
+  if(!selectedClass) return;
+  const nick = document.getElementById('ob-nickname').value.trim() || '모험가';
+  state.character = { nickname:nick, cls:selectedClass };
+  await saveState();
+  document.getElementById('onboarding').classList.add('hidden');
+  document.getElementById('mainapp').classList.remove('hidden');
+  renderAll();
+}
+
+/* ===================== RENDER: TOPBAR + HOME CHAR ===================== */
+function renderTopbar(){
+  const cls = CLASSES[state.character.cls];
+  const level = levelFromXP(state.totalXP);
+  const xpInto = xpIntoLevel(state.totalXP);
+  const stage = evoStageFor(state.character.cls, level);
+  document.getElementById('tb-cls-ic').textContent = cls.icon;
+  document.getElementById('tb-name').textContent = state.character.nickname;
+  document.getElementById('tb-title').textContent = `${cls.name} · ${stage.title}`;
+  document.getElementById('tb-gold-val').textContent = state.gold;
+  document.getElementById('tb-level').textContent = level;
+  document.getElementById('tb-xp-fill').style.width = (xpInto/10)+'%';
+  document.getElementById('tb-xp-num').textContent = `${xpInto}/1000`;
+}
+function renderCharacterVisual(prefix){
+  const cls = CLASSES[state.character.cls];
+  const level = levelFromXP(state.totalXP);
+  const stage = evoStageFor(state.character.cls, level);
+  document.getElementById(prefix+'-char-aura').style.setProperty('--class-color', cls.color);
+  document.getElementById(prefix+'-char-emoji').textContent = stage.emoji;
+  document.getElementById(prefix+'-char-title').textContent = `Lv.${level} ${stage.title}`;
+  if(document.getElementById(prefix+'-char-sub'))
+    document.getElementById(prefix+'-char-sub').textContent = `${cls.name} · ${state.character.nickname}`;
+  if(prefix==='home'){
+    const badgeWrap = document.getElementById('home-char-badges');
+    badgeWrap.innerHTML = stage.badges.map(b=>`<span>${b}</span>`).join('');
+  }
+}
+
+/* ===================== TODAY'S QUESTS ===================== */
+function todaysQuests(){
+  const t = todayStr();
+  return state.quests.filter(q=>{
+    if(q.type==='daily') return true;
+    if(q.type==='once') return q.status!=='done' || q.completedDate===t;
+    if(q.type==='dated') return q.dueDate===t || (q.status==='done' && q.completedDate===t);
+    return false;
+  });
+}
+function renderHome(){
+  document.getElementById('home-date').textContent = new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
+  const t = todayStr();
+  const list = todaysQuests();
+  const wrap = document.getElementById('today-quest-list');
+  wrap.innerHTML='';
+  if(list.length===0){
+    wrap.innerHTML = `<div class="empty-note">아직 등록된 퀘스트가 없습니다.<br>오른쪽 하단 + 버튼으로 첫 퀘스트를 등록해보세요.</div>`;
+  } else {
+    list.forEach(q=> wrap.appendChild(questCardEl(q, t)) );
+  }
+  const done = list.filter(q=> q.type==='daily' ? q.lastDoneDate===t : q.status==='done').length;
+  const total = list.length;
+  document.getElementById('today-progress-txt').textContent = `${done}/${total}`;
+  document.getElementById('today-progress-fill').style.width = total? (done/total*100)+'%' : '0%';
+  document.getElementById('streak-num').textContent = state.streak;
+  const ci = document.getElementById('checkin-btn');
+  if(state.lastCheckIn===t){ ci.textContent='출석 완료'; ci.disabled=true; ci.style.opacity=0.5; }
+  else { ci.textContent='출석 체크'; ci.disabled=false; ci.style.opacity=1; }
+}
+function questCardEl(q, t){
+  const isDoneToday = q.type==='daily' ? q.lastDoneDate===t : q.status==='done';
+  const div = document.createElement('div');
+  div.className = 'quest-card' + (isDoneToday?' done':'');
+  const isOverdue = q.type==='dated' && q.status!=='done' && q.dueDate && q.dueDate < t;
+  const datePill = q.type==='dated' ? `<span class="pill quest-date-pill${isOverdue?' overdue':''}">📅 ${formatDatePill(q.dueDate)}${isOverdue?' 지남':''}</span>` : '';
+  div.innerHTML = `
+    <div class="quest-check">${isDoneToday?'✓':''}</div>
+    <div class="quest-body">
+      <div class="quest-title">${escapeHtml(q.title)}</div>
+      <div class="quest-meta"><span class="pill">${catIcon(q.category)} ${q.category}</span><span>${diffLabel(q.difficulty)}</span>${datePill}</div>
+    </div>
+    <div class="quest-reward">+${q.xp}XP</div>
+    <button class="quest-del" onclick="event.stopPropagation();deleteQuest('${q.id}')">✕</button>
+  `;
+  div.querySelector('.quest-check').onclick = ()=> toggleQuest(q.id);
+  div.querySelector('.quest-body').onclick = ()=> toggleQuest(q.id);
+  return div;
+}
+function catIcon(cat){ return {'운동':'🏃','공부':'📚','창작':'🎨','생활':'🧹','사회':'🤝','기타':'✨'}[cat]||'✨'; }
+function diffLabel(d){ return {easy:'쉬움',normal:'보통',hard:'어려움',veryhard:'매우어려움'}[d]||'보통'; }
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+function formatDatePill(dateStr){
+  if(!dateStr) return '';
+  const [y,m,d] = dateStr.split('-');
+  return `${parseInt(m,10)}/${parseInt(d,10)}`;
+}
+
+/* ===================== ALL QUESTS TAB ===================== */
+function renderAllQuests(){
+  const wrap = document.getElementById('all-quest-list');
+  wrap.innerHTML='';
+  document.getElementById('quest-count-meta').textContent = `총 ${state.quests.length}개`;
+  if(state.quests.length===0){ wrap.innerHTML = `<div class="empty-note">등록된 퀘스트가 없습니다.</div>`; return; }
+  const t = todayStr();
+  [...state.quests].reverse().forEach(q=> wrap.appendChild(questCardEl(q,t)) );
+}
+
+/* ===================== QUEST ACTIONS ===================== */
+function genId(){ return 'q_'+Date.now()+'_'+Math.floor(Math.random()*10000); }
+
+let chipDiffXP = {easy:50,normal:100,hard:200,veryhard:500};
+function selectChip(el, rowId){
+  document.querySelectorAll('#'+rowId+' .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+function openAddSheet(){
+  document.getElementById('nq-title').value='';
+  document.querySelectorAll('#nq-type-row .chip').forEach(c=>c.classList.remove('active'));
+  document.querySelector('#nq-type-row .chip[data-val="daily"]').classList.add('active');
+  document.getElementById('nq-date').value='';
+  document.getElementById('nq-date').min = todayStr();
+  onQuestTypeChange();
+  document.getElementById('add-sheet-overlay').classList.add('show');
+}
+function onQuestTypeChange(){
+  const type = document.querySelector('#nq-type-row .chip.active').dataset.val;
+  const isDated = type==='dated';
+  document.getElementById('nq-date-label').classList.toggle('hidden', !isDated);
+  document.getElementById('nq-date').classList.toggle('hidden', !isDated);
+  if(isDated && !document.getElementById('nq-date').value){
+    document.getElementById('nq-date').value = todayStr();
+  }
+}
+function closeAddSheet(){ document.getElementById('add-sheet-overlay').classList.remove('show'); }
+function closeAddSheetOnBg(e){ if(e.target.id==='add-sheet-overlay') closeAddSheet(); }
+
+async function submitNewQuest(){
+  const title = document.getElementById('nq-title').value.trim();
+  if(!title){ toast('퀘스트 이름을 입력해주세요'); return; }
+  const type = document.querySelector('#nq-type-row .chip.active').dataset.val;
+  const cat = document.querySelector('#nq-cat-row .chip.active').dataset.val;
+  const diffEl = document.querySelector('#nq-diff-row .chip.active');
+  const difficulty = diffEl.dataset.val;
+  const xp = parseInt(diffEl.dataset.xp,10);
+  const gold = Math.round(xp/5);
+  let dueDate = null;
+  if(type==='dated'){
+    dueDate = document.getElementById('nq-date').value;
+    if(!dueDate){ toast('날짜를 선택해주세요'); return; }
+  }
+  const q = { id:genId(), title, type, category:cat, difficulty, xp, gold, status:'active', lastDoneDate:null, completedDate:null, dueDate };
+  state.quests.push(q);
+  await saveState();
+  closeAddSheet();
+  renderAll();
+  toast('퀘스트가 등록되었습니다');
+}
+async function deleteQuest(id){
+  state.quests = state.quests.filter(q=>q.id!==id);
+  await saveState();
+  renderAll();
+}
+
+async function toggleQuest(id){
+  const q = state.quests.find(x=>x.id===id);
+  if(!q) return;
+  const t = todayStr();
+  const isDone = q.type==='daily' ? q.lastDoneDate===t : q.status==='done';
+  if(isDone){
+    // undo
+    if(q.type==='daily') q.lastDoneDate=null; else { q.status='active'; q.completedDate=null; }
+    state.totalXP = Math.max(0, state.totalXP - q.xp);
+    state.gold = Math.max(0, state.gold - q.gold);
+    state.totalCleared = Math.max(0, state.totalCleared-1);
+    await saveState();
+    renderAll();
+    return;
+  }
+  // complete
+  if(q.type==='daily') q.lastDoneDate=t; else { q.status='done'; q.completedDate=t; }
+  const beforeLevel = levelFromXP(state.totalXP);
+  state.totalXP += q.xp;
+  state.gold += q.gold;
+  state.totalCleared += 1;
+  const statInfo = CATEGORY_STAT[q.category];
+  if(statInfo) state.stats[statInfo.stat] = (state.stats[statInfo.stat]||0) + statInfo.amt;
+  logToday(q.xp);
+  await saveState();
+
+  showClearFx(q.title, q.xp, q.gold);
+  const afterLevel = levelFromXP(state.totalXP);
+  setTimeout(async ()=>{
+    hideClearFx();
+    if(afterLevel>beforeLevel){
+      showLevelUpFx(beforeLevel, afterLevel);
+      await new Promise(r=>setTimeout(r,1900));
+      hideLevelUpFx();
+    }
+    checkAchievements();
+    await saveState();
+    renderAll();
+  }, 1100);
+}
+
+function logToday(xpGain){
+  const t = todayStr();
+  let entry = state.weekLog.find(e=>e.date===t);
+  if(!entry){ entry={date:t,xp:0,cleared:0}; state.weekLog.push(entry); }
+  entry.xp += xpGain; entry.cleared += 1;
+  state.weekLog = state.weekLog.filter(e=>{
+    const diff = (new Date(t) - new Date(e.date))/86400000;
+    return diff < 7;
+  });
+}
+
+async function doCheckIn(){
+  const t = todayStr();
+  if(state.lastCheckIn===t) return;
+  const yesterday = new Date(Date.now()-86400000);
+  const yStr = yesterday.getFullYear()+'-'+String(yesterday.getMonth()+1).padStart(2,'0')+'-'+String(yesterday.getDate()).padStart(2,'0');
+  state.streak = (state.lastCheckIn===yStr) ? state.streak+1 : 1;
+  state.lastCheckIn = t;
+  const beforeLevel = levelFromXP(state.totalXP);
+  state.totalXP += 50;
+  logToday(50);
+  await saveState();
+  showClearFx('출석 체크', 50, 0);
+  const afterLevel = levelFromXP(state.totalXP);
+  setTimeout(async ()=>{
+    hideClearFx();
+    if(afterLevel>beforeLevel){
+      showLevelUpFx(beforeLevel, afterLevel);
+      await new Promise(r=>setTimeout(r,1900));
+      hideLevelUpFx();
+    }
+    checkAchievements();
+    await saveState();
+    renderAll();
+  }, 1100);
+}
+
+/* ===================== FX ===================== */
+function showClearFx(title, xp, gold){
+  document.getElementById('fx-quest-name').textContent = title;
+  document.getElementById('fx-xp-reward').textContent = '+'+xp+' XP';
+  document.getElementById('fx-gold-reward').textContent = gold>0 ? '+'+gold+' GOLD' : '';
+  document.getElementById('fx-clear-overlay').classList.add('show');
+}
+function hideClearFx(){ document.getElementById('fx-clear-overlay').classList.remove('show'); }
+function showLevelUpFx(oldLv, newLv){
+  document.getElementById('lu-old-lv').textContent = 'Lv.'+oldLv;
+  document.getElementById('lu-new-lv').textContent = 'Lv.'+newLv;
+  const stage = evoStageFor(state.character.cls, newLv);
+  const prevStage = evoStageFor(state.character.cls, oldLv);
+  document.getElementById('lu-new-title').textContent = stage.title!==prevStage.title ? stage.title : '';
+  document.getElementById('fx-levelup-overlay').classList.add('show');
+}
+function hideLevelUpFx(){ document.getElementById('fx-levelup-overlay').classList.remove('show'); }
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+/* ===================== CHARACTER SCREEN ===================== */
+function renderCharacterScreen(){
+  renderCharacterVisual('char');
+  const wrap = document.getElementById('stat-list');
+  wrap.innerHTML='';
+  const max = Math.max(100, ...STAT_ORDER.map(s=>state.stats[s]||0));
+  STAT_ORDER.forEach(s=>{
+    const val = state.stats[s]||0;
+    const div = document.createElement('div');
+    div.className='stat-row';
+    div.innerHTML = `
+      <div class="stat-label">${STAT_ICON[s]} ${s}</div>
+      <div class="stat-track"><div class="stat-fill" style="width:${Math.min(100,val/max*100)}%"></div></div>
+      <div class="stat-val">${val}</div>`;
+    wrap.appendChild(div);
+  });
+
+  const level = levelFromXP(state.totalXP);
+  const tl = document.getElementById('evo-timeline');
+  tl.innerHTML='';
+  CLASSES[state.character.cls].evo.forEach(st=>{
+    const reached = level>=st.lv;
+    const div = document.createElement('div');
+    div.className='evo-item'+(reached?' reached':'');
+    div.innerHTML = `<div class="evo-lv">Lv.${st.lv}</div><div class="evo-name">${st.emoji} ${st.title}</div>`;
+    tl.appendChild(div);
+  });
+}
+
+/* ===================== GROWTH SCREEN ===================== */
+function renderGrowth(){
+  const cleared = state.weekLog.reduce((a,e)=>a+e.cleared,0);
+  const xp = state.weekLog.reduce((a,e)=>a+e.xp,0);
+  const totalQuestSlots = state.weekLog.length ? state.weekLog.reduce((a,e)=>a+e.cleared,0) : 0;
+  const rate = state.quests.length ? Math.round((cleared / Math.max(cleared, state.quests.filter(q=>q.type==='daily').length*7 || cleared || 1))*100) : 0;
+  document.getElementById('m-cleared').textContent = cleared;
+  document.getElementById('m-xp').textContent = xp;
+  document.getElementById('m-rate').textContent = Math.min(100,rate)+'%';
+  document.getElementById('m-streak').textContent = state.streak+'일';
+
+  const wrap = document.getElementById('achv-list');
+  wrap.innerHTML='';
+  const unlockedCount = ACHIEVEMENTS.filter(a=>state.unlockedAchv.includes(a.id)).length;
+  document.getElementById('achv-meta').textContent = `${unlockedCount}/${ACHIEVEMENTS.length}`;
+  ACHIEVEMENTS.forEach(a=>{
+    const unlocked = state.unlockedAchv.includes(a.id);
+    const div = document.createElement('div');
+    div.className='achv-card'+(unlocked?'':' locked');
+    div.innerHTML = `<div class="achv-ic">${a.icon}</div><div><div class="achv-name">${a.name}</div><div class="achv-desc">${a.desc}</div></div>`;
+    wrap.appendChild(div);
+  });
+}
+function checkAchievements(){
+  const snapshot = { totalCleared: state.totalCleared, streak: state.streak, level: levelFromXP(state.totalXP) };
+  ACHIEVEMENTS.forEach(a=>{
+    if(!state.unlockedAchv.includes(a.id) && a.cond(snapshot)){
+      state.unlockedAchv.push(a.id);
+      toast(`🏆 업적 달성: ${a.name}`);
+    }
+  });
+}
+
+/* ===================== SETTINGS SCREEN ===================== */
+let selectedSetClass = null;
+function renderSettings(){
+  document.getElementById('set-nickname').value = state.character.nickname;
+  updateNotifButtonUI();
+
+  const cls = CLASSES[state.character.cls];
+  document.getElementById('set-current-cls-tag').innerHTML =
+    `<div class="current-tag">현재 보직: <b>${cls.icon} ${cls.name}</b></div>`;
+
+  selectedSetClass = null;
+  document.getElementById('set-cls-btn').disabled = true;
+
+  const grid = document.getElementById('set-class-grid');
+  grid.innerHTML='';
+  Object.entries(CLASSES).forEach(([key,c])=>{
+    const div = document.createElement('div');
+    div.className='class-card'+(key===state.character.cls?' selected':'');
+    div.style.setProperty('--class-color', c.color);
+    div.onclick = ()=>{
+      selectedSetClass = key;
+      document.querySelectorAll('#set-class-grid .class-card').forEach(el=>el.classList.remove('selected'));
+      div.classList.add('selected');
+      document.getElementById('set-cls-btn').disabled = (key===state.character.cls);
+    };
+    div.innerHTML = `<span class="ic">${c.icon}</span><span class="nm">${c.name}</span><span class="desc">${c.desc}</span>`;
+    grid.appendChild(div);
+  });
+}
+
+async function changeNickname(){
+  const nick = document.getElementById('set-nickname').value.trim();
+  if(!nick){ toast('닉네임을 입력해주세요'); return; }
+  if(nick === state.character.nickname){ toast('현재 닉네임과 동일합니다'); return; }
+  state.character.nickname = nick;
+  await saveState();
+  renderAll();
+  toast('닉네임이 변경되었습니다');
+}
+
+async function changeClass(){
+  if(!selectedSetClass || selectedSetClass===state.character.cls) return;
+  state.character.cls = selectedSetClass;
+  await saveState();
+  renderAll();
+  renderSettings();
+  toast(`보직이 ${CLASSES[selectedSetClass].name}(으)로 변경되었습니다`);
+}
+
+function openRegressConfirm(){
+  const cls = CLASSES[state.character.cls];
+  document.getElementById('regress-confirm-body').innerHTML =
+    `닉네임 <b>${escapeHtml(state.character.nickname)}</b>, 보직 <b>${cls.icon} ${cls.name}</b><br>`+
+    `모든 레벨, 퀘스트, 업적 기록이 사라집니다.<br><br>정말로 회귀하시겠습니까?`;
+  document.getElementById('regress-confirm-overlay').classList.add('show');
+}
+function closeRegressConfirm(){
+  document.getElementById('regress-confirm-overlay').classList.remove('show');
+}
+async function confirmRegress(){
+  state = defaultState();
+  await saveState();
+  closeRegressConfirm();
+  document.getElementById('mainapp').classList.add('hidden');
+  document.getElementById('onboarding').classList.remove('hidden');
+  document.getElementById('ob-step-2').classList.remove('active');
+  document.getElementById('ob-step-1').classList.add('active');
+  document.getElementById('ob-nickname').value='';
+  selectedClass = null;
+  document.getElementById('ob-start-btn').disabled = true;
+  renderClassGrid();
+  toast('회귀했습니다. 새로운 모험을 시작하세요');
+}
+
+/* ===================== CALENDAR EXPORT (.ics) ===================== */
+function icsDate(dateStr){ return dateStr.replace(/-/g,''); }
+function icsEscape(s){ return String(s).replace(/([,;])/g,'\\$1'); }
+function exportToCalendar(){
+  const exportable = state.quests.filter(q=> q.type==='daily' || (q.type==='dated' && q.dueDate));
+  if(exportable.length===0){ toast('내보낼 일정이 있는 퀘스트가 없습니다'); return; }
+  const todayIcs = icsDate(todayStr());
+  const now = new Date().toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+  const lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Quest Planner//KO','CALSCALE:GREGORIAN'];
+  exportable.forEach(q=>{
+    const uid = q.id+'@quest-planner';
+    lines.push('BEGIN:VEVENT');
+    lines.push('UID:'+uid);
+    lines.push('DTSTAMP:'+now);
+    lines.push('SUMMARY:'+icsEscape('⚔️ '+q.title));
+    lines.push('DESCRIPTION:'+icsEscape(`${catIcon(q.category)} ${q.category} · ${diffLabel(q.difficulty)} · +${q.xp}XP`));
+    if(q.type==='daily'){
+      lines.push('DTSTART;VALUE=DATE:'+todayIcs);
+      lines.push('DURATION:P1D');
+      lines.push('RRULE:FREQ=DAILY');
+    } else {
+      lines.push('DTSTART;VALUE=DATE:'+icsDate(q.dueDate));
+      lines.push('DURATION:P1D');
+    }
+    lines.push('END:VEVENT');
+  });
+  lines.push('END:VCALENDAR');
+  const blob = new Blob([lines.join('\r\n')], {type:'text/calendar;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'quest-planner.ics';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  toast('캘린더 파일을 내려받았습니다');
+}
+
+/* ===================== NOTIFICATIONS ===================== */
+function updateNotifButtonUI(){
+  const btn = document.getElementById('notif-permission-btn');
+  const hint = document.getElementById('notif-status-hint');
+  if(!btn) return;
+  if(!('Notification' in window)){
+    btn.textContent='지원 안 됨'; btn.disabled=true;
+    hint.textContent='이 브라우저는 알림 기능을 지원하지 않습니다.';
+    return;
+  }
+  if(Notification.permission==='granted'){
+    btn.textContent='알림 켜짐 ✓'; btn.disabled=true;
+    hint.textContent='앱이 켜져 있는 동안 미완료 퀘스트를 알려드려요.';
+  } else if(Notification.permission==='denied'){
+    btn.textContent='알림 차단됨'; btn.disabled=true;
+    hint.textContent='브라우저 설정에서 알림 권한을 허용해주세요.';
+  } else {
+    btn.textContent='알림 켜기'; btn.disabled=false;
+  }
+}
+async function requestNotifPermission(){
+  if(!('Notification' in window)){ toast('이 브라우저는 알림을 지원하지 않습니다'); return; }
+  const perm = await Notification.requestPermission();
+  updateNotifButtonUI();
+  if(perm==='granted'){ toast('알림이 켜졌습니다'); sendNotification('알림이 켜졌어요!','오늘의 퀘스트를 잊지 않게 알려드릴게요.'); }
+  else if(perm==='denied'){ toast('알림 권한이 거부되었습니다'); }
+}
+function sendNotification(title, body){
+  if(!('Notification' in window) || Notification.permission!=='granted') return;
+  try{
+    if(navigator.serviceWorker && navigator.serviceWorker.controller){
+      navigator.serviceWorker.ready.then(reg=> reg.showNotification(title,{body, icon:'icons/icon-192.png', badge:'icons/icon-192.png'}));
+    } else {
+      new Notification(title, {body, icon:'icons/icon-192.png'});
+    }
+  }catch(e){ console.error('notify failed', e); }
+}
+function sendTestNotification(){
+  if(!('Notification' in window) || Notification.permission!=='granted'){ toast('먼저 알림을 켜주세요'); return; }
+  const list = todaysQuests();
+  const t = todayStr();
+  const remaining = list.filter(q=> q.type==='daily' ? q.lastDoneDate!==t : q.status!=='done').length;
+  sendNotification('⚔️ 오늘의 퀘스트', remaining>0 ? `아직 ${remaining}개의 퀘스트가 남아있어요!` : '오늘 퀘스트를 모두 완료했어요! 🎉');
+}
+function checkAndNotifyIfNeeded(){
+  if(!state.character) return;
+  if(!('Notification' in window) || Notification.permission!=='granted') return;
+  const t = todayStr();
+  const hour = new Date().getHours();
+  if(hour<20) return; // evening reminder only
+  if(state.lastNotifyDate===t) return;
+  const list = todaysQuests();
+  const remaining = list.filter(q=> q.type==='daily' ? q.lastDoneDate!==t : q.status!=='done').length;
+  if(remaining>0){
+    sendNotification('⚔️ 오늘의 퀘스트가 기다려요', `아직 ${remaining}개의 퀘스트가 남아있어요. 지금 완료해보세요!`);
+    state.lastNotifyDate = t;
+    saveState();
+  }
+}
+
+/* ===================== PWA INSTALL ===================== */
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  const btn = document.getElementById('pwa-install-btn');
+  if(btn) btn.disabled = false;
+});
+async function installPWA(){
+  if(!deferredInstallPrompt){
+    toast('브라우저 메뉴에서 "홈 화면에 추가"를 이용해주세요');
+    return;
+  }
+  deferredInstallPrompt.prompt();
+  const choice = await deferredInstallPrompt.userChoice;
+  if(choice.outcome==='accepted') toast('앱이 설치되었습니다!');
+  deferredInstallPrompt = null;
+  document.getElementById('pwa-install-btn').disabled = true;
+}
+if(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches){
+  window.addEventListener('load', ()=>{
+    const card = document.getElementById('pwa-install-card');
+    if(card) card.classList.add('hidden');
+  });
+}
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('service-worker.js').catch(()=>{ /* not hosted yet, ignore */ });
+  });
+}
+
+/* ===================== NAV ===================== */
+function switchTab(tab){
+  ['home','quest','character','growth','settings'].forEach(t=>{
+    document.getElementById('screen-'+t).classList.toggle('hidden', t!==tab);
+  });
+  document.querySelectorAll('.nav-item').forEach(el=>{
+    el.classList.toggle('active', el.dataset.tab===tab);
+  });
+  if(tab==='quest') renderAllQuests();
+  if(tab==='character') renderCharacterScreen();
+  if(tab==='growth') renderGrowth();
+  if(tab==='settings') renderSettings();
+}
+
+/* ===================== MASTER RENDER ===================== */
+function renderAll(){
+  renderTopbar();
+  renderCharacterVisual('home');
+  renderHome();
+  const activeTab = document.querySelector('.nav-item.active')?.dataset.tab || 'home';
+  if(activeTab==='quest') renderAllQuests();
+  if(activeTab==='character') renderCharacterScreen();
+  if(activeTab==='growth') renderGrowth();
+}
+
+/* ===================== INIT ===================== */
+async function init(){
+  renderClassGrid();
+  await loadState();
+  if(state.character){
+    document.getElementById('onboarding').classList.add('hidden');
+    document.getElementById('mainapp').classList.remove('hidden');
+    renderAll();
+  }
+  checkAndNotifyIfNeeded();
+  setInterval(checkAndNotifyIfNeeded, 15*60*1000);
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) checkAndNotifyIfNeeded(); });
+}
+init();
+</script>
+</body>
+</html>
