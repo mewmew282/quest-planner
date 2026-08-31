@@ -1197,7 +1197,7 @@ async function changeClass(){
 function openRegressConfirm(){
   const cls = CLASSES[state.character.cls];
   document.getElementById('regress-confirm-body').innerHTML =
-    `닉네임 <b>${escapeHtml(state.character.nickname)}</b>, 보직 <b>${cls.icon} ${cls.name}</b><br>`+
+    `<b>${escapeHtml(state.character.nickname)}</b>님, <b>${cls.icon} ${cls.name}</b>의<br>`+
     `모든 레벨, 퀘스트, 업적 기록이 사라집니다.<br><br>정말로 회귀하시겠습니까?`;
   document.getElementById('regress-confirm-overlay').classList.add('show');
 }
