@@ -373,6 +373,15 @@
   .current-tag b{color:var(--text);}
   .class-grid.compact .class-card{padding:12px 8px;}
   .class-grid.compact .ic{font-size:22px;}
+  .avatar-edit-row{display:flex;align-items:center;gap:14px;}
+  .avatar-preview{
+    flex-shrink:0;width:64px;height:64px;border-radius:50%;
+    background:radial-gradient(circle,var(--class-color,#8A6FE8) 0%, transparent 72%),var(--card-hi);
+    border:2px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+    font-size:30px;background-size:cover;background-position:center;
+  }
+  .avatar-edit-btns{flex:1;display:flex;flex-direction:column;gap:8px;}
   .danger-card{border-color:var(--danger);}
   .danger-card h3{color:var(--danger);}
   .btn-danger{
@@ -519,6 +528,19 @@
       </div>
 
       <div class="settings-card">
+        <h3>프로필 이미지</h3>
+        <div class="hint">캐릭터 화면에 표시될 나만의 사진을 설정할 수 있어요. (최대 3MB)</div>
+        <div class="avatar-edit-row">
+          <div class="avatar-preview" id="avatar-preview-circle"><span id="avatar-preview-emoji">🧍</span></div>
+          <div class="avatar-edit-btns">
+            <input type="file" id="avatar-file-input" accept="image/*" class="hidden" onchange="onAvatarFileSelected(event)">
+            <button class="btn btn-block" onclick="document.getElementById('avatar-file-input').click()">이미지 선택</button>
+            <button class="btn btn-ghost btn-block" id="avatar-reset-btn" onclick="resetAvatarImage()">기본 이미지로 되돌리기</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-card">
         <h3>보직 변경</h3>
         <div class="hint">직업을 변경하면 캐릭터 모습과 성장 단계가 바뀝니다. 레벨과 경험치는 유지됩니다.</div>
         <div id="set-current-cls-tag"></div>
@@ -536,7 +558,7 @@
         <h3>🔔 알림</h3>
         <div class="hint" id="notif-status-hint">앱이 켜져 있는 동안 미완료 퀘스트를 알려드려요. (기기 브라우저 알림 권한 필요)</div>
         <div class="settings-row">
-          <button class="btn" id="notif-permission-btn" onclick="requestNotifPermission()">알림 켜기</button>
+          <button class="btn" id="notif-permission-btn" onclick="toggleNotifications()">알림 켜기</button>
           <button class="btn btn-ghost" onclick="sendTestNotification()">테스트 알림</button>
         </div>
       </div>
@@ -752,6 +774,7 @@ function defaultState(){
     unlockedAchv:[],
     weekLog:[], // {date, xp, cleared:bool count}
     lastNotifyDate:null,
+    notifEnabled:true,
   };
 }
 
@@ -820,7 +843,7 @@ function obBack(){
 async function createCharacter(){
   if(!selectedClass) return;
   const nick = document.getElementById('ob-nickname').value.trim() || '모험가';
-  state.character = { nickname:nick, cls:selectedClass };
+  state.character = { nickname:nick, cls:selectedClass, avatarImage:null };
   await saveState();
   document.getElementById('onboarding').classList.add('hidden');
   document.getElementById('mainapp').classList.remove('hidden');
@@ -845,8 +868,19 @@ function renderCharacterVisual(prefix){
   const cls = CLASSES[state.character.cls];
   const level = levelFromXP(state.totalXP);
   const stage = evoStageFor(state.character.cls, level);
-  document.getElementById(prefix+'-char-aura').style.setProperty('--class-color', cls.color);
-  document.getElementById(prefix+'-char-emoji').textContent = stage.emoji;
+  const auraEl = document.getElementById(prefix+'-char-aura');
+  const emojiEl = document.getElementById(prefix+'-char-emoji');
+  auraEl.style.setProperty('--class-color', cls.color);
+  if(state.character.avatarImage){
+    auraEl.style.backgroundImage = `url(${state.character.avatarImage})`;
+    auraEl.style.backgroundSize = 'cover';
+    auraEl.style.backgroundPosition = 'center';
+    emojiEl.style.display = 'none';
+  } else {
+    auraEl.style.backgroundImage = '';
+    emojiEl.style.display = '';
+    emojiEl.textContent = stage.emoji;
+  }
   document.getElementById(prefix+'-char-title').textContent = `Lv.${level} ${stage.title}`;
   if(document.getElementById(prefix+'-char-sub'))
     document.getElementById(prefix+'-char-sub').textContent = `${cls.name} · ${state.character.nickname}`;
@@ -1150,6 +1184,7 @@ let selectedSetClass = null;
 function renderSettings(){
   document.getElementById('set-nickname').value = state.character.nickname;
   updateNotifButtonUI();
+  updateAvatarPreview();
 
   const cls = CLASSES[state.character.cls];
   document.getElementById('set-current-cls-tag').innerHTML =
@@ -1175,6 +1210,66 @@ function renderSettings(){
   });
 }
 
+/* ===================== PROFILE IMAGE ===================== */
+function updateAvatarPreview(){
+  const circle = document.getElementById('avatar-preview-circle');
+  const emojiEl = document.getElementById('avatar-preview-emoji');
+  const resetBtn = document.getElementById('avatar-reset-btn');
+  const cls = CLASSES[state.character.cls];
+  const level = levelFromXP(state.totalXP);
+  const stage = evoStageFor(state.character.cls, level);
+  circle.style.setProperty('--class-color', cls.color);
+  if(state.character.avatarImage){
+    circle.style.backgroundImage = `url(${state.character.avatarImage})`;
+    circle.style.backgroundSize = 'cover';
+    circle.style.backgroundPosition = 'center';
+    emojiEl.style.display = 'none';
+  } else {
+    circle.style.backgroundImage = '';
+    emojiEl.style.display = '';
+    emojiEl.textContent = stage.emoji;
+  }
+  resetBtn.disabled = !state.character.avatarImage;
+}
+function onAvatarFileSelected(e){
+  const file = e.target.files[0];
+  e.target.value = ''; // allow re-selecting the same file later
+  if(!file) return;
+  if(!file.type.startsWith('image/')){ toast('이미지 파일만 선택해주세요'); return; }
+  if(file.size > 3*1024*1024){ toast('이미지 용량은 3MB 이하로 선택해주세요'); return; }
+  const reader = new FileReader();
+  reader.onload = (ev)=>{
+    const img = new Image();
+    img.onload = async ()=>{
+      const size = 256;
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const scale = Math.max(size/img.width, size/img.height);
+      const w = img.width*scale, h = img.height*scale;
+      ctx.drawImage(img, (size-w)/2, (size-h)/2, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      state.character.avatarImage = dataUrl;
+      await saveState();
+      renderAll();
+      updateAvatarPreview();
+      toast('프로필 이미지가 변경되었습니다');
+    };
+    img.onerror = ()=> toast('이미지를 불러올 수 없습니다');
+    img.src = ev.target.result;
+  };
+  reader.onerror = ()=> toast('이미지를 읽는 중 오류가 발생했습니다');
+  reader.readAsDataURL(file);
+}
+async function resetAvatarImage(){
+  if(!state.character.avatarImage){ toast('기본 이미지를 사용 중입니다'); return; }
+  state.character.avatarImage = null;
+  await saveState();
+  renderAll();
+  updateAvatarPreview();
+  toast('기본 이미지로 되돌렸습니다');
+}
+
 async function changeNickname(){
   const nick = document.getElementById('set-nickname').value.trim();
   if(!nick){ toast('닉네임을 입력해주세요'); return; }
@@ -1197,7 +1292,7 @@ async function changeClass(){
 function openRegressConfirm(){
   const cls = CLASSES[state.character.cls];
   document.getElementById('regress-confirm-body').innerHTML =
-    `<b>${escapeHtml(state.character.nickname)}</b>님, <b>${cls.icon} ${cls.name}</b>의<br>`+
+    `닉네임 <b>${escapeHtml(state.character.nickname)}</b>, 보직 <b>${cls.icon} ${cls.name}</b><br>`+
     `모든 레벨, 퀘스트, 업적 기록이 사라집니다.<br><br>정말로 회귀하시겠습니까?`;
   document.getElementById('regress-confirm-overlay').classList.add('show');
 }
@@ -1265,25 +1360,48 @@ function updateNotifButtonUI(){
     hint.textContent='이 브라우저는 알림 기능을 지원하지 않습니다.';
     return;
   }
-  if(Notification.permission==='granted'){
-    btn.textContent='알림 켜짐 ✓'; btn.disabled=true;
-    hint.textContent='앱이 켜져 있는 동안 미완료 퀘스트를 알려드려요.';
-  } else if(Notification.permission==='denied'){
+  if(Notification.permission==='denied'){
     btn.textContent='알림 차단됨'; btn.disabled=true;
     hint.textContent='브라우저 설정에서 알림 권한을 허용해주세요.';
+    return;
+  }
+  btn.disabled = false;
+  if(Notification.permission==='granted' && state.notifEnabled){
+    btn.textContent='알림 켜짐 ✓';
+    hint.textContent='앱이 켜져 있는 동안 미완료 퀘스트를 알려드려요. (다시 누르면 꺼져요)';
+  } else if(Notification.permission==='granted' && !state.notifEnabled){
+    btn.textContent='알림 꺼짐';
+    hint.textContent='알림이 꺼져 있어요. 다시 누르면 켜집니다.';
   } else {
-    btn.textContent='알림 켜기'; btn.disabled=false;
+    btn.textContent='알림 켜기';
+    hint.textContent='앱이 켜져 있는 동안 미완료 퀘스트를 알려드려요. (기기 브라우저 알림 권한 필요)';
   }
 }
-async function requestNotifPermission(){
+async function toggleNotifications(){
   if(!('Notification' in window)){ toast('이 브라우저는 알림을 지원하지 않습니다'); return; }
-  const perm = await Notification.requestPermission();
+  if(Notification.permission==='denied'){ toast('브라우저 설정에서 알림 권한을 허용해주세요'); return; }
+  if(Notification.permission==='default'){
+    const perm = await Notification.requestPermission();
+    updateNotifButtonUI();
+    if(perm==='granted'){
+      state.notifEnabled = true;
+      await saveState();
+      updateNotifButtonUI();
+      toast('알림이 켜졌습니다');
+      sendNotification('알림이 켜졌어요!','오늘의 퀘스트를 잊지 않게 알려드릴게요.');
+    } else if(perm==='denied'){
+      toast('알림 권한이 거부되었습니다');
+    }
+    return;
+  }
+  // already granted at the browser level: toggle the app-level on/off switch
+  state.notifEnabled = !state.notifEnabled;
+  await saveState();
   updateNotifButtonUI();
-  if(perm==='granted'){ toast('알림이 켜졌습니다'); sendNotification('알림이 켜졌어요!','오늘의 퀘스트를 잊지 않게 알려드릴게요.'); }
-  else if(perm==='denied'){ toast('알림 권한이 거부되었습니다'); }
+  toast(state.notifEnabled ? '알림이 켜졌습니다' : '알림이 꺼졌습니다');
 }
 function sendNotification(title, body){
-  if(!('Notification' in window) || Notification.permission!=='granted') return;
+  if(!('Notification' in window) || Notification.permission!=='granted' || !state.notifEnabled) return;
   try{
     if(navigator.serviceWorker && navigator.serviceWorker.controller){
       navigator.serviceWorker.ready.then(reg=> reg.showNotification(title,{body, icon:'icons/icon-192.png', badge:'icons/icon-192.png'}));
@@ -1293,7 +1411,7 @@ function sendNotification(title, body){
   }catch(e){ console.error('notify failed', e); }
 }
 function sendTestNotification(){
-  if(!('Notification' in window) || Notification.permission!=='granted'){ toast('먼저 알림을 켜주세요'); return; }
+  if(!('Notification' in window) || Notification.permission!=='granted' || !state.notifEnabled){ toast('먼저 알림을 켜주세요'); return; }
   const list = todaysQuests();
   const t = todayStr();
   const remaining = list.filter(q=> q.type==='daily' ? q.lastDoneDate!==t : q.status!=='done').length;
@@ -1301,7 +1419,7 @@ function sendTestNotification(){
 }
 function checkAndNotifyIfNeeded(){
   if(!state.character) return;
-  if(!('Notification' in window) || Notification.permission!=='granted') return;
+  if(!('Notification' in window) || Notification.permission!=='granted' || !state.notifEnabled) return;
   const t = todayStr();
   const hour = new Date().getHours();
   if(hour<20) return; // evening reminder only
