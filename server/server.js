@@ -45,7 +45,7 @@ const byNick = (n) => users.findOne({ nk: String(n || '').trim().toLowerCase() }
 async function notify(userId, payload) {
   const u = await users.findOne({ _id: userId }, { projection: { push: 1 } });
   for (const sub of (u && u.push) || []) {
-    webpush.sendNotification(sub, JSON.stringify(payload), { TTL: 3600 }).catch((e) => {
+    webpush.sendNotification(sub, JSON.stringify(payload), { TTL: 3600, urgency: 'high' }).catch((e) => {
       if (e.statusCode === 404 || e.statusCode === 410) users.updateOne({ _id: userId }, { $pull: { push: { endpoint: sub.endpoint } } });
     });
   }

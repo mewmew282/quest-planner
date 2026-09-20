@@ -23,6 +23,9 @@ css.textContent = `
 .soc-chat{display:flex;flex-direction:column;gap:6px;height:48vh;overflow-y:auto;padding:8px;background:var(--bg-elev);border:1px solid var(--border);border-radius:var(--radius-s);margin:10px 0}
 .soc-msg{max-width:80%;padding:8px 11px;border-radius:14px;font-size:14px;line-height:1.4;word-break:break-word;white-space:pre-wrap;background:var(--card-hi)}
 .soc-msg.mine{align-self:flex-end;background:var(--gold-dim);color:#fff}
+.soc-msg.pending{opacity:.55}
+.soc-msg.fail{background:var(--danger);color:#fff;cursor:pointer}.soc-msg.fail::after{content:' ⚠ 탭해서 재시도';font-size:11px;opacity:.85}
+#screen-social.chat{padding-bottom:12px}
 .soc-send{display:flex;gap:8px}.soc-send input{margin:0!important}.soc-send .btn{padding:0 18px}`;
 document.head.appendChild(css);
 
@@ -84,7 +87,7 @@ function renderLogin(msg){
 
 /* ---------- 메인 ---------- */
 function render(){
-  stopPoll();
+  stopPoll(); setChatMode(false);
   if(!token) return renderLogin();
   sc.innerHTML = `<div class="section-head" style="margin-top:4px"><h2>👥 소셜</h2><span class="pill">${esc(myNick)} · <a href="#" id="soc-out" style="color:inherit">로그아웃</a></span></div>
   <div class="soc-tabs">${[['rank','🏆 랭킹'],['friends','🤝 친구']].map(([k,l])=>`<button data-v="${k}" class="${view===k||(view==='chat'&&k==='friends')?'on':''}">${l}</button>`).join('')}</div>
@@ -120,37 +123,70 @@ async function renderFriends(){
 }
 
 /* ---------- 대화 ---------- */
+let seen = new Set(), polling = false, fitFn = null;
+const pendingCount = ()=> sc.querySelectorAll('.soc-msg.pending').length;
+function setChatMode(on){ // 대화 중엔 하단 메뉴를 숨겨 입력창이 가려지지 않게 한다
+  const n = $('bottomnav'); if(n) n.style.display = on ? 'none' : '';
+  sc.classList.toggle('chat', on);
+  const vv = window.visualViewport;
+  if(fitFn && vv){ vv.removeEventListener('resize', fitFn); vv.removeEventListener('scroll', fitFn); }
+  fitFn = null;
+  if(on && vv){ fitFn = ()=>{ const log = $('soc-log'); if(!log) return;
+      log.style.height = Math.max(140, vv.offsetTop + vv.height - log.getBoundingClientRect().top - 84) + 'px'; };
+    vv.addEventListener('resize', fitFn); vv.addEventListener('scroll', fitFn); }
+}
 async function renderChat(){
-  lastMsgId = null;
+  lastMsgId = null; seen = new Set(); setChatMode(true);
   $('soc-body').innerHTML = `<div style="display:flex;align-items:center;gap:10px"><button class="btn btn-ghost" id="soc-back" style="padding:6px 12px">←</button><b>💬 ${esc(chatWith)}</b></div>
-  <div class="soc-chat" id="soc-log"></div><div class="soc-err" id="soc-err"></div>
-  <div class="soc-send"><input type="text" id="soc-text" maxlength="300" placeholder="메시지를 입력하세요" autocomplete="off"><button class="btn btn-gold" id="soc-sendbtn">전송</button></div>`;
+  <div class="soc-chat" id="soc-log"><div class="hint" id="soc-load">불러오는 중…</div></div><div class="soc-err" id="soc-err"></div>
+  <div class="soc-send"><input type="text" id="soc-text" maxlength="300" placeholder="메시지를 입력하세요" autocomplete="off" enterkeyhint="send"><button class="btn btn-gold" id="soc-sendbtn" type="button">전송</button></div>`;
+  if(fitFn) fitFn();
+  const inp = $('soc-text');
   $('soc-back').onclick = ()=>{ view = 'friends'; render(); };
-  const send = async ()=>{
-    const inp = $('soc-text'), text = inp.value.trim(); if(!text) return;
-    inp.value = '';
-    try{ appendMsgs([await api('/msgs', {method:'POST', body:{to:chatWith, text}})]); }
-    catch(e){ $('soc-err').textContent = e.message; inp.value = text; }
+  const send = ()=>{
+    const text = inp.value.trim(); if(!text) return;
+    inp.value = ''; inp.focus(); // 전송해도 키보드가 내려가지 않게 포커스 유지
+    post(addBubble({mine:true, text}, 'pending'), text);
   };
+  $('soc-sendbtn').onpointerdown = (e)=>e.preventDefault(); // 버튼이 입력창의 포커스를 뺏지 못하게
   $('soc-sendbtn').onclick = send;
-  $('soc-text').onkeydown = (e)=>{ if(e.key==='Enter' && !e.isComposing) send(); };
+  inp.onkeydown = (e)=>{ if(e.key==='Enter' && !e.isComposing && e.keyCode!==229){ e.preventDefault(); send(); } };
   await poll();
-  pollTimer = setInterval(()=>{ if(!document.hidden && !sc.classList.contains('hidden')) poll(); }, 4000);
+  pollTimer = setInterval(()=>{ if(!document.hidden && !sc.classList.contains('hidden')) poll(); }, 2500);
+}
+function addBubble(m, cls=''){
+  const log = $('soc-log'); if(!log) return null;
+  const load = $('soc-load'); if(load) load.remove();
+  const stick = log.scrollHeight - log.scrollTop - log.clientHeight < 80 || cls==='pending';
+  const d = document.createElement('div'); d.className = 'soc-msg' + (m.mine?' mine':'') + (cls?' '+cls:''); d.textContent = m.text;
+  log.appendChild(d); if(stick) log.scrollTop = log.scrollHeight;
+  return d;
+}
+function post(bubble, text){ // 바로 화면에 띄우고, 서버 응답이 오면 확정 (서버가 자고 있어도 느리게 느껴지지 않게)
+  bubble.className = bubble.className.replace(' fail','') + (bubble.classList.contains('pending') ? '' : ' pending');
+  bubble.onclick = null;
+  api('/msgs', {method:'POST', body:{to:chatWith, text}}).then((m)=>{
+    seen.add(m.id); bubble.classList.remove('pending');
+  }).catch((e)=>{
+    bubble.classList.remove('pending'); bubble.classList.add('fail');
+    const er = $('soc-err'); if(er) er.textContent = e.message;
+    bubble.onclick = ()=>{ if(er) er.textContent = ''; post(bubble, text); };
+  });
 }
 async function poll(){
-  const log = $('soc-log'); if(!log || view!=='chat') return;
-  try{ appendMsgs(await api(`/msgs?with=${encodeURIComponent(chatWith)}` + (lastMsgId ? `&after=${lastMsgId}` : ''))); }
-  catch(e){ const er = $('soc-err'); if(er) er.textContent = e.message; }
-}
-function appendMsgs(list){
-  const log = $('soc-log'); if(!log || !list.length) return;
-  const stick = log.scrollHeight - log.scrollTop - log.clientHeight < 60 || !lastMsgId;
-  for(const m of list){
-    if(m.id === lastMsgId) continue;
-    const d = document.createElement('div'); d.className = 'soc-msg' + (m.mine?' mine':''); d.textContent = m.text; log.appendChild(d);
-    lastMsgId = m.id;
-  }
-  if(stick) log.scrollTop = log.scrollHeight;
+  if(polling || view!=='chat' || !$('soc-log')) return;
+  polling = true;
+  try{
+    const list = await api(`/msgs?with=${encodeURIComponent(chatWith)}` + (lastMsgId ? `&after=${lastMsgId}` : ''));
+    if(view!=='chat') return;
+    const load = $('soc-load'); if(load && !list.length) load.remove();
+    for(const m of list){
+      lastMsgId = m.id;
+      if(seen.has(m.id) || (m.mine && pendingCount())) continue; // 내가 방금 보낸 건 이미 화면에 있음
+      seen.add(m.id); addBubble(m);
+    }
+  }catch(e){ const load = $('soc-load'); if(load) load.textContent = '서버를 깨우는 중이에요… 잠시만요'; } // 일시 오류는 조용히 재시도
+  finally{ polling = false; }
 }
 
 /* ---------- 푸시 ---------- */
@@ -180,7 +216,12 @@ async function refreshPushButton(){
 
 /* ---------- 탭 연결 (index.html의 switchTab에서 호출) ---------- */
 const fab = ()=>document.querySelector('.fab');
-window.socialOpen = function(){ if(view==='chat') view = 'friends'; fab().style.display = 'none'; render(); };
-window.socialClose = function(){ stopPoll(); fab().style.display = ''; };
+// 무료 서버는 15분 쉬면 잠들어서 첫 요청이 50초까지 걸린다 → 앱을 쓰는 동안 미리 깨워 둔다
+const warm = ()=>{ if(token) fetch(API_URL+'/health', {mode:'no-cors'}).catch(()=>{}); };
+setInterval(()=>{ if(!document.hidden) warm(); }, 600000);
+window.addEventListener('load', warm);
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) warm(); });
+window.socialOpen = function(){ if(view==='chat') view = 'friends'; fab().style.display = 'none'; warm(); render(); };
+window.socialClose = function(){ stopPoll(); setChatMode(false); fab().style.display = ''; };
 window.addEventListener('load', resubscribeIfAllowed);
 })();
