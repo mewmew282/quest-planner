@@ -633,23 +633,6 @@
   .mg-result-card .mg-r-sub{font-size:12px;color:var(--text-faint);margin-top:7px;line-height:1.55}.mg-result-card .mg-r-reward{font-size:16px;font-weight:700;margin-top:8px;color:var(--gold)}.mg-result-card.lose .mg-r-reward{color:var(--danger)}
   .mg-retry-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mg-retry-grid .btn{min-height:46px;font-weight:800}.mg-retry-grid .mg-list-btn{grid-column:1 / -1}.mg-retry-grid .mg-same-bet{font-size:11.5px}
   @media(max-width:370px){.mg-result-overlay{padding:12px}.mg-result-sheet{padding:16px 12px 12px}.mg-retry-grid{gap:6px}.mg-retry-grid .btn{font-size:11.5px;padding-left:7px;padding-right:7px}}
-  /* ---------- home: 빠른 실행 / 최근 획득 ---------- */
-  .quick-actions-row{display:flex;gap:8px;margin:0 0 14px;}
-  .quick-action-btn{
-    flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
-    background:var(--card);border:1px solid var(--border);border-radius:var(--radius-m);
-    padding:12px 6px;color:var(--text);font-size:11.5px;font-weight:600;
-  }
-  .quick-action-btn:active{transform:scale(0.97);background:var(--card-hi);}
-  .quick-action-btn .ic{font-size:19px;}
-  .recent-gain-item{
-    display:flex;align-items:center;gap:10px;padding:9px 4px;
-    border-bottom:1px solid var(--border);
-  }
-  .recent-gain-item:last-child{border-bottom:none;}
-  .recent-gain-item .ic{font-size:17px;flex-shrink:0;}
-  .recent-gain-item .lbl{flex:1;font-size:12.5px;color:var(--text-dim);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .recent-gain-item .amt{font-size:12px;font-weight:700;color:var(--gold);white-space:nowrap;}
   .tb-gold.low{color:var(--danger);}
   .tb-settings-btn{
     width:30px;height:30px;padding:0;border:1px solid var(--border);border-radius:9px;
@@ -2274,14 +2257,6 @@ function fmtMinuteOfDay(m){
   const h = Math.floor(m/60)%24, mm = ((m%60)+60)%60;
   return String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0');
 }
-function nextMarketDayLabel(){
-  const now = new Date();
-  for(let i=1;i<=7;i++){
-    const d = new Date(now); d.setDate(d.getDate()+i);
-    if(isMarketDay(d)) return WEEKDAY_KR[d.getDay()]+'요일 저녁';
-  }
-  return '';
-}
 // generates (once per day, seeded so it's stable across reloads) that day's random
 // open time, duration, and 4-of-6 item stock -- only meaningful on Mon/Wed/Fri
 function ensureMarketSchedule(){
@@ -2555,11 +2530,6 @@ function evoStageFor(cls, level){
   for(const st of stages){ if(level>=st.lv) cur = st; }
   return cur;
 }
-function nextEvoStage(cls, level){
-  const stages = CLASSES[cls].evo;
-  for(const st of stages){ if(st.lv>level) return st; }
-  return null;
-}
 
 /* ===================== ONBOARDING ===================== */
 let selectedClass = null;
@@ -2680,18 +2650,6 @@ function renderHome(){
   maybeShowAllDoneNpcLine();
 }
 /* 홈 화면 '최근 획득' — 최대 3개, 없으면 섹션 자체를 숨김 */
-function renderRecentGains(){
-  const gains = state.recentGains||[];
-  const head = document.getElementById('home-recent-head');
-  const wrap = document.getElementById('home-recent-list');
-  head.classList.toggle('hidden', gains.length===0);
-  wrap.innerHTML = gains.map(g=>`
-    <div class="recent-gain-item">
-      <span class="ic">${g.icon}</span>
-      <span class="lbl">${escapeHtml(g.label)}</span>
-      <span class="amt">${escapeHtml(g.detail)}</span>
-    </div>`).join('');
-}
 
 /* ===================== NPC 시스템 ===================== */
 /* 홈에 등장하는 작은 NPC 말풍선 -- 방해되지 않도록 하루 한 번, 우선순위대로 한 줄만 표시 */
@@ -3161,7 +3119,6 @@ function renderAllQuests(){
 /* ===================== QUEST ACTIONS ===================== */
 function genId(){ return 'q_'+Date.now()+'_'+Math.floor(Math.random()*10000); }
 
-let chipDiffXP = {easy:50,normal:100,hard:200,veryhard:500};
 function selectChip(el, rowId){
   document.querySelectorAll('#'+rowId+' .chip').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');
@@ -3661,25 +3618,8 @@ function renderShop(){
   const wrap=document.getElementById('shop-list'); if(wrap) wrap.innerHTML=getShopMarkup();
 }
 function setCoinStock(v){
-  state.shop=state.shop||{coinStock:0,coinPrice:0,coinSales:0,lastCoinSaleDate:null,lastDailyCoinBoxDate:null};
   let n=Math.max(0,Math.min(99,parseInt(v,10)||0));
   state.shop.coinStock=n; saveState(); renderShopScreen();
-}
-function adjustCoinStock(delta){
-  state.shop=state.shop||{coinStock:0,coinPrice:0,coinSales:0,lastCoinSaleDate:null,lastDailyCoinBoxDate:null};
-  setCoinStock((state.shop.coinStock||0)+delta);
-}
-async function buyShopCoin(){
-  state.shop=state.shop||{coinStock:0,coinPrice:0,coinSales:0,lastCoinSaleDate:null,lastDailyCoinBoxDate:null};
-  const price=Number(state.shop.coinPrice)||120;
-  if((state.shop.coinStock||0)<=0){ toast('🧑‍🍳 리나: 앗, 코인 상자가 다 팔렸어요!'); return; }
-  if(state.gold<price){ playSound('error'); toast('🧔 브람: 골드가 조금 부족하군. 퀘스트 하나 더 하고 오게.'); return; }
-  state.gold-=price; trackGold(-price);
-  state.shop.coinStock--; state.shop.coinSales=(state.shop.coinSales||0)+1; state.shop.lastCoinSaleDate=todayStr();
-  const result=awardCoin();
-  await saveState(); renderAll(); renderShopScreen(); playSound('gold'); cinematicFX('gold');
-  const rarity=COIN_RARITY[result.coin.rarity].label;
-  showEasterPopup(result.isNew?'새로운 코인 발견!':'중복 코인 획득',`📦 상자를 열었습니다.\n\n${result.coin.icon} ${result.coin.name} [${rarity}]\n${result.coin.desc}\n\n${result.isNew?'🧑‍🍳 리나: "어? 이건 처음 보는 코인이에요!"':'🧔 브람: "중복은 코인 교환소에서 골드로 바꿀 수 있네."'}`);
 }
 async function claimDailyCoinBox(){
   state.shop=state.shop||{};
@@ -3723,7 +3663,6 @@ function rerollShopRumor(){
   playSound('click');
 }
 function renderShopScreen(){
-  state.shop=state.shop||{coinStock:0,coinPrice:0,coinSales:0,lastCoinSaleDate:null,lastDailyCoinBoxDate:null};
   const gp=document.getElementById('shop-screen-gold-pill'); if(gp) gp.textContent=`🪙${state.gold}`;
   // 소문은 화면 렌더링 때마다 바뀌지 않습니다. 🔄 버튼을 눌렀을 때만 다시 추첨합니다.
   const storyEl=document.getElementById('shop-story-line'); if(storyEl){
@@ -3759,7 +3698,6 @@ function closeShop(){ const overlay=document.getElementById('shop-overlay'); if(
 function closeShopOnBg(e){ if(e.target.id==='shop-overlay') closeShop(); }
 
 /* ===================== BLACK MARKET UI ===================== */
-let _bmLastPhase = null;
 function renderDailyMgHomeCard(){
   const card = document.getElementById('dmg-home-card');
   if(!card) return;
@@ -3972,25 +3910,6 @@ function playBlackMarketArrestAnimation(onComplete){
   setTimeout(()=>overlay.remove(),3600);
 }
 
-function triggerMarketRaid(){
-  state.easter.marketRaidSeen=true;
-  if(!state.unlockedAchv.includes('market_raid')){
-    state.unlockedAchv.push('market_raid');
-    state.gold+=(120); trackGold(120); state.totalXP+=60;
-  }
-  saveState();
-  playSound('raid');
-  const overlay=document.createElement('div');
-  overlay.className='bm-raid-overlay show';
-  overlay.innerHTML='<div class="bm-raid-beacon"></div><div class="bm-raid-caption">🚨 <b>왕국 기사단 특별 단속</b><br><span style="font-size:11px;color:#cfc7df">“암시장 출입 기록이 너무 많군. 용사, 설명해보게.”</span></div><div class="bm-knight">🛡️⚔️</div>';
-  document.body.appendChild(overlay);
-  if(navigator.vibrate) navigator.vibrate([80,60,80,60,180]);
-  cinematicFX('secret');
-  setTimeout(()=>{
-    showEasterPopup('암시장 단속반에게 발각됨','기사단: “쉿, 조용히 하라고 했지! 자네가 암시장에 드나든 횟수가 벌써 열 번일세.”\n\n기사: “이번에는 경고로 끝내주지. 대신 다음부터는 발자국을 좀 지우고 다니게.”\n\n보상: 🪙120 · XP 60');
-  },900);
-  setTimeout(()=>overlay.remove(),3600);
-}
 
 function openBlackMarket(tab){
   const status = getMarketStatus();
@@ -4113,7 +4032,6 @@ function spawnBmParticles(card){
     setTimeout(()=>p.remove(), 700);
   }
 }
-function isJailTicket(id){ return id==='bm_jail_escape' || id==='bm_jail_reset'; }
 async function useJailEscapeTicket(){
   if(!state.inventory.includes('bm_jail_escape')){ toast('감옥탈출 티켓이 없어요.'); return; }
   if(!state.jail?.active){ toast('현재 감옥에 갇혀 있지 않아요.'); return; }
