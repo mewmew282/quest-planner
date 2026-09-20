@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>QUEST PLANNER</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#14101F">
@@ -1449,7 +1449,57 @@
 .bm-closed-game{text-align:center;padding:34px 18px;border:1px dashed rgba(255,105,95,.5);border-radius:20px;background:rgba(120,30,30,.08)}.bm-closed-stamp{display:inline-block;color:#ff756d;border:2px solid #ff756d;border-radius:7px;padding:5px 12px;font-weight:1000;letter-spacing:2px;transform:rotate(-3deg);margin-bottom:12px}.bm-closed-icon{font-size:44px}.bm-closed-game h3{margin:8px 0}.bm-closed-game p{color:var(--muted);line-height:1.6}.bm-closed-profit{font-weight:900;color:#ffd66d;margin-top:10px}
 .jail-ticket-actions{display:grid;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}.jail-visit-count,.jail-fine-paid{margin:10px 0;padding:9px;border-radius:10px;background:rgba(255,255,255,.05);font-size:13px}.jail-fine-paid{color:#ffd66d}
 .shop-item.ticket-item{border-color:rgba(255,193,72,.35);background:linear-gradient(135deg,rgba(255,193,72,.08),rgba(255,255,255,.02))}
-.mg-game-card.mg-game-closed{opacity:.68;filter:saturate(.55);cursor:not-allowed;border-color:rgba(255,100,90,.35);background:rgba(100,30,30,.08)}.mg-game-closed .nm{color:#ff8b83}.mg-game-closed .arrow{color:#ff756d;font-weight:1000}</style>
+.mg-game-card.mg-game-closed{opacity:.68;filter:saturate(.55);cursor:not-allowed;border-color:rgba(255,100,90,.35);background:rgba(100,30,30,.08)}.mg-game-closed .nm{color:#ff8b83}.mg-game-closed .arrow{color:#ff756d;font-weight:1000}
+/* ===== REDESIGN v2 (2026-09) — 토큰 · 접근성 · 홈 · 내비. 이후 단계에서 위의 옛 규칙을 이 레이어로 흡수하며 삭제한다 ===== */
+:root{
+  --text-faint:#9A91BA; /* 대비 4.5:1 이상 (기존 #6E6390 = 2.97) */
+  --fs-xs:11px;--fs-sm:12px;--fs-md:14px;--fs-lg:16px;--fs-xl:20px;--fs-2xl:28px;
+  --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-8:32px;
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-pill:999px;
+}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+button,.btn,[onclick]{touch-action:manipulation}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+.btn-gold,.fab{background:var(--gold)}
+.fab{box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.xp-bar-fill{background:var(--gold)}
+.progress-fill{background:var(--success)}
+#topbar{padding:var(--sp-3) var(--sp-4) var(--sp-2)}
+.tb-name,.tb-gold{font-size:var(--fs-md)}
+.tb-title,.xp-num{font-size:var(--fs-xs)}
+.section-head{margin:var(--sp-6) 0 var(--sp-3)}
+.section-head h2{font-size:var(--fs-lg)}
+.section-head .meta{font-size:var(--fs-sm)}
+#bottomnav{padding:var(--sp-1) 0 calc(var(--sp-1) + env(safe-area-inset-bottom));background:var(--bg-elev);backdrop-filter:none}
+.nav-item{position:relative;min-height:56px;gap:var(--sp-1);font-size:var(--fs-xs);color:var(--text-faint)}
+.nav-item svg{width:24px;height:24px}
+.nav-item.active{color:var(--gold)}
+.nav-item.active::before{content:'';position:absolute;top:0;left:30%;right:30%;height:2px;background:var(--gold);border-radius:0 0 2px 2px}
+#screen-home{padding-top:var(--sp-4)}
+#screen-home .char-stage{display:grid;grid-template-columns:64px 1fr;grid-template-areas:"aura title" "aura sub" "aura badges";column-gap:var(--sp-4);row-gap:2px;align-items:center;justify-items:start;padding:0 0 var(--sp-4)}
+#screen-home .char-aura{grid-area:aura;width:64px;height:64px;font-size:32px;box-shadow:none}
+#screen-home .char-title{grid-area:title;margin:0;text-align:left;font-size:var(--fs-lg);max-width:none;align-self:end}
+#screen-home .char-sub{grid-area:sub;margin:0;text-align:left;font-size:var(--fs-sm);max-width:none}
+#screen-home .char-badges{grid-area:badges;margin:0;min-height:0}
+#screen-home .char-badges span{font-size:var(--fs-md)}
+.progress-strip{padding:var(--sp-3) var(--sp-4);margin-top:0}
+.progress-strip .top,.streak-text{font-size:var(--fs-sm)}
+.streak-row{margin-top:var(--sp-3)}
+.empty-note .btn{margin-top:var(--sp-3)}
+.fold{margin-top:var(--sp-6);border:1px solid var(--border);border-radius:var(--r-lg);background:var(--card)}
+.fold>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:var(--sp-3) var(--sp-4);font-size:var(--fs-md);font-weight:600;color:var(--text-dim)}
+.fold>summary::-webkit-details-marker{display:none}
+.fold>summary::after{content:'';width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin-top:-3px;transition:transform .2s}
+.fold[open]>summary{border-bottom:1px solid var(--border)}
+.fold[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
+.fold>.dmg-home-card{margin:0}
+.more-list{display:grid;gap:var(--sp-2)}
+.more-row{display:flex;align-items:center;gap:var(--sp-4);width:100%;padding:var(--sp-4);background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);color:var(--text);text-align:left;font-size:var(--fs-lg);font-weight:600}
+.more-row svg{width:24px;height:24px;flex:none;color:var(--gold)}
+.more-row small{display:block;font-size:var(--fs-sm);font-weight:400;color:var(--text-dim);margin-top:2px}
+.more-row::after{content:'\203A';margin-left:auto;color:var(--text-faint);font-size:var(--fs-xl)}
+.back-more{display:inline-flex;align-items:center;min-height:44px;background:none;color:var(--text-dim);font-size:var(--fs-md);padding:0;margin-bottom:var(--sp-1)}
+</style>
 </head>
 <body>
 <div id="app">
@@ -1493,8 +1543,6 @@
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
           <div class="tb-gold">🪙 <span id="tb-gold-val">0</span></div>
-          <button class="tb-settings-btn" onclick="switchTab('social')" aria-label="소셜" title="랭킹·친구">👥</button>
-          <button class="tb-settings-btn" onclick="switchTab('settings')" aria-label="설정" title="설정">⚙️</button>
         </div>
       </div>
       <div class="xp-wrap">
@@ -1528,12 +1576,23 @@
         </div>
       </div>
 
-      <div id="bm-home-alert"></div>
       <div class="section-head"><h2>오늘의 퀘스트</h2><span class="meta" id="home-date"></span></div>
       <div id="today-quest-list"></div>
       <button class="btn btn-ghost btn-block hidden" id="home-quest-more-btn" style="margin-top:4px;" onclick="switchTab('quest')">전체 보기</button>
 
-      <div class="dmg-home-card" id="dmg-home-card"></div>
+      <div id="bm-home-alert"></div>
+      <details class="fold"><summary>미니게임</summary><div class="dmg-home-card" id="dmg-home-card"></div></details>
+    </div>
+
+    <!-- MORE -->
+    <div class="screen hidden" id="screen-more">
+      <div class="section-head"><h2>더보기</h2></div>
+      <div class="more-list">
+        <button class="more-row" onclick="switchTab('character')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg><span>캐릭터<small>장비와 능력치</small></span></button>
+        <button class="more-row" onclick="switchTab('growth')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span>성장<small>통계와 기록</small></span></button>
+        <button class="more-row" onclick="switchTab('shop')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span>상점<small>장비 구매 · 암시장</small></span></button>
+        <button class="more-row" onclick="switchTab('settings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg><span>설정<small>알림 · 백업 · 닉네임</small></span></button>
+      </div>
     </div>
 
     <!-- QUEST LIST -->
@@ -1773,13 +1832,13 @@
 
     <div class="fab" onclick="openAddSheet()">+</div>
 
-    <div id="bottomnav">
-      <button class="nav-item" data-tab="growth" onclick="switchTab('growth')"><span class="ic">📈</span>성장</button>
-      <button class="nav-item" data-tab="character" onclick="switchTab('character')"><span class="ic">🧙</span>캐릭터</button>
-      <button class="nav-item active" data-tab="home" onclick="switchTab('home')"><span class="ic">🏠</span>홈</button>
-      <button class="nav-item" data-tab="explore" onclick="switchTab('explore')"><span class="ic">🗺️</span>탐험</button>
-      <button class="nav-item" data-tab="shop" onclick="switchTab('shop')"><span class="ic">🛒</span>상점</button>
-    </div>
+    <nav id="bottomnav" aria-label="주 메뉴">
+      <button class="nav-item active" data-tab="home" onclick="switchTab('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/></svg>홈</button>
+      <button class="nav-item" data-tab="quest" onclick="switchTab('quest')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/></svg>퀘스트</button>
+      <button class="nav-item" data-tab="social" onclick="switchTab('social')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17.5 14.2c2.3.4 3.5 2.4 3.5 5.8"/></svg>소셜</button>
+      <button class="nav-item" data-tab="explore" onclick="switchTab('explore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg>탐험</button>
+      <button class="nav-item" data-tab="more" onclick="switchTab('more')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg>더보기</button>
+    </nav>
   </div>
 
   <!-- ADD QUEST SHEET -->
@@ -2635,7 +2694,7 @@ function renderHome(){
   wrap.innerHTML='';
   const HOME_QUEST_LIMIT = 4;
   if(list.length===0){
-    wrap.innerHTML = `<div class="empty-note">아직 등록된 퀘스트가 없습니다.<br>오른쪽 하단 + 버튼으로 첫 퀘스트를 등록해보세요.</div>`;
+    wrap.innerHTML = `<div class="empty-note">아직 등록된 퀘스트가 없습니다.<br><button class="btn btn-gold" onclick="openAddSheet()">첫 퀘스트 등록하기</button></div>`;
   } else {
     list.slice(0, HOME_QUEST_LIMIT).forEach(q=> wrap.appendChild(questCardEl(q, t)) );
   }
@@ -6068,15 +6127,22 @@ function startWatchingPosition(){
 }
 
 /* ===================== NAV ===================== */
+let currentTab = 'home';
+const MORE_TABS = ['character','growth','shop','settings']; // 하단 내비에서는 "더보기" 아래에 묶인다
 function switchTab(tab){
-  const prevTab = document.querySelector('.nav-item.active')?.dataset.tab;
-  ['home','quest','character','growth','shop','explore','settings','social'].forEach(t=>{
+  const prevTab = currentTab; currentTab = tab;
+  ['home','quest','character','growth','shop','explore','settings','social','more'].forEach(t=>{
     const screen=document.getElementById('screen-'+t);
     if(screen) screen.classList.toggle('hidden', t!==tab);
   });
+  const navTab = MORE_TABS.includes(tab) ? 'more' : tab;
   document.querySelectorAll('.nav-item').forEach(el=>{
-    el.classList.toggle('active', el.dataset.tab===tab);
+    const on = el.dataset.tab===navTab;
+    el.classList.toggle('active', on);
+    if(on) el.setAttribute('aria-current','page'); else el.removeAttribute('aria-current');
   });
+  window.scrollTo(0,0);
+  document.querySelector('.fab').style.display = (tab==='home'||tab==='quest') ? '' : 'none'; // 퀘스트 추가는 홈·퀘스트에서만
   // leaving the explore tab: stop GPS watch to save battery, unless an active
   // walk session needs to keep tracking distance in the background
   if(prevTab==='explore' && tab!=='explore' && !walkTracking){
@@ -6091,12 +6157,14 @@ function switchTab(tab){
   if(tab==='social') socialOpen(); else socialClose();
 }
 
+MORE_TABS.forEach(t=>{ const sc=document.getElementById('screen-'+t); if(sc) sc.insertAdjacentHTML('afterbegin','<button class="back-more" onclick="switchTab(\'more\')">← 더보기</button>'); });
+
 /* ===================== MASTER RENDER ===================== */
 function renderAll(){
   renderTopbar();
   renderCharacterVisual('home');
   renderHome();
-  const activeTab = document.querySelector('.nav-item.active')?.dataset.tab || 'home';
+  const activeTab = currentTab;
   if(activeTab==='quest') renderAllQuests();
   if(activeTab==='character') renderCharacterScreen();
   if(activeTab==='growth') renderGrowth();

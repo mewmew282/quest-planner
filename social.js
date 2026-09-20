@@ -215,13 +215,12 @@ async function refreshPushButton(){
 }
 
 /* ---------- 탭 연결 (index.html의 switchTab에서 호출) ---------- */
-const fab = ()=>document.querySelector('.fab');
 // 무료 서버는 15분 쉬면 잠들어서 첫 요청이 50초까지 걸린다 → 앱을 쓰는 동안 미리 깨워 둔다
 const warm = ()=>{ if(token) fetch(API_URL+'/health', {mode:'no-cors'}).catch(()=>{}); };
 setInterval(()=>{ if(!document.hidden) warm(); }, 600000);
 window.addEventListener('load', warm);
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) warm(); });
-window.socialOpen = function(){ if(view==='chat') view = 'friends'; fab().style.display = 'none'; warm(); render(); };
-window.socialClose = function(){ stopPoll(); setChatMode(false); fab().style.display = ''; };
+window.socialOpen = function(){ if(view==='chat') view = 'friends'; warm(); render(); };
+window.socialClose = function(){ stopPoll(); setChatMode(false); };
 window.addEventListener('load', resubscribeIfAllowed);
 })();
