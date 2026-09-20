@@ -1493,6 +1493,7 @@
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
           <div class="tb-gold">🪙 <span id="tb-gold-val">0</span></div>
+          <button class="tb-settings-btn" onclick="switchTab('social')" aria-label="소셜" title="랭킹·친구">👥</button>
           <button class="tb-settings-btn" onclick="switchTab('settings')" aria-label="설정" title="설정">⚙️</button>
         </div>
       </div>
@@ -6069,7 +6070,7 @@ function startWatchingPosition(){
 /* ===================== NAV ===================== */
 function switchTab(tab){
   const prevTab = document.querySelector('.nav-item.active')?.dataset.tab;
-  ['home','quest','character','growth','shop','explore','settings'].forEach(t=>{
+  ['home','quest','character','growth','shop','explore','settings','social'].forEach(t=>{
     const screen=document.getElementById('screen-'+t);
     if(screen) screen.classList.toggle('hidden', t!==tab);
   });
@@ -6087,6 +6088,7 @@ function switchTab(tab){
   if(tab==='shop'){ renderShopScreen(); }
   if(tab==='settings') renderSettings();
   if(tab==='explore') initExploreScreen();
+  if(tab==='social') socialOpen(); else socialClose();
 }
 
 /* ===================== MASTER RENDER ===================== */
@@ -6126,5 +6128,6 @@ async function init(){
 }
 init();
 </script>
+<script src="social.js"></script>
 </body>
 </html>

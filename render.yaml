@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: quest-planner-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /health
+    plan: free
+    envVars:
+      - key: MONGODB_URI   # MongoDB Atlas 연결 문자열 (Render 대시보드에서 직접 입력)
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: VAPID_PUBLIC
+        sync: false
+      - key: VAPID_PRIVATE
+        sync: false

@@ -1,7 +1,8 @@
-const CACHE_NAME = 'quest-planner-v2';
+const CACHE_NAME = 'quest-planner-v3';
 const ASSETS = [
   './index.html',
   './manifest.json',
+  './social.js',
   './icons/icon-192.png',
   './icons/icon-512.png'
 ];
@@ -50,4 +51,13 @@ self.addEventListener('notificationclick', (event) => {
       if (self.clients.openWindow) return self.clients.openWindow('./index.html');
     })
   );
+});
+
+self.addEventListener('push', (event) => {
+  let d = {};
+  try { d = event.data ? event.data.json() : {}; } catch (e) {}
+  event.waitUntil(self.registration.showNotification(d.title || 'Quest Planner', {
+    body: d.body || '', tag: d.tag, renotify: !!d.tag,
+    icon: 'icons/icon-192.png', badge: 'icons/icon-192.png'
+  }));
 });
