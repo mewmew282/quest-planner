@@ -64,7 +64,7 @@ function stopPoll(){ clearInterval(pollTimer); pollTimer = null; }
 
 /* ---------- 로그인 ---------- */
 function renderLogin(msg){
-  sc.innerHTML = `<div class="section-head" style="margin-top:4px"><h2>👥 소셜</h2></div>
+  sc.innerHTML = `<div class="section-head top"><h2>👥 소셜</h2></div>
   <div class="settings-card"><h3>로그인 / 가입</h3>
     <div class="hint">친구·랭킹·대화를 쓰려면 계정이 필요해요. 처음이면 "가입"을 눌러요.<br>서버가 잠들어 있으면 첫 요청이 30초쯤 걸릴 수 있어요.</div>
     <input type="text" id="soc-nick" maxlength="10" placeholder="닉네임 (2~10자)" value="${esc(myNick || (state.character && state.character.nickname) || '')}" autocomplete="username">
@@ -89,12 +89,15 @@ function renderLogin(msg){
 function render(){
   stopPoll(); setChatMode(false);
   if(!token) return renderLogin();
-  sc.innerHTML = `<div class="section-head" style="margin-top:4px"><h2>👥 소셜</h2><span class="pill">${esc(myNick)} · <a href="#" id="soc-out" style="color:inherit">로그아웃</a></span></div>
+  sc.innerHTML = `<div class="section-head top"><h2>👥 소셜</h2><span class="pill">${esc(myNick)} · <a href="#" id="soc-out" style="color:inherit">로그아웃</a></span></div>
   <div class="soc-tabs">${[['rank','🏆 랭킹'],['friends','🤝 친구']].map(([k,l])=>`<button data-v="${k}" class="${view===k||(view==='chat'&&k==='friends')?'on':''}">${l}</button>`).join('')}</div>
-  <div id="soc-body"><div class="hint">불러오는 중…</div></div>`;
+  <div id="soc-body"><div class="hint" id="soc-loading">불러오는 중…</div></div>`;
   $('soc-out').onclick = (e)=>{ e.preventDefault(); logout(); };
   sc.querySelectorAll('.soc-tabs button').forEach(b=>b.onclick = ()=>{ view = b.dataset.v; render(); });
-  ({rank:renderRank, friends:renderFriends, chat:renderChat}[view])().catch(e=>{ const b=$('soc-body'); if(b) b.innerHTML = `<div class="soc-err">${esc(e.message)}</div>`; });
+  const warmupTimer = setTimeout(()=>{ const el = $('soc-loading'); if(el) el.textContent = '서버를 깨우는 중이에요… 최대 30초 정도 걸릴 수 있어요'; }, 2000);
+  ({rank:renderRank, friends:renderFriends, chat:renderChat}[view])()
+    .catch(e=>{ const b=$('soc-body'); if(b) b.innerHTML = `<div class="soc-err">${esc(e.message)}</div>`; })
+    .finally(()=>clearTimeout(warmupTimer));
 }
 
 async function renderRank(){

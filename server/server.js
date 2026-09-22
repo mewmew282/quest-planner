@@ -80,6 +80,7 @@ app.post('/api/login', wrap(async (req, res) => {
 // ---- 랭킹 ----
 // ponytail: score is client-reported (no anti-cheat). Fine for friends; validate server-side if strangers compete.
 app.put('/api/score', auth, wrap(async (req, res) => {
+  if (!limit('score:' + req.uid, 30, 300e3)) return bad(res, '잠시 후 다시 시도해 주세요', 429);
   const xp = Math.floor(Number(req.body.xp)), cls = String(req.body.cls || '').slice(0, 20);
   if (!(xp >= 0 && xp <= 1e8)) return bad(res, '잘못된 값');
   await users.updateOne({ _id: req.uid }, { $set: { xp, cls } });
@@ -96,6 +97,7 @@ app.get('/api/rank', auth, wrap(async (req, res) => {
 
 // ---- 친구 ----
 app.get('/api/friends', auth, wrap(async (req, res) => {
+  if (!limit('friendslist:' + req.uid, 60, 60e3)) return bad(res, '잠시 후 다시 시도해 주세요', 429);
   const me = await users.findOne({ _id: req.uid });
   const proj = { projection: { nick: 1, xp: 1, cls: 1 } };
   const [fr, rq, unread] = await Promise.all([
@@ -115,6 +117,8 @@ app.post('/api/friends/request', auth, wrap(async (req, res) => {
   if (t._id.equals(me._id)) return bad(res, '나 자신은 친구로 추가할 수 없어요');
   if (me.friends.some((f) => f.equals(t._id))) return bad(res, '이미 친구예요');
   if (me.reqIn.some((f) => f.equals(t._id))) return accept(me, t, res); // 서로 신청 → 바로 친구
+  if (me.reqOut.some((f) => f.equals(t._id))) return bad(res, '이미 신청을 보냈어요');
+  if (!limit('friendreq:' + me._id, 10, 3600e3)) return bad(res, '잠시 후 다시 시도해 주세요', 429);
   await Promise.all([users.updateOne({ _id: t._id }, { $addToSet: { reqIn: me._id } }),
     users.updateOne({ _id: me._id }, { $addToSet: { reqOut: t._id } })]);
   notify(t._id, { title: '👥 친구 요청', body: `${me.nick}님이 친구 신청을 보냈어요`, tag: 'friend' });
@@ -129,6 +133,7 @@ async function accept(me, t, res) {
   res.json({ ok: true, accepted: true });
 }
 app.post('/api/friends/respond', auth, wrap(async (req, res) => {
+  if (!limit('friendrespond:' + req.uid, 20, 600e3)) return bad(res, '잠시 후 다시 시도해 주세요', 429);
   const [me, t] = await Promise.all([users.findOne({ _id: req.uid }), byNick(req.body.nick)]);
   if (!t || !me.reqIn.some((f) => f.equals(t._id))) return bad(res, '받은 요청이 없어요', 404);
   if (req.body.accept) return accept(me, t, res);
@@ -137,6 +142,7 @@ app.post('/api/friends/respond', auth, wrap(async (req, res) => {
   res.json({ ok: true });
 }));
 app.post('/api/friends/remove', auth, wrap(async (req, res) => {
+  if (!limit('friendremove:' + req.uid, 20, 600e3)) return bad(res, '잠시 후 다시 시도해 주세요', 429);
   const t = await byNick(req.body.nick);
   if (!t) return bad(res, '없는 사용자', 404);
   await Promise.all([users.updateOne({ _id: req.uid }, { $pull: { friends: t._id } }),
@@ -171,9 +177,13 @@ app.get('/api/msgs', auth, wrap(async (req, res) => {
 }));
 
 // ---- 푸시 구독 ----
+// ponytail: allowlist by hostname suffix, not full endpoint match — browsers vary the path per subscription.
+const PUSH_HOSTS = [/(^|\.)googleapis\.com$/, /(^|\.)push\.services\.mozilla\.com$/, /(^|\.)notify\.windows\.com$/, /(^|\.)push\.apple\.com$/];
 app.post('/api/push', auth, wrap(async (req, res) => {
   const s = req.body.sub;
-  if (!s || typeof s.endpoint !== 'string' || !s.endpoint.startsWith('https://') || !s.keys) return bad(res, '잘못된 구독');
+  if (!s || typeof s.endpoint !== 'string' || !s.keys) return bad(res, '잘못된 구독');
+  let host; try { host = new URL(s.endpoint).hostname; } catch { return bad(res, '잘못된 구독'); }
+  if (!s.endpoint.startsWith('https://') || !PUSH_HOSTS.some((re) => re.test(host))) return bad(res, '지원하지 않는 푸시 서비스예요');
   const sub = { endpoint: s.endpoint, keys: { p256dh: String(s.keys.p256dh), auth: String(s.keys.auth) } };
   await users.updateOne({ _id: req.uid }, { $pull: { push: { endpoint: sub.endpoint } } });
   await users.updateOne({ _id: req.uid }, { $push: { push: { $each: [sub], $slice: -5 } } });

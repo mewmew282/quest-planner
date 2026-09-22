@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>QUEST PLANNER</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#14101F">
@@ -11,8 +11,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Quest Planner">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
   :root{
     --bg:#14101F;
@@ -119,7 +117,7 @@
     font-size:16px;
     margin-bottom:22px;
   }
-  input[type=text]:focus{outline:none;border-color:var(--gold-dim);}
+  input[type=text]:focus{border-color:var(--gold-dim);}
   input[type=date]{
     width:100%;
     background:var(--card);
@@ -130,7 +128,7 @@
     font-size:15px;
     color-scheme:dark;
   }
-  input[type=date]:focus{outline:none;border-color:var(--gold-dim);}
+  input[type=date]:focus{border-color:var(--gold-dim);}
   .quest-date-pill{background:var(--bg-elev);color:var(--text-dim);}
   .quest-date-pill.overdue{background:rgba(224,102,92,0.15);color:var(--danger);border-color:var(--danger);}
   .class-grid{
@@ -205,6 +203,7 @@
     width:24px;height:24px;border-radius:7px;border:2px solid var(--text-faint);
     flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;
     transition:all .15s;
+    background:transparent;padding:0;cursor:pointer;color:inherit;font-family:inherit;
   }
   .quest-card.done .quest-check{background:var(--success);border-color:var(--success);}
   .quest-body{flex:1;min-width:0;}
@@ -1297,7 +1296,7 @@
   .xp-num{font-size:10px;min-width:64px;text-align:right;}
 
   /* Common controls */
-  .btn{min-height:42px;padding:10px 14px;font-size:13px;line-height:1.3;white-space:normal;}
+  .btn{min-height:44px;padding:10px 14px;font-size:13px;line-height:1.3;white-space:normal;}
   .btn-block{min-height:44px;}
   .chip{min-height:36px;padding:8px 12px;font-size:12px;line-height:1.2;}
   .chip-row{gap:7px;}
@@ -1365,7 +1364,7 @@
   .shop-screen-gold .label{font-size:11.5px;}
   .shop-screen-gold .value{font-size:18px;white-space:nowrap;}
   .shop-tabs{gap:6px;margin-bottom:9px;padding:3px 0 6px;}
-  .shop-tab{min-height:40px;padding:8px 4px;font-size:11.5px;}
+  .shop-tab{min-height:44px;padding:8px 4px;font-size:11.5px;}
   #shop-list,#shop-screen-list{gap:8px;}
   .shop-item{padding:9px 8px;border-radius:13px;}
   .shop-item .ic{font-size:27px;height:32px;line-height:32px;}
@@ -1413,8 +1412,8 @@
   .duel-card .info{min-width:0;}
   .duel-card .info .nm{font-size:12.5px;line-height:1.35;}
   .duel-card .info .sub{font-size:10.5px;line-height:1.4;}
-  .duel-bet-btn{min-height:42px;line-height:1.3;}
-  .bm-tab{min-height:40px;line-height:1.2;}
+  .duel-bet-btn{min-height:44px;line-height:1.3;}
+  .bm-tab{min-height:44px;line-height:1.2;}
   .bm-shelf-note,.mg-daily-note{font-size:11px;line-height:1.6;}
   .jail-modal-card{max-width:390px;padding:23px 17px 17px;}
   .jail-line,.jail-story,.jail-whisper{line-height:1.65;}
@@ -1446,7 +1445,7 @@
 .bm-closure-card{position:relative;width:min(440px,94vw);padding:28px 20px 20px;border:1px solid rgba(255,190,80,.6);border-radius:22px;background:linear-gradient(145deg,#21152d,#0e0b15);box-shadow:0 20px 70px rgba(0,0,0,.6);text-align:center;overflow:hidden}
 .bm-closure-stamp{position:absolute;right:-28px;top:18px;transform:rotate(12deg);font-weight:1000;font-size:18px;letter-spacing:2px;color:#ff7268;border:2px solid #ff7268;padding:5px 12px;border-radius:8px;opacity:.8}
 .bm-closure-ic{font-size:48px;margin-bottom:6px}.bm-closure-title{font-size:24px;font-weight:1000;margin:4px 0 10px}.bm-closure-line{font-weight:900;color:#ffe66d}.bm-closure-story{line-height:1.75;color:#eee;margin:8px 0 14px}.bm-closure-profit{display:inline-block;padding:7px 12px;border-radius:999px;background:rgba(255,193,72,.12);color:#ffd66d;font-weight:900;margin-bottom:14px}
-.bm-closed-game{text-align:center;padding:34px 18px;border:1px dashed rgba(255,105,95,.5);border-radius:20px;background:rgba(120,30,30,.08)}.bm-closed-stamp{display:inline-block;color:#ff756d;border:2px solid #ff756d;border-radius:7px;padding:5px 12px;font-weight:1000;letter-spacing:2px;transform:rotate(-3deg);margin-bottom:12px}.bm-closed-icon{font-size:44px}.bm-closed-game h3{margin:8px 0}.bm-closed-game p{color:var(--muted);line-height:1.6}.bm-closed-profit{font-weight:900;color:#ffd66d;margin-top:10px}
+.bm-closed-game{text-align:center;padding:34px 18px;border:1px dashed rgba(255,105,95,.5);border-radius:20px;background:rgba(120,30,30,.08)}.bm-closed-stamp{display:inline-block;color:#ff756d;border:2px solid #ff756d;border-radius:7px;padding:5px 12px;font-weight:1000;letter-spacing:2px;transform:rotate(-3deg);margin-bottom:12px}.bm-closed-icon{font-size:44px}.bm-closed-game h3{margin:8px 0}.bm-closed-game p{color:var(--text-faint);line-height:1.6}.bm-closed-profit{font-weight:900;color:#ffd66d;margin-top:10px}
 .jail-ticket-actions{display:grid;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}.jail-visit-count,.jail-fine-paid{margin:10px 0;padding:9px;border-radius:10px;background:rgba(255,255,255,.05);font-size:13px}.jail-fine-paid{color:#ffd66d}
 .shop-item.ticket-item{border-color:rgba(255,193,72,.35);background:linear-gradient(135deg,rgba(255,193,72,.08),rgba(255,255,255,.02))}
 .mg-game-card.mg-game-closed{opacity:.68;filter:saturate(.55);cursor:not-allowed;border-color:rgba(255,100,90,.35);background:rgba(100,30,30,.08)}.mg-game-closed .nm{color:#ff8b83}.mg-game-closed .arrow{color:#ff756d;font-weight:1000}
@@ -1468,6 +1467,7 @@ button,.btn,[onclick]{touch-action:manipulation}
 .tb-name,.tb-gold{font-size:var(--fs-md)}
 .tb-title,.xp-num{font-size:var(--fs-xs)}
 .section-head{margin:var(--sp-6) 0 var(--sp-3)}
+.section-head.top{margin-top:var(--sp-1)}
 .section-head h2{font-size:var(--fs-lg)}
 .section-head .meta{font-size:var(--fs-sm)}
 #bottomnav{padding:var(--sp-1) 0 calc(var(--sp-1) + env(safe-area-inset-bottom));background:var(--bg-elev);backdrop-filter:none}
@@ -1632,7 +1632,7 @@ button,.btn,[onclick]{touch-action:manipulation}
 
     <!-- GROWTH -->
     <div class="screen hidden" id="screen-growth">
-      <div class="section-head" style="margin-top:4px;"><h2>이번 주 리포트</h2></div>
+      <div class="section-head top"><h2>이번 주 리포트</h2></div>
       <div class="stat-grid-2">
         <div class="metric-card"><div class="num" id="m-cleared">0</div><div class="lbl">완료 퀘스트</div></div>
         <div class="metric-card"><div class="num" id="m-xp">0</div><div class="lbl">획득 XP</div></div>
@@ -1652,7 +1652,7 @@ button,.btn,[onclick]{touch-action:manipulation}
 
     <!-- SHOP -->
     <div class="screen hidden" id="screen-shop">
-      <div class="section-head" style="margin-top:4px;"><h2>상점</h2><span class="meta">모험가의 거래소</span></div>
+      <div class="section-head top"><h2>상점</h2><span class="meta">모험가의 거래소</span></div>
       <div class="shopkeeper-card">
         <div class="shop-npc-ic">🧔</div>
         <div>
@@ -1682,7 +1682,7 @@ button,.btn,[onclick]{touch-action:manipulation}
 
     <!-- EXPLORE -->
     <div class="screen hidden" id="screen-explore">
-      <div class="section-head" style="margin-top:4px;"><h2>탐험</h2><span class="meta">실시간 GPS 기반</span></div>
+      <div class="section-head top"><h2>탐험</h2><span class="meta">실시간 GPS 기반</span></div>
 
       <div class="explore-note" id="explore-permission-note">
         위치 권한을 허용하면 근처의 보물상자를 찾고, 산책 거리를 기록할 수 있어요. 앱이 켜져 있는 동안에만 위치가 추적됩니다.
@@ -1717,7 +1717,7 @@ button,.btn,[onclick]{touch-action:manipulation}
     </div>
 
     <!-- EXPLORE TIMELINE -->
-    <div class="sheet-overlay" id="explore-timeline-overlay" onclick="closeExploreTimelineOnBg(event)">
+    <div class="sheet-overlay" id="explore-timeline-overlay" role="dialog" aria-modal="true" onclick="closeExploreTimelineOnBg(event)">
       <div class="sheet" onclick="event.stopPropagation()">
         <h3>🗓️ 탐험 타임라인</h3>
         <div class="tl-section-label">지난 산책 경로 (탭하면 지도에 표시)</div>
@@ -1730,7 +1730,7 @@ button,.btn,[onclick]{touch-action:manipulation}
 
     <!-- SETTINGS -->
     <div class="screen hidden" id="screen-settings">
-      <div class="section-head" style="margin-top:4px;"><h2>설정</h2></div>
+      <div class="section-head top"><h2>설정</h2></div>
 
       <div class="settings-card">
         <h3>닉네임 변경</h3>
@@ -1842,7 +1842,7 @@ button,.btn,[onclick]{touch-action:manipulation}
   </div>
 
   <!-- ADD QUEST SHEET -->
-  <div class="sheet-overlay" id="add-sheet-overlay" onclick="closeAddSheetOnBg(event)">
+  <div class="sheet-overlay" id="add-sheet-overlay" role="dialog" aria-modal="true" aria-labelledby="add-sheet-title" onclick="closeAddSheetOnBg(event)">
     <div class="sheet" onclick="event.stopPropagation()">
       <h3 id="add-sheet-title">새 퀘스트 등록</h3>
       <input type="hidden" id="nq-edit-id" value="">
@@ -1892,7 +1892,7 @@ button,.btn,[onclick]{touch-action:manipulation}
   </div>
 
   <!-- COIN DEX -->
-  <div class="sheet-overlay" id="achievement-dex-overlay" onclick="closeAchievementDexOnBg(event)">
+  <div class="sheet-overlay" id="achievement-dex-overlay" role="dialog" aria-modal="true" onclick="closeAchievementDexOnBg(event)">
     <div class="sheet achievement-dex-sheet" onclick="event.stopPropagation()">
       <div class="dex-topline"><h3>📖 업적도감</h3><button class="dex-close" type="button" aria-label="업적도감 닫기" onclick="closeAchievementDex()">×</button></div>
       <div class="dex-progress" id="achievement-dex-progress"></div>
@@ -1901,8 +1901,8 @@ button,.btn,[onclick]{touch-action:manipulation}
       <div class="dex-nav"><button type="button" id="achievement-dex-prev" aria-label="이전 페이지" onclick="changeAchievementDexPage(-1)">‹</button><div class="dex-nav-status" id="achievement-dex-nav-status">PAGE 1 / 1</div><button type="button" id="achievement-dex-next" aria-label="다음 페이지" onclick="changeAchievementDexPage(1)">›</button></div>
     </div>
   </div>
-  <div class="confirm-overlay" id="achievement-detail-overlay" onclick="if(event.target===this) closeAchievementDetail()"><div class="confirm-card achv-detail-card"><div class="achv-detail-icon" id="achievement-detail-icon">🏆</div><div class="confirm-title" id="achievement-detail-name" style="color:var(--gold);"></div><div class="confirm-body" id="achievement-detail-desc"></div><div class="achv-detail-reward" id="achievement-detail-reward"></div><button class="btn btn-gold btn-block" type="button" onclick="closeAchievementDetail()">닫기</button></div></div>
-  <div class="sheet-overlay" id="coin-dex-overlay" onclick="closeCoinDexOnBg(event)">
+  <div class="confirm-overlay" id="achievement-detail-overlay" role="dialog" aria-modal="true" onclick="if(event.target===this) closeAchievementDetail()"><div class="confirm-card achv-detail-card"><div class="achv-detail-icon" id="achievement-detail-icon">🏆</div><div class="confirm-title" id="achievement-detail-name" style="color:var(--gold);"></div><div class="confirm-body" id="achievement-detail-desc"></div><div class="achv-detail-reward" id="achievement-detail-reward"></div><button class="btn btn-gold btn-block" type="button" onclick="closeAchievementDetail()">닫기</button></div></div>
+  <div class="sheet-overlay" id="coin-dex-overlay" role="dialog" aria-modal="true" onclick="closeCoinDexOnBg(event)">
     <div class="sheet" onclick="event.stopPropagation()">
       <h3>🪙 코인도감 <span class="pill" id="coin-dex-progress">0/0</span></h3>
       <div class="coin-grid" id="coin-dex-grid"></div>
@@ -1912,7 +1912,7 @@ button,.btn,[onclick]{touch-action:manipulation}
   </div>
 
   <!-- COIN EXCHANGE -->
-  <div class="sheet-overlay" id="coin-exchange-overlay" onclick="closeCoinExchangeOnBg(event)">
+  <div class="sheet-overlay" id="coin-exchange-overlay" role="dialog" aria-modal="true" onclick="closeCoinExchangeOnBg(event)">
     <div class="sheet" onclick="event.stopPropagation()">
       <div class="coin-exchange-head"><h3>🏪 코인 교환소</h3><button class="dex-close" type="button" aria-label="코인 교환소 닫기" onclick="closeCoinExchange()">×</button></div>
       <div class="coin-exchange-balance"><span class="label">현재 보유 골드</span><span class="value" id="exchange-gold-pill">🪙0</span></div>
@@ -1923,7 +1923,7 @@ button,.btn,[onclick]{touch-action:manipulation}
   </div>
 
   <!-- EQUIPMENT -->
-  <div class="sheet-overlay" id="equip-overlay" onclick="closeEquipOnBg(event)">
+  <div class="sheet-overlay" id="equip-overlay" role="dialog" aria-modal="true" onclick="closeEquipOnBg(event)">
     <div class="sheet" onclick="event.stopPropagation()">
       <h3>🎒 장비창</h3>
       <div class="hint" style="margin-bottom:12px;">장비를 착용하면 퀘스트·상자 보상이 늘어나요. 카드를 탭해서 보유한 장비로 바꿔보세요.</div>
@@ -1934,7 +1934,7 @@ button,.btn,[onclick]{touch-action:manipulation}
   </div>
 
   <!-- EQUIPMENT PICKER -->
-  <div class="sheet-overlay" id="equip-picker-overlay" onclick="closeEquipPickerOnBg(event)">
+  <div class="sheet-overlay" id="equip-picker-overlay" role="dialog" aria-modal="true" aria-labelledby="equip-picker-title" onclick="closeEquipPickerOnBg(event)">
     <div class="sheet" onclick="event.stopPropagation()">
       <h3 id="equip-picker-title">🎒 장비 선택</h3>
       <div class="hint" style="margin-bottom:12px;">보유한 장비 중에서 착용할 것을 골라보세요.</div>
@@ -1944,7 +1944,7 @@ button,.btn,[onclick]{touch-action:manipulation}
   </div>
 
   <!-- SHOP -->
-  <div class="sheet-overlay" id="shop-overlay" onclick="closeShopOnBg(event)">
+  <div class="sheet-overlay" id="shop-overlay" role="dialog" aria-modal="true" onclick="closeShopOnBg(event)">
     <div class="sheet" onclick="event.stopPropagation()">
       <div class="shop-header-row">
         <h3 style="margin:0;">🏪 모험가 상점</h3>
@@ -1965,7 +1965,7 @@ button,.btn,[onclick]{touch-action:manipulation}
   </div>
 
   <!-- DAILY MINIGAMES -->
-  <div class="sheet-overlay" id="dmg-overlay" onclick="closeDailyMiniGameOnBg(event)">
+  <div class="sheet-overlay" id="dmg-overlay" role="dialog" aria-modal="true" onclick="closeDailyMiniGameOnBg(event)">
     <div class="sheet dmg-sheet" onclick="event.stopPropagation()">
       <div class="bm-header-row">
         <h3 style="margin:0;">🎮 데일리 미니게임</h3>
@@ -1977,7 +1977,7 @@ button,.btn,[onclick]{touch-action:manipulation}
   </div>
 
   <!-- BLACK MARKET -->
-  <div class="sheet-overlay" id="bm-overlay" onclick="closeBlackMarketOnBg(event)">
+  <div class="sheet-overlay" id="bm-overlay" role="dialog" aria-modal="true" onclick="closeBlackMarketOnBg(event)">
     <div class="sheet bm-sheet" onclick="event.stopPropagation()">
       <div class="bm-header-row">
         <h3 style="margin:0;">🕶️ 암시장</h3>
@@ -2059,7 +2059,7 @@ button,.btn,[onclick]{touch-action:manipulation}
   </div>
 
   <!-- QUEST DELETE CONFIRM MODAL -->
-  <div class="confirm-overlay" id="quest-delete-confirm-overlay" onclick="if(event.target===this) closeDeleteQuestConfirm()">
+  <div class="confirm-overlay" id="quest-delete-confirm-overlay" role="dialog" aria-modal="true" onclick="if(event.target===this) closeDeleteQuestConfirm()">
     <div class="confirm-card">
       <div class="confirm-ic">🗑️</div>
       <div class="confirm-title">퀘스트 삭제</div>
@@ -2072,7 +2072,7 @@ button,.btn,[onclick]{touch-action:manipulation}
   </div>
 
   <!-- REGRESSION CONFIRM MODAL -->
-  <div class="confirm-overlay" id="regress-confirm-overlay">
+  <div class="confirm-overlay" id="regress-confirm-overlay" role="dialog" aria-modal="true">
     <div class="confirm-card">
       <div class="confirm-ic">⏳</div>
       <div class="confirm-title">회귀</div>
@@ -2084,7 +2084,7 @@ button,.btn,[onclick]{touch-action:manipulation}
     </div>
   </div>
 
-  <div class="confirm-overlay" id="import-confirm-overlay">
+  <div class="confirm-overlay" id="import-confirm-overlay" role="dialog" aria-modal="true">
     <div class="confirm-card">
       <div class="confirm-ic">📥</div>
       <div class="confirm-title" style="color:var(--gold);">백업 불러오기</div>
@@ -3135,7 +3135,7 @@ function questCardEl(q, t){
   const datePill = q.type==='dated' ? `<span class="pill quest-date-pill${isOverdue?' overdue':''}">📅 ${formatDatePill(q.dueDate)}${isOverdue?' 지남':''}</span>` : '';
   const weekdayPill = (q.type==='daily' && q.weekdays && q.weekdays.length>0) ? `<span class="pill">🔁 ${q.weekdays.slice().sort().map(weekdayLabel).join('')}</span>` : '';
   div.innerHTML = `
-    <div class="quest-check">${isDoneToday?'✓':''}</div>
+    <button type="button" class="quest-check" role="checkbox" aria-checked="${isDoneToday}" aria-label="퀘스트 완료 체크">${isDoneToday?'✓':''}</button>
     <div class="quest-body">
       <div class="quest-title">${escapeHtml(q.title)}</div>
       <div class="quest-meta"><span class="pill">${catIcon(q.category)} ${q.category}</span><span>${diffLabel(q.difficulty)}</span>${datePill}${weekdayPill}</div>
@@ -3233,6 +3233,13 @@ function onQuestTypeChange(){
 }
 function closeAddSheet(){ document.getElementById('add-sheet-overlay').classList.remove('show'); }
 function closeAddSheetOnBg(e){ if(e.target.id==='add-sheet-overlay') closeAddSheet(); }
+
+// Esc closes whichever sheet/confirm dialog is open, by re-firing its own background-click handler
+document.addEventListener('keydown', (e)=>{
+  if(e.key!=='Escape') return;
+  const open = document.querySelector('.sheet-overlay.show, .confirm-overlay.show');
+  if(open) open.click();
+});
 
 async function submitNewQuest(){
   const title = document.getElementById('nq-title').value.trim();
@@ -5703,7 +5710,7 @@ function initExploreScreen(){
   exploreStarted = true;
   gpsWarmupStartedAt = Date.now();
   navigator.geolocation.getCurrentPosition(
-    (pos)=>{
+    async (pos)=>{
       document.getElementById('explore-permission-note').classList.add('hidden');
       document.getElementById('explore-map-wrap').classList.remove('hidden');
       document.getElementById('explore-accuracy-text').style.display = '';
@@ -5711,6 +5718,7 @@ function initExploreScreen(){
       document.getElementById('explore-walk-card').style.display = '';
       document.getElementById('walk-goal-km').textContent = (WALK_GOAL_METERS/1000).toFixed(1);
       const {latitude:lat, longitude:lng, accuracy} = pos.coords;
+      await loadLeaflet();
       setupExploreMap(lat, lng, accuracy);
       fetchAndRenderWeather(lat, lng);
       loadRegionChests(lat, lng);
@@ -5768,6 +5776,23 @@ async function toggleMapStyle(){
   applyMapStyle(next);
   toast(`${MAP_TILE_STYLES[next].label} 지도로 변경했어요.`);
   await saveState();
+}
+let leafletLoadPromise = null;
+function loadLeaflet(){
+  if(window.L) return Promise.resolve();
+  if(leafletLoadPromise) return leafletLoadPromise;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';
+  document.head.appendChild(link);
+  leafletLoadPromise = new Promise((resolve, reject)=>{
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+  return leafletLoadPromise;
 }
 function setupExploreMap(lat,lng,accuracy){
   exploreMap = L.map('explore-map', {zoomControl:false, attributionControl:false}).setView([lat,lng], 16);
