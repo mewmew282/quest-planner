@@ -15,7 +15,7 @@ webpush.setVapidDetails('mailto:noreply@quest-planner.invalid', VAPID_PUBLIC, VA
 const app = express();
 app.set('trust proxy', 1);
 app.use(cors({ origin: ALLOWED_ORIGINS.split(',') }));
-app.use(express.json({ limit: '10kb' }));
+app.use(express.json({ limit: '256kb' })); // 퀘스트 동기화 페이로드를 담기 위해 여유를 둠
 
 const levelOf = (xp) => Math.floor(xp / 1000) + 1;
 const pub = (u) => ({ nick: u.nick, xp: u.xp, level: levelOf(u.xp), cls: u.cls });
@@ -75,6 +75,43 @@ app.post('/api/login', wrap(async (req, res) => {
   const u = await byNick(c.nick);
   if (!u || !(await bcrypt.compare(c.pw, u.hash))) return bad(res, '닉네임 또는 비밀번호가 달라요', 401);
   res.json({ token: token(u), me: pub(u) });
+}));
+
+// ---- 퀘스트 동기화 ----
+// ponytail: same trust model as the score endpoint above -- fields are sanitized/
+// truncated but not deeply verified. Fine for a personal/friends planner.
+function sanitizeQuests(arr) {
+  if (!Array.isArray(arr) || arr.length > 300) return null;
+  const out = [];
+  for (const q of arr) {
+    if (!q || typeof q !== 'object' || !q.id) continue;
+    out.push({
+      id: String(q.id).slice(0, 60),
+      title: String(q.title || '').slice(0, 200),
+      type: q.type === 'dated' ? 'dated' : 'daily',
+      category: String(q.category || '').slice(0, 20),
+      difficulty: String(q.difficulty || '').slice(0, 20),
+      xp: Math.max(0, Math.min(1e5, Math.floor(Number(q.xp)) || 0)),
+      gold: Math.max(0, Math.min(1e5, Math.floor(Number(q.gold)) || 0)),
+      status: q.status === 'done' ? 'done' : 'active',
+      lastDoneDate: q.lastDoneDate ? String(q.lastDoneDate).slice(0, 10) : null,
+      completedDate: q.completedDate ? String(q.completedDate).slice(0, 10) : null,
+      dueDate: q.dueDate ? String(q.dueDate).slice(0, 10) : null,
+      weekdays: Array.isArray(q.weekdays) ? q.weekdays.filter((n) => Number.isInteger(n) && n >= 0 && n <= 6).slice(0, 7) : [],
+      createdAt: q.createdAt ? String(q.createdAt).slice(0, 30) : null,
+    });
+  }
+  return out;
+}
+app.get('/api/quests', auth, wrap(async (req, res) => {
+  const u = await users.findOne({ _id: req.uid }, { projection: { quests: 1, questsAt: 1 } });
+  res.json({ quests: (u && u.quests) || [], updatedAt: u && u.questsAt ? u.questsAt.getTime() : 0 });
+}));
+app.put('/api/quests', auth, wrap(async (req, res) => {
+  const quests = sanitizeQuests(req.body.quests);
+  if (!quests) return bad(res, '잘못된 퀘스트 데이터');
+  await users.updateOne({ _id: req.uid }, { $set: { quests, questsAt: new Date(Number(req.body.updatedAt) || Date.now()) } });
+  res.json({ ok: true });
 }));
 
 // ---- 랭킹 ----
