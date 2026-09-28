@@ -51,10 +51,46 @@ const esc = (s)=> escapeHtml(String(s));
 
 function syncScore(){
   if(!token || !state.character) return Promise.resolve();
-  return api('/score', {method:'PUT', body:{xp:state.totalXP, cls:state.character.cls}}).catch(()=>{});
+  return Promise.all([
+    api('/score', {method:'PUT', body:{xp:state.totalXP, cls:state.character.cls}}).catch(()=>{}),
+    pushQuests(),
+  ]);
 }
 setInterval(syncScore, 60000);
 document.addEventListener('visibilitychange', ()=>{ if(document.hidden) syncScore(); });
+
+/* ---------- 퀘스트 동기화 (기기 간 백업/이어보기) ---------- */
+let questSyncTimer = null;
+function queueQuestSync(){ // saveState()가 호출될 때마다 불려서, 편집이 멎으면 잠시 후 한 번만 올린다
+  if(!token) return;
+  clearTimeout(questSyncTimer);
+  questSyncTimer = setTimeout(pushQuests, 2000);
+}
+window.queueQuestSync = queueQuestSync;
+let lastPushedQuestsAt = null; // saveState()는 퀘스트와 무관한 변화에도 자주 불리므로, 실제로 바뀐 시점에만 전송한다
+function pushQuests(){
+  if(!token || !state.character) return Promise.resolve();
+  const updatedAt = state.questsUpdatedAt || Date.now();
+  if(updatedAt === lastPushedQuestsAt) return Promise.resolve();
+  return api('/quests', {method:'PUT', body:{quests:state.quests, updatedAt}})
+    .then(()=>{ lastPushedQuestsAt = updatedAt; }).catch(()=>{});
+}
+async function pullQuestsIfNewer(){ // 로그인 직후 / 앱 시작 시: 서버가 더 최신이면 가져오고, 아니면 이 기기 것을 올린다
+  if(!token) return;
+  try{
+    const d = await api('/quests');
+    if(d.updatedAt > (state.questsUpdatedAt||0)){
+      state.quests = d.quests || [];
+      state.questsUpdatedAt = d.updatedAt;
+      lastPushedQuestsAt = d.updatedAt;
+      await saveState();
+      if(typeof renderAll === 'function') renderAll();
+      toast('다른 기기의 퀘스트를 불러왔어요');
+    } else if(state.quests && state.quests.length){
+      pushQuests();
+    }
+  }catch(e){}
+}
 
 function logout(){
   token = myNick = null; localStorage.removeItem('qp_token'); localStorage.removeItem('qp_nick');
@@ -79,7 +115,7 @@ function renderLogin(msg){
       const d = await api(path, {method:'POST', body:{nick:$('soc-nick').value, pw:$('soc-pw').value}});
       token = d.token; myNick = d.me.nick;
       localStorage.setItem('qp_token', token); localStorage.setItem('qp_nick', myNick);
-      await syncScore(); resubscribeIfAllowed(); view = 'rank'; render();
+      await pullQuestsIfNewer(); await syncScore(); resubscribeIfAllowed(); view = 'rank'; render();
     }catch(e){ err.textContent = e.message; btns.forEach(b=>b.disabled=false); }
   };
   $('soc-login').onclick = ()=>go('/login'); $('soc-reg').onclick = ()=>go('/register');
@@ -224,4 +260,5 @@ document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) warm();
 window.socialOpen = function(){ if(view==='chat') view = 'friends'; fab().style.display = 'none'; warm(); render(); };
 window.socialClose = function(){ stopPoll(); setChatMode(false); fab().style.display = ''; };
 window.addEventListener('load', resubscribeIfAllowed);
+window.addEventListener('load', pullQuestsIfNewer); // 이미 로그인된 상태로 앱을 다시 열었을 때 다른 기기 변경사항 반영
 })();

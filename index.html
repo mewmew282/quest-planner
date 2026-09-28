@@ -2320,6 +2320,7 @@ function defaultState(){
     stats:{힘:10,체력:10,지능:10,민첩:10,의지:10,창의력:10,사회성:10},
     statsAtLastLevel:{힘:10,체력:10,지능:10,민첩:10,의지:10,창의력:10,사회성:10}, // 레벨업 연출용: 마지막 레벨업 시점의 스탯 스냅샷
     quests:[], // {id,title,type,category,difficulty,xp,gold,status,completedDate}
+    questsUpdatedAt:0, // 퀘스트 목록이 마지막으로 바뀐 시각(ms) -- 서버 동기화 시 최신본 판단용
     streak:0,
     lastCheckIn:null,
     lastQuestDate:null,
@@ -2469,6 +2470,7 @@ async function saveState(){
     if(window.storage){ await window.storage.set(STORAGE_KEY, JSON.stringify(state)); }
     else { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
   }catch(e){ console.error('save failed', e); }
+  if(window.queueQuestSync) window.queueQuestSync(); // 로그인 상태면 소셜 서버로 퀘스트를 밀어올림 (social.js)
 }
 /* ===================== 데이터 백업 / 복원 (JSON) ===================== */
 function exportStateBackup(){
@@ -3198,6 +3200,7 @@ async function submitNewQuest(){
     const q = state.quests.find(x=>x.id===editId);
     if(!q){ toast('퀘스트를 찾을 수 없습니다'); closeAddSheet(); return; }
     q.title=title; q.type=type; q.category=cat; q.difficulty=difficulty; q.xp=xp; q.gold=gold; q.dueDate=dueDate; q.weekdays=weekdays;
+    state.questsUpdatedAt = Date.now();
     await saveState();
     closeAddSheet();
     renderAll();
@@ -3207,6 +3210,7 @@ async function submitNewQuest(){
   const q = { id:genId(), title, type, category:cat, difficulty, xp, gold, status:'active', lastDoneDate:null, completedDate:null, dueDate, weekdays, createdAt:new Date().toISOString() };
   state.quests.push(q);
   if(!state.easter.firstQuestCreatedAt) state.easter.firstQuestCreatedAt=q.createdAt.slice(0,10);
+  state.questsUpdatedAt = Date.now();
   await saveState();
   closeAddSheet();
   renderAll();
@@ -3230,6 +3234,7 @@ async function confirmDeleteQuest(){
   if(!questPendingDeleteId) return;
   state.quests = state.quests.filter(q=>q.id!==questPendingDeleteId);
   questPendingDeleteId = null;
+  state.questsUpdatedAt = Date.now();
   document.getElementById('quest-delete-confirm-overlay').classList.remove('show');
   await saveState();
   renderAll();
@@ -3247,6 +3252,7 @@ async function toggleQuest(id){
     state.totalXP = Math.max(0, state.totalXP - q.xp);
     state.gold = Math.max(0, state.gold - q.gold);
     state.totalCleared = Math.max(0, state.totalCleared-1);
+    state.questsUpdatedAt = Date.now();
     await saveState();
     renderAll();
     return;
@@ -3266,6 +3272,7 @@ async function toggleQuest(id){
   const statInfo = CATEGORY_STAT[q.category];
   if(statInfo) state.stats[statInfo.stat] = (state.stats[statInfo.stat]||0) + statInfo.amt;
   logToday(gainedXp);
+  state.questsUpdatedAt = Date.now();
   await saveState();
 
   logGain('⚔️', q.title, `+${gainedXp}XP${gainedGold>0?` · +${gainedGold}G`:''}`);
