@@ -2641,7 +2641,7 @@ function renderHome(){
   } else {
     list.slice(0, HOME_QUEST_LIMIT).forEach(q=> wrap.appendChild(questCardEl(q, t)) );
   }
-  document.getElementById('home-quest-more-btn').classList.toggle('hidden', list.length<=HOME_QUEST_LIMIT);
+  document.getElementById('home-quest-more-btn').classList.toggle('hidden', state.quests.length===0);
   const done = list.filter(q=> q.type==='daily' ? q.lastDoneDate===t : q.status==='done').length;
   const total = list.length;
   document.getElementById('today-progress-txt').textContent = `${done}/${total}`;
