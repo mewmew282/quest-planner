@@ -8,10 +8,10 @@ const $ = (id)=>document.getElementById(id);
 const THEMES = [
   {id:'kingdom',   name:'기본 왕국',   icon:'🏰', price:0,    accent:'#E7B549', bg:'#221C3B', line:'#372C55', desc:'기본 월드맵'},
   {id:'forest',    name:'숲속 마을',   icon:'🌲', price:300,  accent:'#6FCF97', bg:'#16281F', line:'#2C4A38', desc:'초록빛 숲속 지도'},
-  {id:'winter',    name:'겨울 왕국',   icon:'❄️', price:600,  accent:'#9AD7FF', bg:'#101E2E', line:'#2A4A66', desc:'눈 덮인 얼음 성'},
-  {id:'pirate',    name:'해적 항구',   icon:'🏴‍☠️', price:700,  accent:'#3FB8AF', bg:'#0E2230', line:'#1F4B5E', desc:'파도치는 항구 도시'},
+  {id:'winter',    name:'겨울 왕국',   icon:'❄️', price:600,  accent:'#2F8FD6', bg:'#E4F1FA', line:'#B7D7EC', desc:'눈 내리는 밝은 얼음 성', cls:'th-winter'},
+  {id:'pirate',    name:'해적 항구',   icon:'🏴‍☠️', price:700,  accent:'#E0B25A', bg:'#3A2817', line:'#6B4A2B', desc:'낡은 항해 지도와 나무 부두', cls:'th-pirate'},
   {id:'academy',   name:'마법 학교',   icon:'🔮', price:800,  accent:'#B58CFF', bg:'#24173F', line:'#4A3479', desc:'보랏빛 마법진 지도'},
-  {id:'cyber',     name:'사이버 도시', icon:'🌆', price:1500, accent:'#4FE0F0', bg:'#0F1B2B', line:'#1F4A66', desc:'네온 불빛 도시 지도'},
+  {id:'cyber',     name:'사이버 도시', icon:'🌆', price:1500, accent:'#00F0FF', bg:'#05070F', line:'#1A2B4A', desc:'검은 밤과 네온 격자', cls:'th-cyber'},
 ];
 const DECORS = [ // 선택한 날짜 한 칸에 적용 (같은 날짜는 덮어쓰기)
   {id:'star',  name:'별 테두리',   icon:'⭐', price:50,  color:'#F5D76E'},
@@ -160,6 +160,28 @@ css.textContent = `
 .cal-modal .btns{display:flex;gap:8px}.cal-modal .btns button{flex:1;padding:10px;border-radius:10px;border:1px solid var(--cl);background:var(--card-hi);color:var(--text);font-size:14px}
 .cal-modal .btns button.go{background:var(--ca);color:#1B1300;border-color:var(--ca);font-weight:800}
 .cal-modal .btns button:disabled{opacity:.5}
+/* 테마별 질감: 색뿐 아니라 배경 무늬, 모서리, 글꼴을 다르게 한다 */
+#cal-wrap.th-winter{color:#17344D;--text:#17344D;--text-dim:#4D6F8A;--text-faint:#7C9AB0;--card:#F4FAFD;--card-hi:#D6EAF6}
+.th-winter .cal-box,.th-winter .cal-panel{background-image:radial-gradient(circle at 20% 30%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 70% 60%,#fff 0 2px,transparent 3px),radial-gradient(circle at 45% 85%,#fff 0 1px,transparent 2px);background-size:56px 56px,84px 84px,44px 44px;border-radius:22px}
+.th-winter .cal-day{border-radius:14px;background:rgba(255,255,255,.65)}
+.th-winter .cal-day.sel{background:var(--ca);color:#fff}
+.th-winter .cal-head .ttl{color:#2F8FD6;letter-spacing:.06em}
+#cal-wrap.th-pirate{font-family:Georgia,'Times New Roman',serif}
+.th-pirate .cal-box{border:3px double var(--ca);border-radius:4px;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 2px,transparent 2px 6px)}
+.th-pirate .cal-panel{border:2px solid var(--cl);border-radius:3px;background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.12) 0 2px,transparent 2px 9px)}
+.th-pirate .cal-day{border-radius:2px;border-style:dashed;background:rgba(0,0,0,.22)}
+.th-pirate .cal-day.sel{background:var(--ca);color:#1B1300}
+.th-pirate .cal-head .ttl{font-style:italic;letter-spacing:.08em}
+.th-pirate .cal-panel h3{font-variant:small-caps;letter-spacing:.08em}
+#cal-wrap.th-cyber{font-family:ui-monospace,Menlo,Consolas,'Courier New',monospace;--cx:#FF2BD6}
+.th-cyber .cal-box{border:1px solid var(--ca);border-radius:0;box-shadow:0 0 14px rgba(0,240,255,.35),inset 0 0 18px rgba(0,240,255,.08);background-image:linear-gradient(rgba(0,240,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.07) 1px,transparent 1px);background-size:22px 22px}
+.th-cyber .cal-panel{border:1px solid var(--cl);border-left:3px solid var(--cx);border-radius:0}
+.th-cyber .cal-day{border-radius:0;background:rgba(0,240,255,.04)}
+.th-cyber .cal-day.today{border-color:var(--cx);box-shadow:0 0 8px var(--cx)}
+.th-cyber .cal-day.sel{background:var(--ca);color:#001014}
+.th-cyber .cal-head .ttl{text-shadow:0 0 8px var(--ca);letter-spacing:.14em;text-transform:uppercase}
+.th-cyber .cal-panel h3{text-transform:uppercase;letter-spacing:.14em;color:var(--cx)}
+.th-cyber .cal-row button,.th-cyber .cal-tabs button{border-radius:0}
 @keyframes calPulse{0%,100%{box-shadow:0 0 0 1px var(--ca) inset,0 0 0 rgba(255,255,255,0)}50%{box-shadow:0 0 0 1px var(--ca) inset,0 0 10px 2px var(--ca)}}
 @keyframes calFlick{from{box-shadow:0 0 4px 0 #FF8A4C}to{box-shadow:0 0 12px 3px #FFB347}}
 @keyframes calGlow{from{box-shadow:0 0 4px 0 var(--ca)}to{box-shadow:0 0 16px 3px var(--ca)}}
@@ -347,7 +369,7 @@ function render(){
   if(!wrap || !state) return;
   if(!sel) sel = todayStr();
   const c = S(), th = previewId ? (THEMES.find(t=>t.id===previewId)||theme()) : theme(), g = gauges();
-  wrap.className = c.effect ? `fx-${c.effect}` : '';
+  wrap.className = [th.cls, c.effect ? `fx-${c.effect}` : ''].filter(Boolean).join(' ');
   wrap.style.setProperty('--ca', th.accent); wrap.style.setProperty('--cb', th.bg); wrap.style.setProperty('--cl', th.line);
   const first = new Date(ym.y, ym.m, 1).getDay(), days = new Date(ym.y, ym.m+1, 0).getDate(), today = todayStr();
   let cells = '';
