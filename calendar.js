@@ -84,6 +84,7 @@ function S(){
   const fill = (o, k, v)=>{ if(o[k]===undefined || o[k]===null) o[k] = v; };
   fill(c,'themes',['kingdom']); fill(c,'active','kingdom'); fill(c,'buyDate',null); fill(c,'buyCount',0);
   fill(c,'effects',[]); fill(c,'effect',null);
+  if(!Array.isArray(c.fxOn)) c.fxOn = c.effect ? [c.effect] : [];
   fill(c,'tickets',{}); Object.keys(TICKETS).forEach(k=>fill(c.tickets,k,0));
   fill(c,'usage',{}); fill(c.usage,'week',null); fill(c.usage,'n',0);
   fill(c,'moved',{}); fill(c,'revived',{}); fill(c,'invest',{});
@@ -275,6 +276,16 @@ css.textContent = `
 .dg-side em{font-style:normal;font-size:11px;color:var(--text-dim);text-align:right}
 .dg-log{height:110px;overflow-y:auto;margin:10px 0;padding:8px;border-radius:8px;background:rgba(0,0,0,.25);font-size:12px;line-height:1.6}
 .dg-res{font-size:13px;font-weight:700;color:var(--gold);min-height:20px}
+/* 캘린더 상점: 장비 상점과 같은 카드 목록 + 토글 스위치 */
+#shop-cal-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:stretch}
+#shop-cal-list .shop-shelf-label{grid-column:1/-1}
+.shop-actions{display:flex;gap:6px}.shop-actions>button{flex:1;min-width:0}
+.shop-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10.5px;color:var(--text-faint);padding:2px 2px 0}
+.shop-item .tgl{position:relative;width:44px;height:24px;padding:0;flex:none;border-radius:12px;border:1px solid var(--border);background:var(--card-hi);cursor:pointer}
+.shop-item .tgl::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--text-faint);transition:left .15s,background .15s}
+.shop-item .tgl[aria-checked="true"]{background:var(--gold);border-color:var(--gold)}
+.shop-item .tgl[aria-checked="true"]::after{left:22px;background:#1c1530}
+@media (prefers-reduced-motion:reduce){.shop-item .tgl::after{transition:none}}
 /* 인벤토리 */
 .inv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .inv-slot{position:relative;aspect-ratio:1;min-width:0;border:1px solid var(--cl);border-radius:10px;background:rgba(0,0,0,.2);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px}
@@ -394,43 +405,63 @@ function dayPanel(){
   return `<div class="cal-panel"><h3>${head}</h3>${rows}<div style="color:var(--text-faint);font-size:11px;margin-top:6px">완료 체크는 홈 또는 전체 퀘스트에서 합니다. 변경권·보존권·시간 연장권은 주 ${WEEKLY_TICKET_CAP}회, 같은 일정 1회, 보스 일정 불가.</div></div>`;
 }
 
-// ---- 상점 ----
+// ---- 상점 (장비 상점과 같은 카드·탭 디자인) ----
 const capLeft = ()=>{ const c = S(); return DAILY_BUY_CAP - (c.buyDate===todayStr() ? c.buyCount : 0); };
+const shopCard = (o)=>`<div class="shop-item${o.own?' owned':''}"><span class="ic">${o.ic}</span><div class="info"><div class="nm">${o.nm}${o.badge?`<span class="shop-badge equipped">${o.badge}</span>`:''}</div><div class="sub"${o.full?' style="-webkit-line-clamp:unset;display:block"':''}>${o.sub}</div>${o.price!=null?`<div class="price">🪙 ${o.price}</div>`:''}</div>${o.foot}</div>`;
+const buyBtn = (price, fn)=>{ const ok = state.gold>=price; return `<button class="btn btn-gold" ${ok?`onclick="${fn}"`:'disabled'}>${ok?'구매':'부족'}</button>`; };
+const toggleRow = (on, fn, label)=>`<div class="shop-toggle"><span>${label}</span><button class="tgl" role="switch" aria-checked="${on}" aria-label="${label}" onclick="${fn}"></button></div>`;
 function shopPanel(){
   const c = S();
   const tabs = [['theme','테마'],['fx','이펙트'],['skin','스킨'],['pet','펫'],['item','아이템'],['chest','상자']]
-    .map(([k,l])=>`<button class="${shopTab===k?'on':''}" onclick="calShopTab('${k}')">${l}</button>`).join('');
-  let body = '';
-  if(shopTab==='theme') body = THEMES.map(t=>{
-    const own = c.themes.includes(t.id), on = c.active===t.id;
-    const btn = on ? `<button class="on" disabled>사용 중</button>` : own ? `<button onclick="calApply('${t.id}')">적용</button>` : `<button onclick="calBuy('${t.id}')">🪙${t.price}</button>`;
-    return `<div class="cal-row"><span style="font-size:20px">${t.icon}</span><span class="t">${t.name}<div class="s">${t.desc}</div></span><button onclick="calPreview('${t.id}')">미리보기</button>${btn}</div>`;
-  }).join('');
-  if(shopTab==='fx') body = EFFECTS.map(e=>{
-    const own = c.effects.includes(e.id), on = c.effect===e.id;
-    const btn = on ? `<button onclick="calSetEffect(null)">끄기</button>` : own ? `<button onclick="calSetEffect('${e.id}')">적용</button>` : `<button onclick="calBuyEffect('${e.id}')">🪙${e.price}</button>`;
-    return `<div class="cal-row"><span style="font-size:20px">${e.icon}</span><span class="t">${e.name}<div class="s">${e.desc}${on?' · 사용 중':''}</div></span>${btn}</div>`;
-  }).join('');
-  if(shopTab==='skin') body = `<div style="font-size:12px;color:var(--text-dim);margin:6px 0 2px">캐릭터 스킨 (홈 캐릭터 오라)</div>` + SKINS.char.map(s=>{
-    const sid = 'char:'+s.id, own = c.skinOwned.includes(sid), on = c.skinChar===s.id;
-    const btn = on ? `<button onclick="calSetSkin('char',null)">해제</button>` : own ? `<button onclick="calSetSkin('char','${s.id}')">적용</button>` : `<button onclick="calBuySkin('char','${s.id}')">🪙${s.price}</button>`;
-    return `<div class="cal-row"><span style="font-size:20px">${s.icon}</span><span class="t">${s.name}${on?' · 사용 중':''}</span>${btn}</div>`;
-  }).join('');
-  if(shopTab==='pet') body = `<div style="font-size:12px;color:var(--text-dim);margin-bottom:4px">가진 펫 중에서 골라 함께 다닐 수 있어요. 동행 ${c.pets.party.length}/${PET_SLOTS}마리 · 함께한 동안 퀘스트를 완료하면 성장해요. (${PET_STEP}개당 1레벨, 최대 Lv.${PET_MAX}) 비싼 펫일수록 효과가 다양하고 강해요.</div>` + PETS.map(pt=>{
-    const own = c.pets.owned.includes(pt.id), on = c.pets.party.includes(pt.id), n = c.pets.exp[pt.id]||0, lv = petLv(n);
-    const left = lv>=PET_MAX ? '최대 레벨' : `다음 레벨까지 ${PET_STEP - n%PET_STEP}개`;
-    const btn = on ? `<button class="on" onclick="calTogglePet('${pt.id}')">동행 중 · 쉬게 하기</button>` : own ? `<button onclick="calTogglePet('${pt.id}')">함께하기</button>` : `<button onclick="calBuyPet('${pt.id}')">🪙${pt.price}</button>`;
-    const info = own ? `${fxText(pt, lv)}<br>${left}` : `Lv.1: ${fxText(pt,1)}<br>Lv.${PET_MAX}: ${fxText(pt,PET_MAX)}`;
-    return `<div class="cal-row"><span style="font-size:24px">${pt.icon}</span><span class="t">${pt.name}${own?` · Lv.${lv}`:''}${on?' · 동행 중':''}<div class="s">${info}</div></span>${btn}</div>`;
-  }).join('');
+    .map(([k,l])=>`<button class="shop-tab${shopTab===k?' active':''}" onclick="calShopTab('${k}')">${l}</button>`).join('');
+  let label = '', cards = '';
+  if(shopTab==='theme'){
+    label = `테마 · ${THEMES.length}종 (켜면 적용, 끄면 기본 왕국)`;
+    cards = THEMES.map(t=>{
+      const own = c.themes.includes(t.id), on = c.active===t.id;
+      let foot;
+      if(t.price===0) foot = on ? `<button class="btn btn-ghost" disabled>사용 중</button>` : `<button class="btn btn-ghost" onclick="calToggleTheme('kingdom')">기본으로</button>`;
+      else foot = own ? `<button class="btn btn-ghost" onclick="calPreview('${t.id}')">미리보기</button>${toggleRow(on, `calToggleTheme('${t.id}')`, on?'사용 중':'사용')}`
+        : `<div class="shop-actions"><button class="btn btn-ghost" onclick="calPreview('${t.id}')">미리보기</button>${buyBtn(t.price, `calBuy('${t.id}')`)}</div>`;
+      return shopCard({ic:t.icon, nm:t.name, badge:on?'★ 사용 중':(own&&t.price?'보유중':''), own:own&&t.price>0, sub:t.desc, price:own?null:t.price, foot});
+    }).join('');
+  }
+  if(shopTab==='fx'){
+    label = `이펙트 · ${EFFECTS.length}종 (각각 켜고 끌 수 있어요)`;
+    cards = EFFECTS.map(e=>{
+      const own = c.effects.includes(e.id), on = c.fxOn.includes(e.id);
+      return shopCard({ic:e.icon, nm:e.name, badge:on?'★ 켜짐':(own?'보유중':''), own, sub:e.desc, price:own?null:e.price,
+        foot: own ? toggleRow(on, `calToggleFx('${e.id}')`, on?'켜짐':'꺼짐') : buyBtn(e.price, `calBuyEffect('${e.id}')`)});
+    }).join('');
+  }
+  if(shopTab==='skin'){
+    label = '캐릭터 스킨 · 홈 캐릭터 오라 색';
+    cards = SKINS.char.map(x=>{
+      const own = c.skinOwned.includes('char:'+x.id), on = c.skinChar===x.id;
+      return shopCard({ic:x.icon, nm:x.name, badge:on?'★ 사용 중':(own?'보유중':''), own, sub:'홈 캐릭터 오라 색이 바뀌어요', price:own?null:x.price,
+        foot: own ? toggleRow(on, `calSetSkin('char',${on?'null':`'${x.id}'`})`, on?'사용 중':'사용') : buyBtn(x.price, `calBuySkin('char','${x.id}')`)});
+    }).join('');
+  }
+  if(shopTab==='pet'){
+    label = `펫 · 동행 ${c.pets.party.length}/${PET_SLOTS}마리 (${PET_STEP}개당 1레벨, 최대 Lv.${PET_MAX})`;
+    cards = PETS.map(pt=>{
+      const own = c.pets.owned.includes(pt.id), on = c.pets.party.includes(pt.id), n = c.pets.exp[pt.id]||0, lv = petLv(n);
+      const sub = own ? `Lv.${lv} · ${fxText(pt, lv)}` : `Lv.1 ${fxText(pt,1)} → Lv.${PET_MAX} ${fxText(pt,PET_MAX)}`;
+      return shopCard({ic:pt.icon, nm:pt.name, badge:on?'★ 동행 중':(own?'보유중':''), own, sub, full:true, price:own?null:pt.price,
+        foot: own ? `<button class="btn btn-ghost" onclick="calTogglePet('${pt.id}')">${on?'쉬게 하기':'함께하기'}</button>` : buyBtn(pt.price, `calBuyPet('${pt.id}')`)});
+    }).join('');
+  }
   if(shopTab==='item'){
     const wk = weekKey(todayStr()), used = c.usage.week===wk ? c.usage.n : 0;
-    body = `<div style="font-size:12px;color:var(--text-dim);margin-bottom:4px">변경·보존·시간 연장권 이번 주 사용 ${used}/${WEEKLY_TICKET_CAP}회</div>` + Object.entries(TICKETS).map(([k,t])=>
-      `<div class="cal-row"><span style="font-size:20px">${t.icon}</span><span class="t">${t.name} <b>×${c.tickets[k]}</b><div class="s">${t.desc}</div></span><button onclick="calBuyTicket('${k}')">🪙${t.price}</button></div>`).join('');
+    label = `일정 아이템 · 변경·보존·시간 연장권 이번 주 ${used}/${WEEKLY_TICKET_CAP}회 사용`;
+    cards = Object.entries(TICKETS).map(([k,t])=>shopCard({ic:t.icon, nm:`${t.name} ×${c.tickets[k]}`, sub:t.desc, price:t.price, own:c.tickets[k]>0, foot:buyBtn(t.price, `calBuyTicket('${k}')`)})).join('');
   }
-  if(shopTab==='chest') body = `<div class="cal-row"><span style="font-size:20px">🎁</span><span class="t">황금 보물상자<div class="s">골드로 개봉: 골드·코인·경험치·퀘스트 부스터 중 랜덤 (평균 가치는 구매가 이하)</div></span><button onclick="calBuyChest()">🪙${GOLDEN_CHEST_PRICE}</button></div>`;
-  const capped = !['item'].includes(shopTab);
-  return `<div class="cal-panel"><h3>🎨 캘린더 상점${capped?` (오늘 꾸미기 구매 ${Math.max(0,capLeft())}회 남음)`:''}</h3><div class="cal-tabs">${tabs}</div>${body}</div>`;
+  if(shopTab==='chest'){
+    label = '보물상자';
+    cards = shopCard({ic:'🎁', nm:'황금 보물상자', sub:'골드·코인·경험치·퀘스트 부스터 중 랜덤 (평균 가치는 구매가 이하)', price:GOLDEN_CHEST_PRICE, foot:buyBtn(GOLDEN_CHEST_PRICE, 'calBuyChest()')});
+  }
+  const capNote = shopTab==='item' ? '' : ` · 오늘 꾸미기 구매 ${Math.max(0,capLeft())}회 남음`;
+  return `<div class="shop-tabs" id="shop-cal-tabs">${tabs}</div><div id="shop-cal-list"><div class="shop-shelf-label">${label}${capNote}</div>${cards}</div>`;
 }
 
 // ---- 보관함 ----
@@ -480,7 +511,7 @@ function render(){
   if(!sel) sel = todayStr();
   const c = S(), th = previewId ? (THEMES.find(t=>t.id===previewId)||theme()) : theme(), tr = tier(), g = tr.g;
   renderHomeCond();
-  wrap.className = ['cal-scope', th.cls, c.effect ? `fx-${c.effect}` : ''].filter(Boolean).join(' ');
+  wrap.className = ['cal-scope', th.cls, ...c.fxOn.map(x=>'fx-'+x)].filter(Boolean).join(' ');
   wrap.style.setProperty('--ca', th.accent); wrap.style.setProperty('--cb', th.bg); wrap.style.setProperty('--cl', th.line);
   const first = new Date(ym.y, ym.m, 1).getDay(), days = new Date(ym.y, ym.m+1, 0).getDate(), today = todayStr();
   let cells = '';
@@ -545,17 +576,19 @@ function miniCal(th){
   let cells = '';
   for(let i=0;i<first;i++) cells += `<div class="cal-day blank"></div>`;
   for(let d=1; d<=days; d++) cells += `<div class="cal-day${ymd(ym.y, ym.m, d)===today?' today':''}"><span class="n"><span>${d}</span></span></div>`;
-  return `<div class="cal-box" style="margin-bottom:8px"><div class="cal-head"><span class="ttl">${th.icon} ${ym.y}년 ${ym.m+1}월</span></div><div class="cal-grid">${['일','월','화','수','목','금','토'].map(w=>`<div class="cal-dow">${w}</div>`).join('')}${cells}</div></div>`;
+  const vars = `--ca:${th.accent};--cb:${th.bg};--cl:${th.line}`;
+  const cls = ['cal-scope', th.cls, ...S().fxOn.map(x=>'fx-'+x)].filter(Boolean).join(' ');
+  return `<div class="${cls}" style="${vars};margin:0 0 10px"><div class="cal-box"><div class="cal-head"><span class="ttl">${th.icon} ${ym.y}년 ${ym.m+1}월</span></div><div class="cal-grid">${['일','월','화','수','목','금','토'].map(w=>`<div class="cal-dow">${w}</div>`).join('')}${cells}</div></div></div>`;
 }
 function renderShopCal(){
   const wrap = $('shop-cal-wrap');
   if(!wrap || !state || !state.character) return;
-  const c = S(), th = previewId ? (THEMES.find(t=>t.id===previewId)||theme()) : theme();
-  [...wrap.classList].filter(x=>/^(th-|fx-)/.test(x)).forEach(x=>wrap.classList.remove(x));
-  wrap.classList.add('cal-scope'); if(th.cls) wrap.classList.add(th.cls); if(c.effect) wrap.classList.add('fx-'+c.effect);
-  wrap.style.setProperty('--ca', th.accent); wrap.style.setProperty('--cb', th.bg); wrap.style.setProperty('--cl', th.line);
-  const own = previewId && c.themes.includes(previewId);
-  const prev = previewId ? `<div class="cal-prev"><span>${th.icon} ${th.name} 미리보기 중</span>${own?`<button onclick="calApply('${previewId}')">적용</button>`:`<button onclick="calBuy('${previewId}')">🪙${th.price} 구매</button>`}<button onclick="calClosePreview()">닫기</button></div>${miniCal(th)}` : '';
+  const c = S();
+  let prev = '';
+  if(previewId){
+    const th = THEMES.find(t=>t.id===previewId) || theme(), own = c.themes.includes(th.id);
+    prev = `<div class="shop-shelf-label" style="margin-top:0">미리보기 · ${th.name}</div>${miniCal(th)}<div class="shop-actions" style="margin-bottom:10px">${own ? `<button class="btn btn-gold" onclick="calToggleTheme('${th.id}')">적용</button>` : buyBtn(th.price, `calBuy('${th.id}')`)}<button class="btn btn-ghost" onclick="calClosePreview()">닫기</button></div>`;
+  }
   wrap.innerHTML = `${prev}${shopPanel()}${pending ? confirmModal() : ''}`;
 }
 window.renderShopCal = renderShopCal;
@@ -577,11 +610,22 @@ window.calBuyEffect = (id)=>{
   if(!e || c.effects.includes(id)) return;
   ask(`${e.icon} ${e.name} 이펙트`, e.price, async ()=>{
     if(!(await pay(e.price, true))) return;
-    c.effects.push(id); c.effect = id;
+    c.effects.push(id); c.fxOn.push(id);
     await done(`${e.icon} ${e.name} 이펙트를 구매했어요!`);
   });
 };
-window.calSetEffect = async (id)=>{ const c = S(); if(id && !c.effects.includes(id)) return; c.effect = id; await saveState(); render(); };
+window.calToggleFx = async (id)=>{
+  const c = S(); if(!c.effects.includes(id)) return;
+  const k = c.fxOn.indexOf(id);
+  if(k>=0) c.fxOn.splice(k,1); else c.fxOn.push(id);
+  await saveState(); render();
+};
+// 테마: 켜면 그 테마를 적용하고, 끄면 기본 왕국으로 돌아간다
+window.calToggleTheme = async (id)=>{
+  const c = S(); if(!c.themes.includes(id)) return;
+  c.active = c.active===id ? 'kingdom' : id; previewId = null;
+  await saveState(); render();
+};
 window.calBuySkin = (kind, id)=>{
   const s = SKINS[kind].find(x=>x.id===id), c = S(), sid = kind+':'+id;
   if(!s || c.skinOwned.includes(sid)) return;
@@ -784,7 +828,7 @@ window.calClaimMonth = async ()=>{
   let text;
   if(pool.length){
     const p = pool[rnd(0, pool.length-1)];
-    if(p.kind==='theme'){ c.themes.push(p.o.id); c.active = p.o.id; } else { c.effects.push(p.o.id); c.effect = p.o.id; }
+    if(p.kind==='theme'){ c.themes.push(p.o.id); c.active = p.o.id; } else { c.effects.push(p.o.id); c.fxOn.push(p.o.id); }
     text = `${p.o.icon} ${p.o.name} ${p.kind==='theme'?'테마':'이펙트'}`;
   } else { state.gold += 300; trackGold(300); text = '+300G'; }
   c.monthClaimed = k;
@@ -996,7 +1040,7 @@ function renderWorld(){
   const wrap = $('world-wrap');
   if(!wrap || !state || !state.character) return;
   const c = S(), th = theme(), d = dg(), p = pStats();
-  wrap.className = ['cal-scope', th.cls, c.effect ? `fx-${c.effect}` : ''].filter(Boolean).join(' ');
+  wrap.className = ['cal-scope', th.cls, ...c.fxOn.map(x=>'fx-'+x)].filter(Boolean).join(' ');
   wrap.style.setProperty('--ca', th.accent); wrap.style.setProperty('--cb', th.bg); wrap.style.setProperty('--cl', th.line);
   const f = Math.min(d.floor, 4), m = mStats(f, p.lv);
   const dgLine = d.cleared ? '오늘의 던전 클리어! 내일 새 던전이 열려요.' : `${f+1}층 · ${m.name}${m.boss?' (보스)':''} · 열쇠 ${d.keys}개`;
