@@ -3273,7 +3273,8 @@ async function toggleQuest(id){
   // complete
   if(q.type==='daily') q.lastDoneDate=t; else { q.status='done'; q.completedDate=t; }
   const beforeLevel = levelFromXP(state.totalXP);
-  const gainedXp = applyXpBonus(q.xp), gainedGold = applyGoldBonus(q.gold);
+  let gainedXp = applyXpBonus(q.xp), gainedGold = applyGoldBonus(q.gold);
+  if(window.calQuestBonus){ const b = calQuestBonus(q, gainedXp, gainedGold); gainedXp += b.xp; gainedGold += b.gold; } // 퀘스트 부스터·미래 일정 투자 보너스 (calendar.js)
   state.totalXP += gainedXp;
   state.gold += gainedGold;
   trackGold(gainedGold);
@@ -3332,8 +3333,9 @@ async function doCheckIn(){
   if(state.lastCheckIn===t) return;
   const yesterday = new Date(Date.now()-86400000);
   const yStr = yesterday.getFullYear()+'-'+String(yesterday.getMonth()+1).padStart(2,'0')+'-'+String(yesterday.getDate()).padStart(2,'0');
-  const streakBroken = state.lastCheckIn && state.lastCheckIn!==yStr && state.streak>=2;
-  state.streak = (state.lastCheckIn===yStr) ? state.streak+1 : 1;
+  const restCovered = window.calRestCovers ? calRestCovers(state.lastCheckIn, yStr) : false; // 휴식권으로 쉰 날은 연속 출석을 이어준다 (calendar.js)
+  const streakBroken = state.lastCheckIn && state.lastCheckIn!==yStr && state.streak>=2 && !restCovered;
+  state.streak = (state.lastCheckIn===yStr || restCovered) ? state.streak+1 : 1;
   state.lastCheckIn = t;
   if(streakBroken) showNpcBubble('오늘은 쉬어도 모험은 끝나지 않는다.');
   const beforeLevel = levelFromXP(state.totalXP);
