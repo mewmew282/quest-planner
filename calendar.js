@@ -1,4 +1,4 @@
-/* 캘린더 월드맵: 월간 캘린더 + 테마 상점 (1차 MVP). 퀘스트 화면의 '캘린더' 보기로 노출된다.
+/* 캘린더 월드맵: 월간 캘린더 + 테마 상점 (1차 MVP). 하단 '캘린더' 탭(#screen-calendar)에 그려진다.
    index.html의 전역(state, saveState, trackGold, todayStr, catIcon, escapeHtml, toast, renderAll, questCardEl)을 사용한다. */
 (function(){
 const $ = (id)=>document.getElementById(id);
@@ -11,7 +11,7 @@ const THEMES = [
 ];
 const DAILY_BUY_CAP = 2; // 하루 구매 한도 (골드 소비 폭주 방지)
 const now = new Date();
-let ym = {y:now.getFullYear(), m:now.getMonth()}, sel = null, view = 'list', shopOpen = false;
+let ym = {y:now.getFullYear(), m:now.getMonth()}, sel = null, shopOpen = false;
 
 const css = document.createElement('style');
 css.textContent = `
@@ -96,11 +96,7 @@ function shopPanel(){
 function render(){
   const wrap = $('cal-wrap');
   if(!wrap || !state) return;
-  const listEls = ['quest-filter-row','all-quest-list'].map($);
-  document.querySelectorAll('#quest-view-row .chip').forEach(c=>c.classList.toggle('active', c.dataset.val===view));
-  wrap.style.display = view==='cal' ? '' : 'none';
-  listEls.forEach(el=>{ if(el) el.style.display = view==='cal' ? 'none' : ''; });
-  if(view!=='cal') return;
+  if(!sel) sel = todayStr();
   const th = theme();
   wrap.style.setProperty('--ca', th.accent); wrap.style.setProperty('--cb', th.bg); wrap.style.setProperty('--cl', th.line);
   const first = new Date(ym.y, ym.m, 1).getDay(), days = new Date(ym.y, ym.m+1, 0).getDate(), today = todayStr();
@@ -117,7 +113,6 @@ function render(){
 }
 
 window.calRender = render;
-window.setQuestView = (v)=>{ view = v; if(v==='cal' && !sel) sel = todayStr(); render(); };
 window.calMove = (dm)=>{ const d = new Date(ym.y, ym.m+dm, 1); ym = {y:d.getFullYear(), m:d.getMonth()}; render(); };
 window.calSelect = (ds)=>{ sel = ds; render(); };
 window.calToggleShop = ()=>{ shopOpen = !shopOpen; render(); };

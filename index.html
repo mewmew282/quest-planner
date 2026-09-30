@@ -1506,7 +1506,7 @@
 
     <!-- HOME -->
     <div class="screen" id="screen-home">
-      <div class="char-stage">
+      <div class="char-stage" id="home-char-stage" role="button" tabindex="0" style="cursor:pointer" aria-label="캐릭터 정보 보기" onclick="openCharacterFromHome()">
         <div class="char-aura" id="home-char-aura"><span id="home-char-emoji">🧍</span></div>
         <div class="char-badges" id="home-char-badges"></div>
         <div class="char-title" id="home-char-title">훈련병</div>
@@ -1536,14 +1536,15 @@
       <div class="dmg-home-card" id="dmg-home-card"></div>
     </div>
 
+    <!-- CALENDAR -->
+    <div class="screen hidden" id="screen-calendar">
+      <div class="section-head" style="margin-top:4px;"><h2>캘린더</h2><button class="chip" onclick="switchTab('quest')">📋 전체 퀘스트</button></div>
+      <div id="cal-wrap"></div>
+    </div>
+
     <!-- QUEST LIST -->
     <div class="screen hidden" id="screen-quest">
       <div class="section-head"><h2>전체 퀘스트</h2><span class="meta" id="quest-count-meta"></span></div>
-      <div class="chip-row" id="quest-view-row" style="margin-bottom:10px;">
-        <button class="chip active" data-val="list" onclick="setQuestView('list')">📋 목록</button>
-        <button class="chip" data-val="cal" onclick="setQuestView('cal')">📅 캘린더</button>
-      </div>
-      <div id="cal-wrap" style="display:none"></div>
       <div class="chip-row" id="quest-filter-row" style="margin-bottom:14px;">
         <button class="chip active" data-val="all" onclick="setQuestFilter(this,'all')">전체</button>
         <button class="chip" data-val="운동" onclick="setQuestFilter(this,'운동')">🏃 운동</button>
@@ -1780,7 +1781,7 @@
 
     <div id="bottomnav">
       <button class="nav-item" data-tab="growth" onclick="switchTab('growth')"><span class="ic">📈</span>성장</button>
-      <button class="nav-item" data-tab="character" onclick="switchTab('character')"><span class="ic">🧙</span>캐릭터</button>
+      <button class="nav-item" data-tab="calendar" onclick="switchTab('calendar')"><span class="ic">📅</span>캘린더</button>
       <button class="nav-item active" data-tab="home" onclick="switchTab('home')"><span class="ic">🏠</span>홈</button>
       <button class="nav-item" data-tab="explore" onclick="switchTab('explore')"><span class="ic">🗺️</span>탐험</button>
       <button class="nav-item" data-tab="shop" onclick="switchTab('shop')"><span class="ic">🛒</span>상점</button>
@@ -2747,7 +2748,10 @@ function setupHiddenNpcLongPress(){
   el.addEventListener('pointerleave', cancel);
   el.addEventListener('contextmenu', e=> e.preventDefault());
 }
+let _hiddenNpcFiredAt = 0;
+function openCharacterFromHome(){ if(Date.now()-_hiddenNpcFiredAt<1200) return; switchTab('character'); } // 숨은 NPC 길게 누르기 직후의 클릭은 무시
 function triggerHiddenNpc(){
+  _hiddenNpcFiredAt = Date.now();
   const lines = ['...넌 뭘 찾고 있지?', '이 근처엔 아무도 없을 텐데.', '조용히 하고 가던 길 가게.', '오랜만에 말을 걸어주는군.'];
   const line = lines[Math.floor(Math.random()*lines.length)];
   showNpcBubble('👻 '+line);
@@ -3117,7 +3121,6 @@ function setQuestFilter(el, cat){
   renderAllQuests();
 }
 function renderAllQuests(){
-  if(window.calRender) calRender(); // 캘린더 보기 (calendar.js)
   const wrap = document.getElementById('all-quest-list');
   wrap.innerHTML='';
   let list = [...state.quests].reverse();
@@ -6086,12 +6089,12 @@ function startWatchingPosition(){
 /* ===================== NAV ===================== */
 function switchTab(tab){
   const prevTab = document.querySelector('.nav-item.active')?.dataset.tab;
-  ['home','quest','character','growth','shop','explore','settings','social'].forEach(t=>{
+  ['home','quest','calendar','character','growth','shop','explore','settings','social'].forEach(t=>{
     const screen=document.getElementById('screen-'+t);
     if(screen) screen.classList.toggle('hidden', t!==tab);
   });
   document.querySelectorAll('.nav-item').forEach(el=>{
-    el.classList.toggle('active', el.dataset.tab===tab);
+    el.classList.toggle('active', el.dataset.tab===(tab==='character' ? 'home' : tab)); // 캐릭터 화면은 홈 프로필에서 진입하므로 홈 탭을 강조
   });
   // leaving the explore tab: stop GPS watch to save battery, unless an active
   // walk session needs to keep tracking distance in the background
@@ -6099,6 +6102,7 @@ function switchTab(tab){
     stopWatchingPosition();
   }
   if(tab==='quest') renderAllQuests();
+  if(tab==='calendar' && window.calRender) calRender();
   if(tab==='character') renderCharacterScreen();
   if(tab==='growth') renderGrowth();
   if(tab==='shop'){ renderShopScreen(); }
@@ -6114,6 +6118,7 @@ function renderAll(){
   renderHome();
   const activeTab = document.querySelector('.nav-item.active')?.dataset.tab || 'home';
   if(activeTab==='quest') renderAllQuests();
+  if(activeTab==='calendar' && window.calRender) calRender();
   if(activeTab==='character') renderCharacterScreen();
   if(activeTab==='growth') renderGrowth();
   if(activeTab==='shop') renderShopScreen();
