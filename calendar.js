@@ -28,13 +28,14 @@ const SKINS = {
 };
 // 펫: 한 마리를 골라 함께 다닌다. 함께한 동안 퀘스트를 완료하면 성장하고(10개당 1레벨, 최대 Lv.5), 레벨당 효과가 커진다.
 const PETS = [
-  {id:'dragon', name:'드래곤', icon:'🐉', price:1500, kind:'atk',  unit:'%', desc:'던전 공격력'},
-  {id:'golem',  name:'골렘',   icon:'🗿', price:2500, kind:'hp',   unit:'%', desc:'던전 최대 HP'},
-  {id:'horse',  name:'말',     icon:'🐴', price:3000, kind:'gold', unit:'%', desc:'퀘스트 골드'},
-  {id:'fairy',  name:'요정',   icon:'🧚', price:3500, kind:'heal', unit:'',  desc:'매일 HP 정산 회복'},
+  {id:'horse',  name:'말',     icon:'🐴', price:1500, fx:[{k:'gold', per:2, u:'%',  t:'퀘스트 골드'}]},
+  {id:'golem',  name:'골렘',   icon:'🗿', price:2500, fx:[{k:'hp', per:3, u:'%', t:'던전 최대 HP'}, {k:'red', per:1, u:'%', t:'던전 받는 피해 감소'}]},
+  {id:'fairy',  name:'요정',   icon:'🧚', price:3500, fx:[{k:'xp', per:3, u:'%', t:'퀘스트 XP'}, {k:'heal', per:2, u:'', t:'매일 HP 정산 회복'}]},
+  {id:'dragon', name:'드래곤', icon:'🐉', price:5000, fx:[{k:'atk', per:4, u:'%', t:'던전 공격력'}, {k:'crit', per:2, u:'%p', t:'던전 치명타 확률'}, {k:'dgr', per:4, u:'%', t:'던전 골드·XP 보상'}]},
 ];
-const PET_STEP = 10, PET_MAX = 5, PET_PER_LV = 2; // 레벨당 효과 +2 (%, 요정은 HP)
+const PET_STEP = 10, PET_MAX = 5;
 const petLv = (n)=> Math.min(PET_MAX, 1 + Math.floor((n||0)/PET_STEP));
+const fxText = (pet, lv)=> pet.fx.map(f=>`${f.t} +${f.per*lv}${f.u}`).join(' · ');
 const TICKETS = {
   change:  {name:'일정 변경권',   icon:'📜', price:50,   desc:'마감 전 퀘스트의 날짜를 바꿉니다 (보상 50%)'},
   keep:    {name:'일정 보존권',   icon:'🛡', price:150,  desc:'놓친 퀘스트를 내일로 옮깁니다 (보상 50%)'},
@@ -397,12 +398,12 @@ function shopPanel(){
     const btn = on ? `<button onclick="calSetSkin('char',null)">해제</button>` : own ? `<button onclick="calSetSkin('char','${s.id}')">적용</button>` : `<button onclick="calBuySkin('char','${s.id}')">🪙${s.price}</button>`;
     return `<div class="cal-row"><span style="font-size:20px">${s.icon}</span><span class="t">${s.name}${on?' · 사용 중':''}</span>${btn}</div>`;
   }).join('');
-  if(shopTab==='pet') body = `<div style="font-size:12px;color:var(--text-dim);margin-bottom:4px">한 마리와 함께 다니며, 함께한 동안 퀘스트를 완료하면 성장해요. (${PET_STEP}개당 1레벨, 최대 Lv.${PET_MAX})</div>` + PETS.map(pt=>{
+  if(shopTab==='pet') body = `<div style="font-size:12px;color:var(--text-dim);margin-bottom:4px">한 마리와 함께 다니며, 함께한 동안 퀘스트를 완료하면 성장해요. (${PET_STEP}개당 1레벨, 최대 Lv.${PET_MAX}) 비싼 펫일수록 효과가 다양하고 강해요.</div>` + PETS.map(pt=>{
     const own = c.pets.owned.includes(pt.id), on = c.pets.active===pt.id, n = c.pets.exp[pt.id]||0, lv = petLv(n);
-    const eff = `${pt.desc} +${lv*PET_PER_LV}${pt.unit}`;
     const left = lv>=PET_MAX ? '최대 레벨' : `다음 레벨까지 ${PET_STEP - n%PET_STEP}개`;
     const btn = on ? `<button onclick="calSetPet(null)">쉬게 하기</button>` : own ? `<button onclick="calSetPet('${pt.id}')">함께하기</button>` : `<button onclick="calBuyPet('${pt.id}')">🪙${pt.price}</button>`;
-    return `<div class="cal-row"><span style="font-size:24px">${pt.icon}</span><span class="t">${pt.name}${own?` · Lv.${lv}`:''}${on?' · 함께하는 중':''}<div class="s">${own?`${eff} · ${left}`:`${pt.desc} +${PET_PER_LV}${pt.unit} (Lv.1) ~ +${PET_MAX*PET_PER_LV}${pt.unit} (Lv.${PET_MAX})`}</div></span>${btn}</div>`;
+    const info = own ? `${fxText(pt, lv)}<br>${left}` : `Lv.1: ${fxText(pt,1)}<br>Lv.${PET_MAX}: ${fxText(pt,PET_MAX)}`;
+    return `<div class="cal-row"><span style="font-size:24px">${pt.icon}</span><span class="t">${pt.name}${own?` · Lv.${lv}`:''}${on?' · 함께하는 중':''}<div class="s">${info}</div></span>${btn}</div>`;
   }).join('');
   if(shopTab==='item'){
     const wk = weekKey(todayStr()), used = c.usage.week===wk ? c.usage.n : 0;
@@ -567,7 +568,7 @@ window.calSetPet = async (id)=>{
 window.petTap = (e)=>{
   if(e) e.stopPropagation();
   const pi = petInfo(); if(!pi) return;
-  toast(`${pi.pet.name} Lv.${pi.lv} · ${pi.pet.desc} +${pi.val}${pi.pet.unit}`);
+  toast(`${pi.pet.name} Lv.${pi.lv} · ${fxText(pi.pet, pi.lv)}`);
 };
 // 홈 화면: 캐릭터 옆에 함께하는 펫을 보여준다
 function renderHomePet(){
@@ -670,6 +671,8 @@ window.calQuestBonus = (q, xp, gold)=>{
   worldCount(q, notes);
   const gp = petPct('gold');
   if(gp){ bg += Math.round(gold*gp/100); notes.push(`펫 골드 +${gp}%`); }
+  const xpp = petPct('xp');
+  if(xpp){ bx += Math.round(xp*xpp/100); notes.push(`펫 XP +${xpp}%`); }
   const tr = tier();
   if(tr.mult!==1){ bx += Math.round(xp*(tr.mult-1)); bg += Math.round(gold*(tr.mult-1)); notes.push(`컨디션 ${tr.name} ${tr.eff.replace('보상 ','')}`); }
   if(c.boostActive){ bx += Math.round(xp*0.5); bg += Math.round(gold*0.5); c.boostActive = false; notes.push('⚔️ 부스터'); }
@@ -744,14 +747,14 @@ function dg(){
 function petInfo(){
   const c = S(), pet = PETS.find(x=>x.id===c.pets.active);
   if(!pet) return null;
-  const n = c.pets.exp[pet.id]||0, lv = petLv(n);
-  return {pet, n, lv, val:lv*PET_PER_LV};
+  const n = c.pets.exp[pet.id]||0;
+  return {pet, n, lv:petLv(n)};
 }
-const petPct = (kind)=>{ const pi = petInfo(); return pi && pi.pet.kind===kind ? pi.val : 0; };
+const petPct = (kind)=>{ const pi = petInfo(); return pi ? pi.pet.fx.filter(f=>f.k===kind).reduce((a,f)=>a+f.per*pi.lv, 0) : 0; };
 function pStats(){
   const st = state.stats || {}, lv = Math.floor(state.totalXP/1000)+1, cm = tier().mult;
   const g = (k)=> st[k]||10;
-  return {lv, atk:Math.round((8 + lv*2 + (g('힘')+g('지능'))/2)*cm*(1+petPct('atk')/100)), maxHp:Math.round((60 + lv*4 + g('체력')*2)*(1+petPct('hp')/100)), crit:Math.min(0.4, g('민첩')/200), red:Math.min(0.3, g('의지')/300)};
+  return {lv, atk:Math.round((8 + lv*2 + (g('힘')+g('지능'))/2)*cm*(1+petPct('atk')/100)), maxHp:Math.round((60 + lv*4 + g('체력')*2)*(1+petPct('hp')/100)), crit:Math.min(0.5, g('민첩')/200 + petPct('crit')/100), red:Math.min(0.5, Math.min(0.3, g('의지')/300) + petPct('red')/100)};
 }
 function mStats(f, lv){
   const m = DG_MONSTERS[f];
@@ -826,7 +829,8 @@ window.dgAdvance = async ()=>{
   let summary;
   if(r.win){
     d.floor++; d.hp = Math.min(p.maxHp, r.hpEnd + Math.round(p.maxHp*0.2));
-    const g = m.boss ? 60 : 10 + floorNo*5, x = m.boss ? 50 : 10 + floorNo*5;
+    const dgm = 1 + petPct('dgr')/100;
+    const g = Math.round((m.boss ? 60 : 10 + floorNo*5)*dgm), x = Math.round((m.boss ? 50 : 10 + floorNo*5)*dgm);
     const before = Math.floor(state.totalXP/1000)+1;
     state.gold += g; trackGold(g); state.totalXP += x;
     summary = `${floorNo}층 돌파! +${g}G +${x}XP`;
@@ -971,6 +975,7 @@ window.worldPane = (name)=>{ worldPaneName = name; worldShow(); };
 
 // 퀘스트 완료/취소 때마다 index.html에서 호출한다: 컨디션 표시를 새로 고친다
 window.renderDungeonCard = renderDungeonCard;
+window.calPStats = pStats;
 window.calOnQuestChange = ()=>{
   if(!state || !state.character) return;
   gauges(); renderHomeCond(); renderDungeonCard();
