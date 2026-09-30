@@ -5527,6 +5527,13 @@ window.addEventListener('load', ()=>{
   }
 });
 if('serviceWorker' in navigator){
+  // 새 서비스워커가 활성화되면 한 번 새로고침해서 최신 화면으로 바꾼다 (첫 설치 때는 새로고침하지 않는다)
+  let hadController = !!navigator.serviceWorker.controller, reloadedForSw = false;
+  navigator.serviceWorker.addEventListener('controllerchange', ()=>{
+    if(!hadController){ hadController = true; return; }
+    if(reloadedForSw) return;
+    reloadedForSw = true; location.reload();
+  });
   window.addEventListener('load', ()=>{
     navigator.serviceWorker.register('service-worker.js').catch(()=>{ /* not hosted yet, ignore */ });
   });

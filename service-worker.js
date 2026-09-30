@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quest-planner-v4';
+const CACHE_NAME = 'quest-planner-v5';
 const ASSETS = [
   './index.html',
   './manifest.json',
@@ -26,6 +26,25 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+  // 앱 본체(HTML/JS/JSON)는 네트워크를 먼저 시도하고, 오프라인일 때만 캐시를 쓴다.
+  // (캐시 우선이면 새 버전을 올려도 폰이 옛 화면을 계속 보여줘서 새 기능이 안 보인다)
+  const isShell = url.origin === self.location.origin &&
+    (event.request.mode === 'navigate' || /\.(html|js|json)$/.test(url.pathname));
+  if (isShell) {
+    event.respondWith(
+      fetch(event.request, { cache: 'no-cache' })
+        .then((networkRes) => {
+          if (networkRes && networkRes.ok) {
+            const clone = networkRes.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return networkRes;
+        })
+        .catch(() => caches.match(event.request).then((c) => c || caches.match('./index.html')))
+    );
+    return;
+  }
   event.respondWith(
     caches.match(event.request).then((cached) => {
       const fetchPromise = fetch(event.request)
