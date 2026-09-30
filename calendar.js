@@ -52,6 +52,14 @@ const GOLDEN_CHEST_PRICE = 300;
 const DAILY_BUY_CAP = 3;        // 꾸미기(테마·이펙트·스킨)·황금 상자 하루 구매 한도(3회)
 const WEEKLY_TICKET_CAP = 2;    // 변경권·보존권·시간 연장권 사용: 주 2회
 const MONTH_CLEAR_GOAL = 10;    // 월간 보물상자: 이달 던전 클리어 일수
+const DG_KEY_CAP = 8;           // 던전 열쇠: 퀘스트 완료로 하루 최대 8개 (+ 매일 무료 1개)
+const DG_MONSTERS = [
+  {n:'슬라임',        h:1.0, a:1.0},
+  {n:'고블린 척후병', h:1.3, a:1.1},
+  {n:'해골 병사',     h:1.7, a:1.25},
+  {n:'오우거',        h:2.2, a:1.4},
+  {n:'던전의 군주',   h:3.2, a:1.7, boss:true},
+];
 
 const now = new Date();
 let ym = {y:now.getFullYear(), m:now.getMonth()}, sel = null, panel = null, shopTab = 'theme', previewId = null;
@@ -75,7 +83,7 @@ function S(){
   fill(c,'usage',{}); fill(c.usage,'week',null); fill(c.usage,'n',0);
   fill(c,'moved',{}); fill(c,'revived',{}); fill(c,'invest',{});
   fill(c,'chests',{}); fill(c.chests,'normal',0); fill(c.chests,'golden',0);
-  fill(c,'clearDays',{}); fill(c,'monthClaimed',null);
+  fill(c,'clearDays',{}); fill(c,'monthClaimed',null); fill(c,'dungeon',null);
   fill(c,'restDays',{}); fill(c,'boostActive',false);
   fill(c,'cond',{}); fill(c.cond,'hp',100); fill(c.cond,'date',null); fill(c.cond,'dayStress',0); fill(c.cond,'relief',0);
   fill(c,'skinOwned',[]); fill(c,'skinChar',null); fill(c,'skinNpc',null);
@@ -224,6 +232,27 @@ css.textContent = `
 .th-academy .cal-day.sel{background:var(--ca);color:#1B1038}
 .th-academy .cal-head .ttl{font-variant:small-caps;letter-spacing:.12em;text-shadow:0 0 10px var(--ca)}
 .th-academy .cal-panel h3{font-variant:small-caps;letter-spacing:.1em}
+/* 던전 카드·전투 창 */
+.dg-card{margin:14px 0 4px;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-s,12px)}
+.dg-top{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;margin-bottom:8px}
+.dg-top span{font-size:12px;color:var(--gold)}
+.dg-floors{display:flex;gap:4px;margin-bottom:8px}
+.dg-fl{flex:1;text-align:center;font-size:11px;padding:5px 0;border:1px solid var(--border);border-radius:6px;color:var(--text-dim)}
+.dg-fl.done{background:var(--gold);color:#1B1300;border-color:var(--gold)}
+.dg-fl.cur{border-color:var(--gold);color:var(--gold)}
+.dg-note{font-size:12.5px;margin-bottom:6px}
+.dg-sub{font-size:11.5px;color:var(--text-dim);margin-top:4px;line-height:1.5}
+.dg-hp,.dg-bar{display:block;height:7px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden}
+.dg-hp i,.dg-bar i{display:block;height:100%;background:#5EE08A;transition:width .3s}.dg-bar.m i{background:#FF6A6A}
+.dg-go{display:block;width:100%;margin-top:10px;padding:10px;border-radius:8px;border:0;background:var(--gold);color:#1B1300;font-weight:700;font-size:14px}
+.dg-go:disabled{opacity:.45}
+.dg-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px}
+.dg-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;max-width:340px;width:100%;color:var(--text)}
+.dg-box .dg-top button{padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:12px}
+.dg-side{display:grid;grid-template-columns:70px 1fr 64px;align-items:center;gap:8px;font-size:12px;margin:6px 0}
+.dg-side em{font-style:normal;font-size:11px;color:var(--text-dim);text-align:right}
+.dg-log{height:110px;overflow-y:auto;margin:10px 0;padding:8px;border-radius:8px;background:rgba(0,0,0,.25);font-size:12px;line-height:1.6}
+.dg-res{font-size:13px;font-weight:700;color:var(--gold);min-height:20px}
 @keyframes calPulse{0%,100%{box-shadow:0 0 0 1px var(--ca) inset,0 0 0 rgba(255,255,255,0)}50%{box-shadow:0 0 0 1px var(--ca) inset,0 0 10px 2px var(--ca)}}
 @keyframes calFlick{from{box-shadow:0 0 4px 0 #FF8A4C}to{box-shadow:0 0 12px 3px #FFB347}}
 @keyframes calGlow{from{box-shadow:0 0 4px 0 var(--ca)}to{box-shadow:0 0 16px 3px var(--ca)}}
@@ -313,7 +342,7 @@ function dayPanel(){
   if(!sel) return '';
   const c = S(), qs = questsOn(sel), today = todayStr();
   const done = qs.filter(q=>isDone(q, sel)).length;
-  const head = sel===today ? `⚔️ 오늘의 던전 ${done}/${qs.length}` : `📅 ${sel} 일정 ${qs.length}개`;
+  const head = sel===today ? `📋 오늘의 퀘스트 ${done}/${qs.length}` : `📅 ${sel} 일정 ${qs.length}개`;
   if(qs.length===0) return `<div class="cal-panel"><h3>${head}</h3><div style="color:var(--text-dim);font-size:12.5px">이 날의 퀘스트가 없습니다.</div></div>`;
   const rows = qs.map(q=>{
     let btn = '';
@@ -395,7 +424,7 @@ function chestPanel(){
   const c = S(), mc = monthClears();
   const claimed = c.monthClaimed===monthKey(), ready = mc>=MONTH_CLEAR_GOAL && !claimed;
   return `<div class="cal-panel"><h3>📦 보물상자</h3>
-    <div class="cal-row"><span style="font-size:20px">🎁</span><span class="t">일반 보물상자 <b>×${c.chests.normal}</b><div class="s">오늘의 던전을 클리어하면 1개 (무료)</div></span><button ${c.chests.normal?'':'disabled'} onclick="calOpenChest('normal')">열기</button></div>
+    <div class="cal-row"><span style="font-size:20px">🎁</span><span class="t">일반 보물상자 <b>×${c.chests.normal}</b><div class="s">오늘의 던전 보스를 쓰러뜨리면 1개 (무료)</div></span><button ${c.chests.normal?'':'disabled'} onclick="calOpenChest('normal')">열기</button></div>
     ${c.chests.golden?`<div class="cal-row"><span style="font-size:20px">🔒</span><span class="t">황금 보물상자 <b>×${c.chests.golden}</b><div class="s">투자 보상으로 받은 상자</div></span><button onclick="calOpenChest('golden')">열기</button></div>`:''}
     <div class="cal-row"><span style="font-size:20px">👑</span><span class="t">월간 보물상자<div class="s">이달 던전 클리어 ${Math.min(mc,MONTH_CLEAR_GOAL)}/${MONTH_CLEAR_GOAL}일 · 희귀 테마·이펙트</div></span><button ${ready?'':'disabled'} onclick="calClaimMonth()">${claimed?'수령함':'받기'}</button></div></div>`;
 }
@@ -457,7 +486,7 @@ function applySkins(){
 }
 ['renderCharacterVisual','showNpcBubble','renderHome'].forEach(fn=>{ // 캐릭터/NPC/홈이 다시 그려질 때 스킨·컨디션 표시를 덮어쓴다
   const orig = window[fn];
-  if(typeof orig==='function') window[fn] = function(){ const r = orig.apply(this, arguments); try{ applySkins(); renderHomeCond(); }catch(e){} return r; };
+  if(typeof orig==='function') window[fn] = function(){ const r = orig.apply(this, arguments); try{ applySkins(); renderHomeCond(); renderDungeonCard(); }catch(e){} return r; };
 });
 
 window.calRender = render;
@@ -589,6 +618,7 @@ window.calQuestBonus = (q, xp, gold)=>{
   let bx = 0, bg = 0;
   if(!state || !state.character) return {xp:0, gold:0};
   const c = S(), today = todayStr(), notes = [];
+  if(dungeonEarn(q)){ notes.push('던전 열쇠 +1'); renderDungeonCard(); }
   const tr = tier();
   if(tr.mult!==1){ bx += Math.round(xp*(tr.mult-1)); bg += Math.round(gold*(tr.mult-1)); notes.push(`컨디션 ${tr.name} ${tr.eff.replace('보상 ','')}`); }
   if(c.boostActive){ bx += Math.round(xp*0.5); bg += Math.round(gold*0.5); c.boostActive = false; notes.push('⚔️ 부스터'); }
@@ -652,18 +682,120 @@ window.calClaimMonth = async ()=>{
   await done(`👑 월간 보물상자: ${text}`);
 };
 
-// 오늘의 던전 클리어 판정: 퀘스트 완료/취소 때마다 index.html에서 호출한다 (하루 1회 일반 상자)
-window.calOnQuestChange = ()=>{
-  if(!state || !state.character) return;
-  gauges(); renderHomeCond();
-  const c = S(), today = todayStr(), qs = questsOn(today);
-  if(qs.length && qs.every(q=>isDone(q, today)) && !c.clearDays[today]){
-    c.clearDays[today] = true; c.chests.normal++;
-    saveState();
-    toast('🏆 오늘의 던전 클리어! 일반 보물상자 +1');
-    if($('cal-wrap') && !$('screen-calendar').classList.contains('hidden')) render();
+// ---- 오늘의 던전 (자동 전투) ----
+// 퀘스트를 완료하면 열쇠를 얻고(퀘스트당 하루 1개), 열쇠 1개로 한 층씩 자동 전투를 벌인다. 5층 보스를 쓰러뜨리면 클리어.
+// 전투력은 레벨·스탯(힘·지능=공격, 체력=최대 HP, 민첩=치명타, 의지=피해 감소)과 컨디션 등급으로 정해진다.
+function dg(){
+  const c = S(), t = todayStr();
+  if(!c.dungeon || c.dungeon.date!==t) c.dungeon = {date:t, floor:0, keys:1, earned:0, earnedIds:{}, hp:null, cleared:false};
+  return c.dungeon;
+}
+function pStats(){
+  const st = state.stats || {}, lv = Math.floor(state.totalXP/1000)+1, cm = tier().mult;
+  const g = (k)=> st[k]||10;
+  return {lv, atk:Math.round((8 + lv*2 + (g('힘')+g('지능'))/2)*cm), maxHp:60 + lv*4 + g('체력')*2, crit:Math.min(0.4, g('민첩')/200), red:Math.min(0.3, g('의지')/300)};
+}
+function mStats(f, lv){
+  const m = DG_MONSTERS[f];
+  return {name:m.n, hp:Math.round((34 + lv*5.7)*m.h), atk:(5 + lv*1.1)*m.a, boss:!!m.boss};
+}
+function simulate(p, m, hp0){
+  let ph = hp0, mh = m.hp; const steps = [];
+  for(let r=0; r<40 && ph>0 && mh>0; r++){
+    const crit = Math.random()<p.crit;
+    const dm = Math.max(1, Math.round(p.atk*(0.85+Math.random()*0.3)*(crit?1.8:1)));
+    mh = Math.max(0, mh-dm); steps.push({who:'p', dmg:dm, crit, ph, mh});
+    if(mh<=0) break;
+    const da = Math.max(1, Math.round(m.atk*(0.85+Math.random()*0.3)*(1-p.red)));
+    ph = Math.max(0, ph-da); steps.push({who:'m', dmg:da, ph, mh});
   }
+  return {win:mh<=0, steps, hpEnd:ph};
+}
+function dungeonEarn(q){
+  const d = dg();
+  if(d.earnedIds[q.id] || d.earned>=DG_KEY_CAP) return false;
+  d.earnedIds[q.id] = 1; d.earned++; d.keys++;
+  return true;
+}
+function renderDungeonCard(){
+  const el = $('dungeon-card');
+  if(!el || !state || !state.character) return;
+  const d = dg(), p = pStats(), f = Math.min(d.floor, 4), m = mStats(f, p.lv);
+  if(d.hp==null) d.hp = p.maxHp;
+  const floors = DG_MONSTERS.map((mo,i)=>`<span class="dg-fl${i<d.floor?' done':''}${i===d.floor&&!d.cleared?' cur':''}">${mo.boss?'보스':(i+1)+'층'}</span>`).join('');
+  const hpPct = Math.round(Math.min(100, d.hp/p.maxHp*100));
+  el.innerHTML = `<div class="dg-card">
+    <div class="dg-top"><b>오늘의 던전</b><span>열쇠 ${d.keys}개</span></div>
+    <div class="dg-floors">${floors}</div>
+    ${d.cleared ? `<div class="dg-note">보스를 쓰러뜨렸어요! 내일 새 던전이 열려요.</div>` : `<div class="dg-note">${f+1}층 · ${m.name}${m.boss?' (보스)':''} · 몬스터 HP ${m.hp}</div>
+    <div class="dg-hp"><i style="width:${hpPct}%"></i></div><div class="dg-sub">내 HP ${d.hp}/${p.maxHp} · 공격력 ${p.atk}</div>
+    <button class="dg-go" ${d.keys>0?'':'disabled'} onclick="dgAdvance()">${d.keys>0?'진격 (열쇠 1개)':'열쇠가 없어요'}</button>
+    <div class="dg-sub">퀘스트를 완료하면 열쇠를 1개 얻어요. (하루 최대 ${DG_KEY_CAP}개, 매일 무료 1개)</div>`}
+  </div>`;
+}
+function showBattle(p, m, r, floorNo, summary){
+  const old = $('dg-modal'); if(old) old.remove();
+  const box = document.createElement('div'); box.id = 'dg-modal'; box.className = 'dg-modal';
+  box.innerHTML = `<div class="dg-box"><div class="dg-top"><b>${floorNo}층 · ${m.name}</b><button onclick="dgClose()">닫기</button></div>
+    <div class="dg-side">나<span class="dg-bar"><i id="dg-pbar" style="width:100%"></i></span><em id="dg-ptxt"></em></div>
+    <div class="dg-side">${m.name}<span class="dg-bar m"><i id="dg-mbar" style="width:100%"></i></span><em id="dg-mtxt"></em></div>
+    <div class="dg-log" id="dg-log"></div><div class="dg-res" id="dg-res"></div>
+    <button class="dg-go" onclick="dgSkip()">건너뛰기</button></div>`;
+  document.body.appendChild(box);
+  const log = $('dg-log'); let i = 0;
+  const show = (st, last)=>{
+    const phv = st.who==='m' ? st.ph : st.ph, mhv = st.mh;
+    $('dg-pbar').style.width = Math.round(st.ph/p.maxHp*100)+'%'; $('dg-mbar').style.width = Math.round(st.mh/m.hp*100)+'%';
+    $('dg-ptxt').textContent = st.ph+'/'+p.maxHp; $('dg-mtxt').textContent = st.mh+'/'+m.hp;
+    const line = document.createElement('div');
+    line.textContent = st.who==='p' ? `내 공격! ${st.dmg} 피해${st.crit?' (치명타)':''}` : `${m.name}의 공격! ${st.dmg} 피해`;
+    log.appendChild(line); log.scrollTop = log.scrollHeight;
+  };
+  const finish = ()=>{ clearInterval(window._dgTimer); window._dgTimer = null; $('dg-res').textContent = summary; box.querySelector('.dg-go').remove(); };
+  window._dgSkip = ()=>{ while(i<r.steps.length){ show(r.steps[i++]); } finish(); };
+  window._dgTimer = setInterval(()=>{ if(i>=r.steps.length){ finish(); return; } show(r.steps[i++]); }, 420);
+}
+window.dgSkip = ()=>{ if(window._dgSkip) window._dgSkip(); };
+window.dgClose = ()=>{ clearInterval(window._dgTimer); const m = $('dg-modal'); if(m) m.remove(); renderAll(); render(); };
+window.dgAdvance = async ()=>{
+  const c = S(), d = dg(), today = todayStr();
+  if(d.cleared){ toast('오늘의 던전은 이미 클리어했어요.'); return; }
+  if(d.keys<1){ toast('열쇠가 없어요. 퀘스트를 완료하면 열쇠를 얻어요.'); return; }
+  const p = pStats(), f = d.floor, m = mStats(f, p.lv), floorNo = f+1;
+  if(d.hp==null) d.hp = p.maxHp;
+  d.keys--;
+  const r = simulate(p, m, d.hp);
+  let summary;
+  if(r.win){
+    d.floor++; d.hp = Math.min(p.maxHp, r.hpEnd + Math.round(p.maxHp*0.2));
+    const g = m.boss ? 60 : 10 + floorNo*5, x = m.boss ? 50 : 10 + floorNo*5;
+    const before = Math.floor(state.totalXP/1000)+1;
+    state.gold += g; trackGold(g); state.totalXP += x;
+    summary = `${floorNo}층 돌파! +${g}G +${x}XP`;
+    if(m.boss){
+      d.cleared = true; c.clearDays[today] = true; c.chests.normal++;
+      summary += ' · 보스 격파! 일반 보물상자 +1';
+      if(Math.random()<0.3){ const {coin, isNew} = awardCoin(); summary += ` · ${coin.name}${isNew?' (새 코인)':''}`; }
+    }
+    if(window.logGain) logGain('⚔️', `던전 ${floorNo}층`, `+${g}G +${x}XP`);
+    if(window.maybeShowLevelUp) setTimeout(()=>maybeShowLevelUp(before), 1500);
+  } else {
+    d.hp = Math.round(p.maxHp*0.5);
+    if(!c.restDays[today]) c.cond.hp = Math.max(0, c.cond.hp-10);
+    summary = `${floorNo}층에서 패배했어요. 열쇠 1개를 잃고 HP가 반으로 회복돼요. 컨디션 HP −10`;
+  }
+  await saveState();
+  renderDungeonCard(); renderHomeCond();
+  showBattle(p, m, r, floorNo, summary);
 };
 
-try{ applySkins(); renderHomeCond(); }catch(e){} // 스크립트가 늦게 로드돼 첫 렌더가 이미 끝난 경우를 보정
+// 퀘스트 완료/취소 때마다 index.html에서 호출한다: 컨디션 표시를 새로 고친다
+window.renderDungeonCard = renderDungeonCard;
+window.calOnQuestChange = ()=>{
+  if(!state || !state.character) return;
+  gauges(); renderHomeCond(); renderDungeonCard();
+  if($('cal-wrap') && !$('screen-calendar').classList.contains('hidden')) render();
+};
+
+try{ applySkins(); renderHomeCond(); renderDungeonCard(); }catch(e){} // 스크립트가 늦게 로드돼 첫 렌더가 이미 끝난 경우를 보정
 })();
