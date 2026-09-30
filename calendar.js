@@ -33,7 +33,7 @@ const PETS = [
   {id:'fairy',  name:'요정',   icon:'🧚', price:3500, fx:[{k:'xp', per:3, u:'%', t:'퀘스트 XP'}, {k:'heal', per:2, u:'', t:'매일 HP 정산 회복'}]},
   {id:'dragon', name:'드래곤', icon:'🐉', price:5000, fx:[{k:'atk', per:4, u:'%', t:'던전 공격력'}, {k:'crit', per:2, u:'%p', t:'던전 치명타 확률'}, {k:'dgr', per:4, u:'%', t:'던전 골드·XP 보상'}]},
 ];
-const PET_STEP = 10, PET_MAX = 5;
+const PET_STEP = 10, PET_MAX = 5, PET_SLOTS = 2; // 함께 다닐 수 있는 펫은 최대 2마리 (골라서 동행)
 const petLv = (n)=> Math.min(PET_MAX, 1 + Math.floor((n||0)/PET_STEP));
 const fxText = (pet, lv)=> pet.fx.map(f=>`${f.t} +${f.per*lv}${f.u}`).join(' · ');
 const TICKETS = {
@@ -99,6 +99,11 @@ function S(){
     c.skinOwned.filter(x=>x.startsWith('npc:')).forEach(x=>{ const id = map[x.slice(4)]; if(id && !c.pets.owned.includes(id)) c.pets.owned.push(id); });
     if(c.skinNpc && map[c.skinNpc]) c.pets.active = map[c.skinNpc];
     c.skinOwned = c.skinOwned.filter(x=>!x.startsWith('npc:')); c.skinNpc = null; c.petsMigrated = true;
+  }
+  fill(c.pets,'party',[]); fill(c.pets,'partyMigrated',false);
+  if(!c.pets.partyMigrated){ // 한 마리만 다니던 이전 방식(active) -> 동행 목록
+    if(c.pets.active && c.pets.owned.includes(c.pets.active) && !c.pets.party.includes(c.pets.active)) c.pets.party.push(c.pets.active);
+    c.pets.active = null; c.pets.partyMigrated = true;
   }
   return c;
 }
@@ -247,6 +252,7 @@ css.textContent = `
 .th-academy .cal-panel h3{font-variant:small-caps;letter-spacing:.1em}
 /* 홈 펫 */
 .home-pet{position:absolute;right:-14px;bottom:-6px;width:46px;height:46px;border-radius:50%;border:2px solid var(--border);background:var(--card);font-size:26px;line-height:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;cursor:pointer}
+.home-pet.p1{right:auto;left:-14px}
 .home-pet small{font-size:9px;color:var(--text-dim);margin-top:1px}
 /* 던전 카드·전투 창 */
 .dg-card{margin:14px 0 4px;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-s,12px)}
@@ -398,12 +404,12 @@ function shopPanel(){
     const btn = on ? `<button onclick="calSetSkin('char',null)">해제</button>` : own ? `<button onclick="calSetSkin('char','${s.id}')">적용</button>` : `<button onclick="calBuySkin('char','${s.id}')">🪙${s.price}</button>`;
     return `<div class="cal-row"><span style="font-size:20px">${s.icon}</span><span class="t">${s.name}${on?' · 사용 중':''}</span>${btn}</div>`;
   }).join('');
-  if(shopTab==='pet') body = `<div style="font-size:12px;color:var(--text-dim);margin-bottom:4px">한 마리와 함께 다니며, 함께한 동안 퀘스트를 완료하면 성장해요. (${PET_STEP}개당 1레벨, 최대 Lv.${PET_MAX}) 비싼 펫일수록 효과가 다양하고 강해요.</div>` + PETS.map(pt=>{
-    const own = c.pets.owned.includes(pt.id), on = c.pets.active===pt.id, n = c.pets.exp[pt.id]||0, lv = petLv(n);
+  if(shopTab==='pet') body = `<div style="font-size:12px;color:var(--text-dim);margin-bottom:4px">가진 펫 중에서 골라 함께 다닐 수 있어요. 동행 ${c.pets.party.length}/${PET_SLOTS}마리 · 함께한 동안 퀘스트를 완료하면 성장해요. (${PET_STEP}개당 1레벨, 최대 Lv.${PET_MAX}) 비싼 펫일수록 효과가 다양하고 강해요.</div>` + PETS.map(pt=>{
+    const own = c.pets.owned.includes(pt.id), on = c.pets.party.includes(pt.id), n = c.pets.exp[pt.id]||0, lv = petLv(n);
     const left = lv>=PET_MAX ? '최대 레벨' : `다음 레벨까지 ${PET_STEP - n%PET_STEP}개`;
-    const btn = on ? `<button onclick="calSetPet(null)">쉬게 하기</button>` : own ? `<button onclick="calSetPet('${pt.id}')">함께하기</button>` : `<button onclick="calBuyPet('${pt.id}')">🪙${pt.price}</button>`;
+    const btn = on ? `<button class="on" onclick="calTogglePet('${pt.id}')">동행 중 · 쉬게 하기</button>` : own ? `<button onclick="calTogglePet('${pt.id}')">함께하기</button>` : `<button onclick="calBuyPet('${pt.id}')">🪙${pt.price}</button>`;
     const info = own ? `${fxText(pt, lv)}<br>${left}` : `Lv.1: ${fxText(pt,1)}<br>Lv.${PET_MAX}: ${fxText(pt,PET_MAX)}`;
-    return `<div class="cal-row"><span style="font-size:24px">${pt.icon}</span><span class="t">${pt.name}${own?` · Lv.${lv}`:''}${on?' · 함께하는 중':''}<div class="s">${info}</div></span>${btn}</div>`;
+    return `<div class="cal-row"><span style="font-size:24px">${pt.icon}</span><span class="t">${pt.name}${own?` · Lv.${lv}`:''}${on?' · 동행 중':''}<div class="s">${info}</div></span>${btn}</div>`;
   }).join('');
   if(shopTab==='item'){
     const wk = weekKey(todayStr()), used = c.usage.week===wk ? c.usage.n : 0;
@@ -556,29 +562,38 @@ window.calBuyPet = (id)=>{
   if(!pt || c.pets.owned.includes(id)) return;
   ask(`${pt.icon} ${pt.name} 펫`, pt.price, async ()=>{
     if(!(await pay(pt.price, true))) return;
-    c.pets.owned.push(id); c.pets.active = id;
-    await done(`${pt.name}이(가) 함께하게 됐어요.`);
+    c.pets.owned.push(id);
+    const joined = c.pets.party.length<PET_SLOTS;
+    if(joined) c.pets.party.push(id);
+    await done(joined ? `${pt.name}이(가) 함께하게 됐어요.` : `${pt.name}을(를) 얻었어요. 동행 자리가 가득 차서 함께하기로 골라 주세요.`);
   });
 };
-window.calSetPet = async (id)=>{
-  const c = S(); if(id && !c.pets.owned.includes(id)) return;
-  c.pets.active = id;
+// 교체가 아니라 선택: 동행 중이면 쉬게 하고, 아니면 자리가 있을 때 함께 다닌다
+window.calTogglePet = async (id)=>{
+  const c = S(); if(!c.pets.owned.includes(id)) return;
+  const i = c.pets.party.indexOf(id);
+  if(i>=0) c.pets.party.splice(i,1);
+  else if(c.pets.party.length>=PET_SLOTS){ toast(`함께 다닐 수 있는 펫은 최대 ${PET_SLOTS}마리예요. 한 마리를 먼저 쉬게 해 주세요.`); return; }
+  else c.pets.party.push(id);
   await saveState(); renderAll(); render(); renderHomePet();
 };
-window.petTap = (e)=>{
+window.petTap = (idx, e)=>{
   if(e) e.stopPropagation();
-  const pi = petInfo(); if(!pi) return;
+  const pi = petParty()[idx]; if(!pi) return;
   toast(`${pi.pet.name} Lv.${pi.lv} · ${fxText(pi.pet, pi.lv)}`);
 };
-// 홈 화면: 캐릭터 옆에 함께하는 펫을 보여준다
+// 홈 화면: 캐릭터 옆에 함께 다니는 펫들을 보여준다 (첫째는 오른쪽, 둘째는 왼쪽)
 function renderHomePet(){
   const aura = $('home-char-aura');
   if(!aura || !state || !state.character) return;
-  let el = $('home-pet');
-  const pi = petInfo();
-  if(!pi){ if(el) el.remove(); return; }
-  if(!el){ el = document.createElement('button'); el.id = 'home-pet'; el.className = 'home-pet'; el.setAttribute('aria-label','펫 정보'); el.addEventListener('click', petTap); el.addEventListener('pointerdown', e=>e.stopPropagation()); aura.appendChild(el); }
-  el.innerHTML = `${pi.pet.icon}<small>Lv.${pi.lv}</small>`;
+  aura.querySelectorAll('.home-pet').forEach(el=>el.remove());
+  petParty().forEach((pi, idx)=>{
+    const el = document.createElement('button');
+    el.className = 'home-pet p'+idx; el.id = 'home-pet-'+idx; el.setAttribute('aria-label', pi.pet.name+' 정보');
+    el.addEventListener('click', (e)=>petTap(idx, e)); el.addEventListener('pointerdown', e=>e.stopPropagation());
+    el.innerHTML = `${pi.pet.icon}<small>Lv.${pi.lv}</small>`;
+    aura.appendChild(el);
+  });
 }
 window.renderHomePet = renderHomePet;
 window.calBuyTicket = (k)=>{
@@ -744,13 +759,12 @@ function dg(){
   if(!c.dungeon || c.dungeon.date!==t) c.dungeon = {date:t, floor:0, keys:1, earned:0, earnedIds:{}, hp:null, cleared:false};
   return c.dungeon;
 }
-function petInfo(){
-  const c = S(), pet = PETS.find(x=>x.id===c.pets.active);
-  if(!pet) return null;
-  const n = c.pets.exp[pet.id]||0;
-  return {pet, n, lv:petLv(n)};
+function petParty(){
+  const c = S();
+  return c.pets.party.map(id=>PETS.find(x=>x.id===id)).filter(Boolean).map(pet=>{ const n = c.pets.exp[pet.id]||0; return {pet, n, lv:petLv(n)}; });
 }
-const petPct = (kind)=>{ const pi = petInfo(); return pi ? pi.pet.fx.filter(f=>f.k===kind).reduce((a,f)=>a+f.per*pi.lv, 0) : 0; };
+// 동행 중인 펫들의 효과를 모두 더한다
+const petPct = (kind)=> petParty().reduce((sum,pi)=> sum + pi.pet.fx.filter(f=>f.k===kind).reduce((a,f)=>a+f.per*pi.lv, 0), 0);
 function pStats(){
   const st = state.stats || {}, lv = Math.floor(state.totalXP/1000)+1, cm = tier().mult;
   const g = (k)=> st[k]||10;
@@ -871,12 +885,14 @@ let wRegion = '공부', worldPaneName = 'map';
 
 // 퀘스트 완료 시 해당 카테고리 지역 진행도를 올린다 (같은 퀘스트는 하루 1번만 셈)
 function petGrow(notes){
-  const c = S(), id = c.pets.active;
-  if(!id) return;
-  const before = petLv(c.pets.exp[id]||0);
-  c.pets.exp[id] = (c.pets.exp[id]||0) + 1;
-  const after = petLv(c.pets.exp[id]);
-  if(after>before){ const pet = PETS.find(x=>x.id===id); notes.push(`${pet.name} Lv.${after}`); }
+  const c = S();
+  c.pets.party.forEach(id=>{
+    const pet = PETS.find(x=>x.id===id); if(!pet) return;
+    const before = petLv(c.pets.exp[id]||0);
+    c.pets.exp[id] = (c.pets.exp[id]||0) + 1;
+    const after = petLv(c.pets.exp[id]);
+    if(after>before) notes.push(`${pet.name} Lv.${after}`);
+  });
 }
 function worldCount(q, notes){
   const w = S().world, t = todayStr();
