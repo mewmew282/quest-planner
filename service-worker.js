@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quest-planner-v5';
+const CACHE_NAME = 'quest-planner-v6';
 const ASSETS = [
   './index.html',
   './manifest.json',
@@ -41,7 +41,7 @@ self.addEventListener('fetch', (event) => {
           }
           return networkRes;
         })
-        .catch(() => caches.match(event.request).then((c) => c || caches.match('./index.html')))
+        .catch(() => caches.match(event.request, { ignoreSearch: true }).then((c) => c || caches.match('./index.html')))
     );
     return;
   }

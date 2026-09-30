@@ -1771,6 +1771,12 @@
         </div>
       </div>
 
+      <div class="settings-card">
+        <h3>🔄 최신 버전으로 새로고침</h3>
+        <div class="hint">새 기능이 안 보이거나 화면이 이상할 때 눌러 보세요. 저장된 진행 데이터는 지워지지 않고, 앱 파일 캐시만 새로 받아요.</div>
+        <button class="btn btn-block" onclick="forceRefresh()">최신 버전으로 새로고침</button>
+      </div>
+
       <div class="settings-card" id="pwa-install-card">
         <h3>📱 앱으로 설치</h3>
         <div class="hint" id="pwa-install-hint">홈 화면에 추가하면 앱처럼 아이콘을 눌러 바로 실행할 수 있어요.</div>
@@ -3624,6 +3630,28 @@ async function selectEquipItem(slot, itemId){
 function closeEquipPicker(){ document.getElementById('equip-picker-overlay').classList.remove('show'); equipPickerSlot = null; }
 function closeEquipPickerOnBg(e){ if(e.target.id==='equip-picker-overlay') closeEquipPicker(); }
 
+/* 옛 캐시와 새 화면이 섞였을 때의 자가 복구: 저장 데이터(localStorage)는 건드리지 않고 서비스워커와 캐시만 지운 뒤 한 번만 새로고침한다 */
+async function healCache(){
+  try{
+    if(sessionStorage.getItem('qp_heal')) return false;
+    sessionStorage.setItem('qp_heal','1');
+  }catch(e){ return false; }
+  try{
+    if('serviceWorker' in navigator){ const regs = await navigator.serviceWorker.getRegistrations(); await Promise.all(regs.map(r=>r.unregister())); }
+    if(window.caches){ const ks = await caches.keys(); await Promise.all(ks.map(k=>caches.delete(k))); }
+  }catch(e){}
+  location.reload();
+  return true;
+}
+async function forceRefresh(){ // 수동: 서비스워커와 파일 캐시만 지우고 새로고침 (localStorage의 진행 데이터는 그대로)
+  try{ sessionStorage.removeItem('qp_heal'); }catch(e){}
+  toast('최신 버전을 받는 중이에요...');
+  await healCache();
+}
+function missingScriptNotice(el){
+  if(el) el.innerHTML = '<div class="empty-note">새 버전을 불러오는 중이에요. 잠시 후 자동으로 다시 열려요. (안 되면 앱을 완전히 종료했다가 다시 열어 주세요)</div>';
+  healCache();
+}
 /* 상점 대분류: 장비(무기·방어구·장신구) / 캘린더(테마·이펙트·스킨·펫·아이템·상자, calendar.js) */
 let shopMain = 'equip';
 function setShopMain(k){
@@ -3631,7 +3659,7 @@ function setShopMain(k){
   document.querySelectorAll('#shop-main-tabs .chip').forEach(b=>b.classList.toggle('active', b.dataset.main===k));
   document.getElementById('shop-equip-wrap').classList.toggle('hidden', k!=='equip');
   document.getElementById('shop-cal-wrap').classList.toggle('hidden', k!=='cal');
-  if(k==='cal' && window.renderShopCal) renderShopCal();
+  if(k==='cal'){ if(window.renderShopCal) renderShopCal(); else missingScriptNotice(document.getElementById('shop-cal-wrap')); }
 }
 let shopCategory = 'weapon';
 function setShopCategory(cat){
@@ -6145,12 +6173,12 @@ function switchTab(tab){
     stopWatchingPosition();
   }
   if(tab==='quest') renderAllQuests();
-  if(tab==='calendar' && window.calRender) calRender();
+  if(tab==='calendar'){ if(window.calRender) calRender(); else missingScriptNotice(document.getElementById('cal-wrap')); }
   if(tab==='character') renderCharacterScreen();
   if(tab==='growth') renderGrowth();
   if(tab==='shop'){ renderShopScreen(); }
   if(tab==='settings') renderSettings();
-  if(tab==='world' && window.worldShow) worldShow(); // 월드맵/탐험 하위 화면 표시 (calendar.js)
+  if(tab==='world'){ if(window.worldShow) worldShow(); else missingScriptNotice(document.getElementById('world-wrap')); } // 월드맵/탐험 하위 화면 표시 (calendar.js)
   if(tab==='social') socialOpen(); else socialClose();
 }
 
@@ -6192,7 +6220,7 @@ async function init(){
 }
 init();
 </script>
-<script src="social.js"></script>
-<script src="calendar.js"></script>
+<script src="social.js?v=20260930-2"></script>
+<script src="calendar.js?v=20260930-2"></script>
 </body>
 </html>
