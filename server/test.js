@@ -79,6 +79,30 @@ const call = async (path, { method = 'GET', body, tok } = {}) => {
   assert.equal((await call('/quests', { method: 'PUT', tok: b })).status, 400, 'quests 배열 없으면 거부');
   assert.equal((await call('/quests', { tok: c })).data.quests.length, 0, '다른 유저 데이터는 분리됨');
 
+  // 프로필 (랭킹 전체 공개)
+  assert.equal((await call('/profile/Alice')).status, 401, '프로필도 로그인 필요');
+  assert.equal((await call('/profile/nobody', { tok: a })).status, 404, '없는 닉네임');
+  const noProf = (await call('/profile/Alice', { tok: c })).data;
+  assert.equal(noProf.profile, null, '아직 프로필 없음'); assert.equal(noProf.level, 3); assert.equal(noProf.friend, false);
+  const profBody = { stats: { 힘: 30, 체력: 25, 지능: 12345678, 해킹: 9 }, equipped: { weapon: 'wpn_iron', armor: null, accessory: 'x'.repeat(99) },
+    pets: [{ id: 'dragon', lv: 9 }, { id: 'horse', lv: 2 }, { id: 'golem', lv: 1 }], skin: 'gold', theme: 'cyber', achv: 7, streak: 12, cleared: 88, dungeonDays: 40,
+    regions: { 공부: 4, 운동: 99 }, title: '견습 마도사', gold: 99999, quests: [{ title: '비밀' }] };
+  assert.equal((await call('/score', { method: 'PUT', tok: a, body: { xp: 2500, cls: 'warrior', profile: profBody } })).status, 200, '프로필 저장');
+  const pf = (await call('/profile/alice', { tok: c })).data; // 낯선 사람(랭킹 전체 공개)도 열람, 대소문자 무관
+  assert.equal(pf.nick, 'Alice'); assert.equal(pf.friend, false); assert.equal(pf.me, false);
+  assert.equal(pf.profile.stats.힘, 30); assert.equal(pf.profile.stats.지능, 99999, '스탯 상한'); assert.equal(pf.profile.stats.민첩, 0, '없는 스탯은 0'); assert.equal(pf.profile.stats.해킹, undefined, '허용하지 않은 키 제거');
+  assert.equal(pf.profile.equipped.weapon, 'wpn_iron'); assert.equal(pf.profile.equipped.accessory.length, 30, '길이 제한');
+  assert.deepEqual(pf.profile.pets, [{ id: 'dragon', lv: 5 }, { id: 'horse', lv: 2 }], '펫 2마리·Lv.5 상한');
+  assert.equal(pf.profile.dungeonDays, 31); assert.equal(pf.profile.regions.운동, 10); assert.equal(pf.profile.regions.마을, undefined);
+  assert.equal(pf.profile.gold, undefined, '골드는 저장하지 않음'); assert.equal(pf.profile.quests, undefined, '퀘스트는 저장하지 않음');
+  assert.equal((await call('/profile/Alice', { tok: a })).data.me, true, '내 프로필 표시');
+  assert.equal((await call('/profile/Bob', { tok: a })).data.friend, true, '친구 표시');
+  await call('/score', { method: 'PUT', tok: a, body: { xp: 2600, cls: 'warrior' } }); // profile 필드가 없으면 유지
+  assert.equal((await call('/profile/Alice', { tok: c })).data.profile.achv, 7, 'profile 미전송 시 유지');
+  assert.equal((await call('/score', { method: 'PUT', tok: a, body: { xp: 2600, cls: 'warrior', profile: 'bad' } })).status, 400, '잘못된 프로필 거부');
+  await call('/score', { method: 'PUT', tok: a, body: { xp: 2600, cls: 'warrior', profile: null } }); // 공개 끄기
+  assert.equal((await call('/profile/Alice', { tok: c })).data.profile, null, '공개를 끄면 프로필 삭제');
+
   // 삭제
   await call('/friends/remove', { method: 'POST', tok: a, body: { nick: 'Bob' } });
   assert.equal((await call('/msgs', { method: 'POST', tok: b, body: { to: 'Alice', text: 'x' } })).status, 403, 'removed friend blocked');

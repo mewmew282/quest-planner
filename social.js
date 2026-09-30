@@ -28,7 +28,27 @@ css.textContent = `
 #screen-social.chat{padding-bottom:12px}
 .soc-send{display:flex;gap:8px}.soc-send input{margin:0!important}.soc-send .btn{padding:0 18px}`;
 document.head.appendChild(css);
+const css2 = document.createElement('style');
+css2.textContent = `
+.soc-share{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--text-dim);margin:0 0 10px}
+.soc-prof{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:10000;display:flex;align-items:center;justify-content:center;padding:14px}
+.soc-prof-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;width:100%;max-width:360px;max-height:86vh;overflow-y:auto;color:var(--text)}
+.soc-prof-head{display:flex;gap:12px;align-items:center;margin-bottom:6px}
+.soc-prof-ic{font-size:44px;width:64px;height:64px;border-radius:50%;border:2px solid var(--gold-dim);display:flex;align-items:center;justify-content:center;background:var(--card-hi)}
+.soc-prof-head .sub,.soc-line .sub{font-size:11.5px;color:var(--text-dim)}
+.soc-prof-card h4{margin:14px 0 6px;font-size:12px;letter-spacing:.04em;color:var(--text-dim)}
+.soc-stat{display:grid;grid-template-columns:82px 1fr 34px;gap:8px;align-items:center;font-size:12px;margin:3px 0}
+.soc-stat i{display:block;height:6px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden}.soc-stat b{display:block;height:100%;background:var(--gold)}
+.soc-stat em{font-style:normal;text-align:right;color:var(--text-dim)}
+.soc-line{font-size:13px;margin:3px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}
+.soc-regions{display:flex;flex-wrap:wrap;gap:6px}.soc-regions span{font-size:11.5px;padding:4px 8px;border:1px solid var(--border);border-radius:8px}
+.soc-prof-foot{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}`;
+document.head.appendChild(css2);
 
+document.addEventListener('click', (e)=>{
+  const el = e.target.closest('#screen-social [data-prof]');
+  if(el && !e.target.closest('button')) openProfile(el.dataset.prof);
+});
 const sc = document.createElement('div');
 sc.className = 'screen hidden'; sc.id = 'screen-social';
 $('screen-settings').after(sc);
@@ -46,13 +66,60 @@ async function api(path, {method='GET', body}={}){
   }catch(e){ throw e.name==='AbortError' ? new Error('서버 응답이 없어요. 잠시 후 다시 시도') : e; }
   finally{ clearTimeout(to); }
 }
+const STAT_ORDER_ = ['힘','체력','지능','민첩','의지','창의력','사회성'];
+function profileHtml(u){
+  const cls = (typeof CLASSES!=='undefined' && CLASSES[u.cls]) || null;
+  const stage = cls && typeof evoStageFor==='function' ? evoStageFor(u.cls, u.level) : null;
+  const head = `<div class="soc-prof-head"><div class="soc-prof-ic">${stage ? stage.emoji : clsIcon(u.cls)}</div><div><b>${esc(u.nick)}${u.me?' (나)':''}</b><div class="sub">Lv.${u.level} · ${cls ? esc(cls.name) : '모험가'}${stage ? ' · '+esc(stage.title) : ''}</div><div class="sub">${u.xp.toLocaleString()} XP</div></div></div>`;
+  const foot = `<div class="soc-prof-foot">${!u.me && !u.friend ? `<button class="btn btn-gold" data-add>친구 신청</button>` : ''}<button class="btn btn-ghost" data-x>닫기</button></div>`;
+  const p = u.profile;
+  if(!p) return head + `<div class="hint" style="margin:14px 0">이 모험가는 프로필을 공개하지 않았거나 아직 공유한 적이 없어요.</div>` + foot;
+  const d = window.calDescribe ? window.calDescribe(p) : {pets:[], regions:[]};
+  const max = Math.max(30, ...STAT_ORDER_.map(k=>p.stats[k]||0));
+  const stats = STAT_ORDER_.map(k=>`<div class="soc-stat"><span>${(typeof STAT_ICON!=='undefined' && STAT_ICON[k]) || ''} ${k}</span><i><b style="width:${Math.round((p.stats[k]||0)/max*100)}%"></b></i><em>${p.stats[k]||0}</em></div>`).join('');
+  const item = (id)=>{ const it = (typeof ALL_ITEMS!=='undefined') ? ALL_ITEMS.find(x=>x.id===id) : null; return it ? `${it.icon} ${esc(it.name)}` : '없음'; };
+  const pets = d.pets.length ? d.pets.map(x=>`<div class="soc-line">${x.icon} ${esc(x.name)} Lv.${x.lv}<span class="sub">${esc(x.fx)}</span></div>`).join('') : '<div class="soc-line sub">함께 다니는 펫이 없어요</div>';
+  return head + `<h4>능력치</h4>${stats}
+    <h4>장비</h4><div class="soc-line">무기 · ${item(p.equipped.weapon)}</div><div class="soc-line">방어구 · ${item(p.equipped.armor)}</div><div class="soc-line">장신구 · ${item(p.equipped.accessory)}</div>
+    <h4>동행 펫</h4>${pets}
+    <h4>기록</h4><div class="soc-line">업적 ${p.achv}개 · 퀘스트 ${p.cleared}개 완료 · 연속 출석 ${p.streak}일</div><div class="soc-line">이달 던전 클리어 ${p.dungeonDays}일${d.theme ? ` · 테마 ${d.theme.icon} ${esc(d.theme.name)}` : ''}${d.skin ? ` · ${esc(d.skin)}` : ''}</div>
+    <h4>지역 레벨</h4><div class="soc-regions">${d.regions.map(r=>`<span>${r.icon} ${esc(r.name)} Lv.${r.lv}</span>`).join('')}</div>` + foot;
+}
+async function openProfile(nick){
+  const old = $('soc-prof'); if(old) old.remove();
+  const box = document.createElement('div'); box.id = 'soc-prof'; box.className = 'soc-prof';
+  box.innerHTML = '<div class="soc-prof-card"><div class="hint">불러오는 중…</div></div>';
+  box.onclick = (e)=>{ if(e.target===box) box.remove(); };
+  document.body.appendChild(box);
+  const card = box.firstChild;
+  try{
+    const u = await api('/profile/'+encodeURIComponent(nick));
+    card.innerHTML = profileHtml(u);
+    card.querySelector('[data-x]').onclick = ()=>box.remove();
+    const add = card.querySelector('[data-add]');
+    if(add) add.onclick = async ()=>{ try{ await api('/friends/request', {method:'POST', body:{nick:u.nick}}); toast('친구 신청을 보냈어요'); add.disabled = true; }catch(e){ toast(e.message); } };
+  }catch(e){
+    card.innerHTML = `<div class="soc-err">${esc(e.message)}</div><div class="soc-prof-foot"><button class="btn btn-ghost" data-x>닫기</button></div>`;
+    card.querySelector('[data-x]').onclick = ()=>box.remove();
+  }
+}
 const clsIcon = (c)=> (typeof CLASSES!=="undefined" && CLASSES[c] && CLASSES[c].icon) || '🧑';
 const esc = (s)=> escapeHtml(String(s));
 
+/* ---------- 프로필 공유 (랭킹을 보는 모든 사용자에게 공개, 끄면 서버에서 지움) ---------- */
+const shareOn = ()=> localStorage.getItem('qp_prof_off')!=='1';
+function profileSnapshot(){
+  if(!shareOn() || !state.character) return null; // null이면 서버가 프로필을 삭제한다
+  const ex = window.calProfile ? window.calProfile() : {};
+  const lv = Math.floor(state.totalXP/1000)+1;
+  const stage = typeof evoStageFor==='function' ? evoStageFor(state.character.cls, lv) : null;
+  return {title:stage ? stage.title : '', stats:state.stats, equipped:state.equipped, pets:ex.pets||[], skin:ex.skin||null, theme:ex.theme||null,
+    achv:(state.unlockedAchv||[]).length, streak:state.streak||0, cleared:state.totalCleared||0, dungeonDays:ex.dungeonDays||0, regions:ex.regions||{}};
+}
 function syncScore(){
   if(!token || !state.character) return Promise.resolve();
   return Promise.all([
-    api('/score', {method:'PUT', body:{xp:state.totalXP, cls:state.character.cls}}).catch(()=>{}),
+    api('/score', {method:'PUT', body:{xp:state.totalXP, cls:state.character.cls, profile:profileSnapshot()}}).catch(()=>{}),
     pushQuests(),
   ]);
 }
@@ -136,8 +203,9 @@ function render(){
 async function renderRank(){
   await syncScore();
   const d = await api('/rank');
-  $('soc-body').innerHTML = `<div class="soc-row me"><span class="rk">${d.me.rank}</span><span class="nm">${clsIcon(d.me.cls)} 내 순위</span><span class="sub">Lv.${d.me.level} · ${d.me.xp.toLocaleString()} XP</span></div>` +
-    d.top.map((u,i)=>`<div class="soc-row ${u.nick===myNick?'me':''}"><span class="rk">${i<3?['🥇','🥈','🥉'][i]:i+1}</span><span class="nm">${clsIcon(u.cls)} ${esc(u.nick)}</span><span class="sub">Lv.${u.level} · ${u.xp.toLocaleString()} XP</span></div>`).join('');
+  $('soc-body').innerHTML = `<label class="soc-share"><input type="checkbox" id="soc-share" ${shareOn()?'checked':''}> 내 프로필을 랭킹에 공개 (이름을 누르면 프로필을 볼 수 있어요)</label><div class="soc-row me" data-prof="${esc(myNick)}" style="cursor:pointer"><span class="rk">${d.me.rank}</span><span class="nm">${clsIcon(d.me.cls)} 내 순위</span><span class="sub">Lv.${d.me.level} · ${d.me.xp.toLocaleString()} XP</span></div>` +
+    d.top.map((u,i)=>`<div class="soc-row ${u.nick===myNick?'me':''}" data-prof="${esc(u.nick)}" style="cursor:pointer"><span class="rk">${i<3?['🥇','🥈','🥉'][i]:i+1}</span><span class="nm">${clsIcon(u.cls)} ${esc(u.nick)}</span><span class="sub">Lv.${u.level} · ${u.xp.toLocaleString()} XP</span></div>`).join('');
+  $('soc-share').onchange = (e)=>{ localStorage.setItem('qp_prof_off', e.target.checked ? '0' : '1'); syncScore(); toast(e.target.checked ? '내 프로필을 공개해요' : '프로필 공개를 껐어요'); };
 }
 
 async function renderFriends(){
@@ -148,7 +216,7 @@ async function renderFriends(){
   <button class="btn btn-ghost btn-block" id="soc-push" style="margin-bottom:12px">🔔 푸시 알림 켜기</button>
   ${d.requests.length ? `<h3 style="font-size:13px;margin:6px 0">받은 친구 요청</h3>` + d.requests.map(u=>`<div class="soc-row"><span class="nm">${clsIcon(u.cls)} ${esc(u.nick)}</span><button data-acc="${esc(u.nick)}">수락</button><button data-rej="${esc(u.nick)}">거절</button></div>`).join('') : ''}
   <h3 style="font-size:13px;margin:10px 0 6px">친구 ${d.friends.length}명${d.sent?` · 신청 대기 ${d.sent}`:''}</h3>
-  ${d.friends.map(u=>`<div class="soc-row"><span class="nm">${clsIcon(u.cls)} ${esc(u.nick)}</span><span class="sub">Lv.${u.level}</span>${u.unread?`<span class="soc-badge">${u.unread}</span>`:''}<button data-chat="${esc(u.nick)}">💬</button><button data-del="${esc(u.nick)}">✕</button></div>`).join('') || '<div class="hint">아직 친구가 없어요. 친구의 닉네임으로 신청해 보세요.</div>'}`;
+  ${d.friends.map(u=>`<div class="soc-row"><span class="nm" data-prof="${esc(u.nick)}" style="cursor:pointer">${clsIcon(u.cls)} ${esc(u.nick)}</span><span class="sub">Lv.${u.level}</span>${u.unread?`<span class="soc-badge">${u.unread}</span>`:''}<button data-chat="${esc(u.nick)}">💬</button><button data-del="${esc(u.nick)}">✕</button></div>`).join('') || '<div class="hint">아직 친구가 없어요. 친구의 닉네임으로 신청해 보세요.</div>'}`;
   const act = async (path, body, ok)=>{ try{ const r = await api(path, {method:'POST', body}); toast(ok||'완료'); render(); return r; }catch(e){ $('soc-err').textContent = e.message; } };
   $('soc-add-btn').onclick = ()=>act('/friends/request', {nick:$('soc-add').value}, '친구 신청을 보냈어요');
   sc.querySelectorAll('[data-acc]').forEach(b=>b.onclick=()=>act('/friends/respond', {nick:b.dataset.acc, accept:true}, '친구가 됐어요'));

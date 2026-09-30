@@ -119,8 +119,46 @@ app.put('/api/quests', auth, wrap(async (req, res) => {
 app.put('/api/score', auth, wrap(async (req, res) => {
   const xp = Math.floor(Number(req.body.xp)), cls = String(req.body.cls || '').slice(0, 20);
   if (!(xp >= 0 && xp <= 1e8)) return bad(res, '잘못된 값');
-  await users.updateOne({ _id: req.uid }, { $set: { xp, cls } });
+  const update = { $set: { xp, cls } };
+  // profile: 객체면 저장(랭킹을 보는 모든 사용자에게 공개), null이면 공개를 끈 것으로 보고 지운다, 없으면 그대로 둔다
+  if ('profile' in req.body) {
+    if (req.body.profile === null) update.$unset = { profile: '', profileAt: '' };
+    else {
+      const profile = sanitizeProfile(req.body.profile);
+      if (!profile) return bad(res, '잘못된 프로필');
+      update.$set.profile = profile; update.$set.profileAt = new Date();
+    }
+  }
+  await users.updateOne({ _id: req.uid }, update);
   res.json({ ok: true });
+}));
+
+// ---- 프로필 (랭킹 전체 공개) ----
+// ponytail: 프로필도 점수와 같은 신뢰 수준(앱이 알려 주는 값). 허용한 필드만 저장하고 길이·범위를 제한한다.
+// 골드·퀘스트 제목 같은 개인 정보는 받지도 저장하지도 않는다.
+const num = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.floor(Number(v)) || 0));
+const str = (v, n) => String(v == null ? '' : v).slice(0, n);
+const STAT_KEYS = ['힘', '체력', '지능', '민첩', '의지', '창의력', '사회성'];
+const REGION_KEYS = ['공부', '운동', '창작', '생활', '기타', '사회'];
+function sanitizeProfile(p) {
+  if (!p || typeof p !== 'object' || Array.isArray(p)) return null;
+  const stats = {}; for (const k of STAT_KEYS) stats[k] = num(p.stats && p.stats[k], 0, 99999);
+  const regions = {}; for (const k of REGION_KEYS) regions[k] = num(p.regions && p.regions[k], 1, 10);
+  const eq = (p.equipped && typeof p.equipped === 'object') ? p.equipped : {};
+  return {
+    title: str(p.title, 20),
+    stats, regions,
+    equipped: { weapon: str(eq.weapon, 30) || null, armor: str(eq.armor, 30) || null, accessory: str(eq.accessory, 30) || null },
+    pets: (Array.isArray(p.pets) ? p.pets : []).slice(0, 2).map((x) => ({ id: str(x && x.id, 20), lv: num(x && x.lv, 1, 5) })).filter((x) => x.id),
+    skin: str(p.skin, 20) || null, theme: str(p.theme, 20) || null,
+    achv: num(p.achv, 0, 999), streak: num(p.streak, 0, 99999), cleared: num(p.cleared, 0, 1e7), dungeonDays: num(p.dungeonDays, 0, 31),
+  };
+}
+app.get('/api/profile/:nick', auth, wrap(async (req, res) => {
+  if (!limit('prof:' + req.uid, 120, 60e3)) return bad(res, '잠시 후 다시 시도해 주세요', 429);
+  const [me, t] = await Promise.all([users.findOne({ _id: req.uid }, { projection: { friends: 1 } }), byNick(req.params.nick)]);
+  if (!t) return bad(res, '그 닉네임의 모험가가 없어요', 404);
+  res.json({ ...pub(t), profile: t.profile || null, me: t._id.equals(req.uid), friend: !!(me && me.friends.some((f) => f.equals(t._id))) });
 }));
 app.get('/api/rank', auth, wrap(async (req, res) => {
   const me = await users.findOne({ _id: req.uid });

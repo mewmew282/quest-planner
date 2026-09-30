@@ -977,6 +977,22 @@ window.worldBoss = ()=>{
   calClaimMonth().then(()=>renderWorld());
 };
 window.renderWorld = renderWorld;
+// 랭킹 프로필 공유용 요약 (social.js가 서버로 올린다). 골드·퀘스트 제목 같은 개인 정보는 넣지 않는다.
+window.calProfile = ()=>{
+  const c = S(), k = todayStr().slice(0,7), regions = {};
+  REGION_ORDER.forEach(cat=>{ regions[cat] = regionLv(c.world.regions[cat]||0); });
+  return {pets:petParty().map(pi=>({id:pi.pet.id, lv:pi.lv})), skin:c.skinChar, theme:c.active,
+    dungeonDays:Object.keys(c.clearDays).filter(d=>d.startsWith(k)).length, regions};
+};
+// 서버에서 받은 프로필의 id를 화면용 이름·아이콘으로 바꾼다
+window.calDescribe = (pr)=>{
+  const th = THEMES.find(t=>t.id===pr.theme), sk = SKINS.char.find(x=>x.id===pr.skin);
+  return {
+    pets:(pr.pets||[]).map(x=>{ const pt = PETS.find(y=>y.id===x.id); return pt ? {icon:pt.icon, name:pt.name, lv:x.lv, fx:fxText(pt, x.lv)} : null; }).filter(Boolean),
+    theme: th ? {name:th.name, icon:th.icon} : null, skin: sk ? sk.name : null,
+    regions: REGION_ORDER.map(cat=>({name:REGION_INFO[cat].name, icon:REGION_INFO[cat].icon, lv:(pr.regions||{})[cat]||1})),
+  };
+};
 // 월드맵 탭 표시: 월드맵(worldPaneName='map') 또는 탐험(GPS) 화면 중 하나를 보여준다
 window.worldShow = ()=>{
   const w = $('screen-world'), e = $('screen-explore');
