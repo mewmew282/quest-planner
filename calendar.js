@@ -35,6 +35,7 @@ const MONTH_CLEAR_GOAL = 10;    // 월간 보물상자: 이달 던전 클리어 
 const now = new Date();
 let ym = {y:now.getFullYear(), m:now.getMonth()}, sel = null, shopOpen = false, shopTab = 'theme';
 let act = null; // 진행 중인 티켓 사용 {id, mode:'change'|'keep'}
+let pending = null; // 구매 확인 대기 {desc, price, run}
 
 const pad = (n)=> String(n).padStart(2,'0');
 const ymd = (y,m,d)=> `${y}-${pad(m+1)}-${pad(d)}`;
@@ -100,6 +101,12 @@ css.textContent = `
 .cal-tabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
 .cal-act{width:100%;display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--text-dim);padding:4px 0}
 .cal-act input{background:var(--card);color:var(--text);border:1px solid var(--cl);border-radius:8px;padding:6px}
+.cal-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px}
+.cal-modal .box{background:var(--cb);border:1px solid var(--ca);border-radius:14px;padding:18px;max-width:320px;width:100%;color:var(--text)}
+.cal-modal .box b{color:var(--ca)}.cal-modal .box .s{font-size:12px;color:var(--text-dim);margin:6px 0 12px}
+.cal-modal .btns{display:flex;gap:8px}.cal-modal .btns button{flex:1;padding:10px;border-radius:10px;border:1px solid var(--cl);background:var(--card-hi);color:var(--text);font-size:14px}
+.cal-modal .btns button.go{background:var(--ca);color:#1B1300;border-color:var(--ca);font-weight:800}
+.cal-modal .btns button:disabled{opacity:.5}
 @keyframes calPulse{0%,100%{box-shadow:0 0 0 1px var(--ca) inset,0 0 0 rgba(255,255,255,0)}50%{box-shadow:0 0 0 1px var(--ca) inset,0 0 10px 2px var(--ca)}}
 @keyframes calFlick{from{box-shadow:0 0 4px 0 #FF8A4C}to{box-shadow:0 0 12px 3px #FFB347}}
 @keyframes calGlow{from{box-shadow:0 0 4px 0 var(--ca)}to{box-shadow:0 0 16px 3px var(--ca)}}
@@ -243,8 +250,17 @@ function render(){
       <div class="cal-head"><button onclick="calMove(-1)">‹</button><span class="ttl">${th.icon} ${ym.y}년 ${ym.m+1}월</span><button onclick="calMove(1)">›</button></div>
       <div class="cal-grid">${['일','월','화','수','목','금','토'].map(w=>`<div class="cal-dow">${w}</div>`).join('')}${cells}</div>
     </div>
-    ${shopOpen ? shopPanel() : ''}${dayPanel()}${chestPanel()}`;
+    ${shopOpen ? shopPanel() : ''}${dayPanel()}${chestPanel()}${pending ? confirmModal() : ''}`;
 }
+
+// 구매 확인: 실수로 누르지 않도록 모든 구매는 확인 창을 거친다
+function ask(desc, price, run){ pending = {desc, price, run}; render(); }
+function confirmModal(){
+  const g = state.gold, after = g - pending.price, ok = after >= 0;
+  return `<div class="cal-modal" onclick="if(event.target===this)calAskNo()"><div class="box" role="dialog" aria-modal="true"><div><b>${pending.desc}</b></div><div>🪙${pending.price}에 구매할까요?</div><div class="s">${ok?`보유 🪙${g} → 구매 후 🪙${after}`:`골드가 부족해요. (보유 🪙${g})`}</div><div class="btns"><button onclick="calAskNo()">취소</button><button class="go" ${ok?'':'disabled'} onclick="calAskYes()">구매</button></div></div></div>`;
+}
+window.calAskNo = ()=>{ pending = null; render(); };
+window.calAskYes = async ()=>{ const r = pending; pending = null; render(); if(r) await r.run(); };
 
 // 골드 지불 공통 처리: capped=true면 하루 구매 한도를 함께 소모한다
 async function pay(price, capped){
@@ -266,31 +282,44 @@ window.calSelect = (ds)=>{ sel = ds; act = null; render(); };
 window.calToggleShop = ()=>{ shopOpen = !shopOpen; render(); };
 window.calShopTab = (k)=>{ shopTab = k; render(); };
 window.calApply = async (id)=>{ const c = S(); if(!c.themes.includes(id)) return; c.active = id; await saveState(); render(); };
-window.calBuy = async (id)=>{
+window.calBuy = (id)=>{
   const t = THEMES.find(x=>x.id===id), c = S();
-  if(!t || c.themes.includes(id) || !(await pay(t.price, true))) return;
-  c.themes.push(id); c.active = id;
-  await done(`${t.icon} ${t.name} 테마를 구매했어요!`);
+  if(!t || c.themes.includes(id)) return;
+  ask(`${t.icon} ${t.name} 테마`, t.price, async ()=>{
+    if(!(await pay(t.price, true))) return;
+    c.themes.push(id); c.active = id;
+    await done(`${t.icon} ${t.name} 테마를 구매했어요!`);
+  });
 };
-window.calBuyDecor = async (id)=>{
+window.calBuyDecor = (id)=>{
   const d = DECORS.find(x=>x.id===id), c = S();
-  if(!d || !sel || !(await pay(d.price, true))) return;
-  c.decor[sel] = id;
-  await done(`${d.icon} ${sel}을 꾸몄어요!`);
+  if(!d || !sel) return;
+  const day = sel;
+  ask(`${d.icon} ${d.name} 장식 (${day})`, d.price, async ()=>{
+    if(!(await pay(d.price, true))) return;
+    c.decor[day] = id;
+    await done(`${d.icon} ${day}을 꾸몄어요!`);
+  });
 };
 window.calClearDecor = async ()=>{ const c = S(); delete c.decor[sel]; await saveState(); render(); };
-window.calBuyEffect = async (id)=>{
+window.calBuyEffect = (id)=>{
   const e = EFFECTS.find(x=>x.id===id), c = S();
-  if(!e || c.effects.includes(id) || !(await pay(e.price, true))) return;
-  c.effects.push(id); c.effect = id;
-  await done(`${e.icon} ${e.name} 이펙트를 구매했어요!`);
+  if(!e || c.effects.includes(id)) return;
+  ask(`${e.icon} ${e.name} 이펙트`, e.price, async ()=>{
+    if(!(await pay(e.price, true))) return;
+    c.effects.push(id); c.effect = id;
+    await done(`${e.icon} ${e.name} 이펙트를 구매했어요!`);
+  });
 };
 window.calSetEffect = async (id)=>{ const c = S(); if(id && !c.effects.includes(id)) return; c.effect = id; await saveState(); render(); };
-window.calBuyTicket = async (k)=>{
+window.calBuyTicket = (k)=>{
   const t = TICKETS[k], c = S();
-  if(!t || !(await pay(t.price, false))) return;
-  c.tickets[k]++;
-  await done(`${t.icon} ${t.name}을 샀어요! (${c.tickets[k]}개)`);
+  if(!t) return;
+  ask(`${t.icon} ${t.name}`, t.price, async ()=>{
+    if(!(await pay(t.price, false))) return;
+    c.tickets[k]++;
+    await done(`${t.icon} ${t.name}을 샀어요! (${c.tickets[k]}개)`);
+  });
 };
 window.calStartMove = (id, mode)=>{
   const q = state.quests.find(x=>x.id===id); if(!q) return;
@@ -329,10 +358,12 @@ window.calOpenChest = async ()=>{
   const t = await giveChestReward('normal');
   await done(`🎁 일반 상자: ${t}`);
 };
-window.calBuyChest = async ()=>{
-  if(!(await pay(LOCKED_CHEST_PRICE, true))) return;
-  const t = await giveChestReward('locked');
-  await done(`🔒 잠긴 상자: ${t}`);
+window.calBuyChest = ()=>{
+  ask('🔒 잠긴 상자', LOCKED_CHEST_PRICE, async ()=>{
+    if(!(await pay(LOCKED_CHEST_PRICE, true))) return;
+    const t = await giveChestReward('locked');
+    await done(`🔒 잠긴 상자: ${t}`);
+  });
 };
 window.calClaimMonth = async ()=>{
   const c = S(), k = monthKey();
