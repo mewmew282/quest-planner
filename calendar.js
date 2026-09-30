@@ -84,6 +84,7 @@ function S(){
   fill(c,'moved',{}); fill(c,'revived',{}); fill(c,'invest',{});
   fill(c,'chests',{}); fill(c.chests,'normal',0); fill(c.chests,'golden',0);
   fill(c,'clearDays',{}); fill(c,'monthClaimed',null); fill(c,'dungeon',null);
+  fill(c,'world',{}); fill(c.world,'regions',{}); fill(c.world,'counted',{}); fill(c.world,'date',null);
   fill(c,'restDays',{}); fill(c,'boostActive',false);
   fill(c,'cond',{}); fill(c.cond,'hp',100); fill(c.cond,'date',null); fill(c.cond,'dayStress',0); fill(c.cond,'relief',0);
   fill(c,'skinOwned',[]); fill(c,'skinChar',null); fill(c,'skinNpc',null);
@@ -155,7 +156,7 @@ function renderHomeCond(){
 
 const css = document.createElement('style');
 css.textContent = `
-#cal-wrap{--ca:#E7B549;--cb:#221C3B;--cl:#372C55;margin-bottom:14px}
+.cal-scope{--ca:#E7B549;--cb:#221C3B;--cl:#372C55;margin-bottom:14px}
 .cal-box{background:var(--cb);border:1px solid var(--cl);border-radius:var(--radius-s,12px);padding:10px}
 .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-weight:800}
 .cal-head button{background:none;border:1px solid var(--cl);color:var(--text);border-radius:8px;padding:6px 12px;font-size:15px}
@@ -191,19 +192,19 @@ css.textContent = `
 .cal-modal .btns button.go{background:var(--ca);color:#1B1300;border-color:var(--ca);font-weight:800}
 .cal-modal .btns button:disabled{opacity:.5}
 /* 테마별 질감: 색뿐 아니라 배경 무늬, 모서리, 글꼴을 다르게 한다 */
-#cal-wrap.th-winter{color:#17344D;--text:#17344D;--text-dim:#4D6F8A;--text-faint:#7C9AB0;--card:#F4FAFD;--card-hi:#D6EAF6}
+.cal-scope.th-winter{color:#17344D;--text:#17344D;--text-dim:#4D6F8A;--text-faint:#7C9AB0;--card:#F4FAFD;--card-hi:#D6EAF6}
 .th-winter .cal-box,.th-winter .cal-panel{background-image:radial-gradient(circle at 20% 30%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 70% 60%,#fff 0 2px,transparent 3px),radial-gradient(circle at 45% 85%,#fff 0 1px,transparent 2px);background-size:56px 56px,84px 84px,44px 44px;border-radius:22px}
 .th-winter .cal-day{border-radius:14px;background:rgba(255,255,255,.65)}
 .th-winter .cal-day.sel{background:var(--ca);color:#fff}
 .th-winter .cal-head .ttl{color:#2F8FD6;letter-spacing:.06em}
-#cal-wrap.th-pirate{font-family:Georgia,'Times New Roman',serif}
+.cal-scope.th-pirate{font-family:Georgia,'Times New Roman',serif}
 .th-pirate .cal-box{border:3px double var(--ca);border-radius:4px;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 2px,transparent 2px 6px)}
 .th-pirate .cal-panel{border:2px solid var(--cl);border-radius:3px;background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.12) 0 2px,transparent 2px 9px)}
 .th-pirate .cal-day{border-radius:2px;border-style:dashed;background:rgba(0,0,0,.22)}
 .th-pirate .cal-day.sel{background:var(--ca);color:#1B1300}
 .th-pirate .cal-head .ttl{font-style:italic;letter-spacing:.08em}
 .th-pirate .cal-panel h3{font-variant:small-caps;letter-spacing:.08em}
-#cal-wrap.th-cyber{font-family:ui-monospace,Menlo,Consolas,'Courier New',monospace;--cx:#FF2BD6}
+.cal-scope.th-cyber{font-family:ui-monospace,Menlo,Consolas,'Courier New',monospace;--cx:#FF2BD6}
 .th-cyber .cal-box{border:1px solid var(--ca);border-radius:0;box-shadow:0 0 14px rgba(0,240,255,.35),inset 0 0 18px rgba(0,240,255,.08);background-image:linear-gradient(rgba(0,240,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.07) 1px,transparent 1px);background-size:22px 22px}
 .th-cyber .cal-panel{border:1px solid var(--cl);border-left:3px solid var(--cx);border-radius:0}
 .th-cyber .cal-day{border-radius:0;background:rgba(0,240,255,.04)}
@@ -212,19 +213,19 @@ css.textContent = `
 .th-cyber .cal-head .ttl{text-shadow:0 0 8px var(--ca);letter-spacing:.14em;text-transform:uppercase}
 .th-cyber .cal-panel h3{text-transform:uppercase;letter-spacing:.14em;color:var(--cx)}
 .th-cyber .cal-row button,.th-cyber .cal-tabs button{border-radius:0}
-#cal-wrap.th-kingdom .cal-box{border:2px solid var(--ca);border-radius:3px;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 22px),repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 1px,transparent 1px 44px)}
+.cal-scope.th-kingdom .cal-box{border:2px solid var(--ca);border-radius:3px;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 22px),repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 1px,transparent 1px 44px)}
 .th-kingdom .cal-panel{border:1px solid var(--cl);border-top:3px solid var(--ca);border-radius:2px}
 .th-kingdom .cal-day{border-radius:2px;border-bottom:3px solid var(--ca);background:rgba(255,255,255,.04)}
 .th-kingdom .cal-day.sel{background:var(--ca);color:#1B1300}
 .th-kingdom .cal-head .ttl{font-weight:800;letter-spacing:.16em;text-shadow:0 1px 0 #000}
 .th-kingdom .cal-panel h3{letter-spacing:.12em}
-#cal-wrap.th-forest{font-family:'Trebuchet MS','Malgun Gothic',system-ui,sans-serif}
+.cal-scope.th-forest{font-family:'Trebuchet MS','Malgun Gothic',system-ui,sans-serif}
 .th-forest .cal-box{border:2px dotted var(--ca);border-radius:26px 8px 26px 8px;background-image:radial-gradient(circle at 15% 20%,rgba(123,211,137,.22) 0 14px,transparent 15px),radial-gradient(circle at 85% 75%,rgba(123,211,137,.18) 0 22px,transparent 23px),radial-gradient(circle at 60% 10%,rgba(123,211,137,.12) 0 10px,transparent 11px)}
 .th-forest .cal-panel{border:1px dotted var(--ca);border-radius:18px 6px 18px 6px}
 .th-forest .cal-day{border-radius:14px 3px 14px 3px;background:rgba(123,211,137,.06);border-style:dotted}
 .th-forest .cal-day.sel{background:var(--ca);color:#0E2415}
 .th-forest .cal-head .ttl{letter-spacing:.04em}
-#cal-wrap.th-academy{font-family:'Palatino Linotype','Book Antiqua',Palatino,serif}
+.cal-scope.th-academy{font-family:'Palatino Linotype','Book Antiqua',Palatino,serif}
 .th-academy .cal-box{border:1px solid var(--ca);border-radius:16px;outline:1px dashed rgba(195,155,255,.55);outline-offset:4px;box-shadow:0 0 22px rgba(195,155,255,.28);background-image:radial-gradient(circle at 12% 18%,#fff 0 1px,transparent 2px),radial-gradient(circle at 78% 32%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 40% 70%,#fff 0 1px,transparent 2px),radial-gradient(circle at 90% 88%,#fff 0 1px,transparent 2px);background-size:90px 90px,120px 120px,70px 70px,100px 100px}
 .th-academy .cal-panel{border:1px solid var(--cl);border-radius:14px;box-shadow:inset 0 0 18px rgba(195,155,255,.12)}
 .th-academy .cal-day{border-radius:50% 50% 6px 6px;background:rgba(195,155,255,.08);text-align:center;align-items:center}
@@ -435,7 +436,7 @@ function render(){
   if(!sel) sel = todayStr();
   const c = S(), th = previewId ? (THEMES.find(t=>t.id===previewId)||theme()) : theme(), tr = tier(), g = tr.g;
   renderHomeCond();
-  wrap.className = [th.cls, c.effect ? `fx-${c.effect}` : ''].filter(Boolean).join(' ');
+  wrap.className = ['cal-scope', th.cls, c.effect ? `fx-${c.effect}` : ''].filter(Boolean).join(' ');
   wrap.style.setProperty('--ca', th.accent); wrap.style.setProperty('--cb', th.bg); wrap.style.setProperty('--cl', th.line);
   const first = new Date(ym.y, ym.m, 1).getDay(), days = new Date(ym.y, ym.m+1, 0).getDate(), today = todayStr();
   let cells = '';
@@ -619,6 +620,7 @@ window.calQuestBonus = (q, xp, gold)=>{
   if(!state || !state.character) return {xp:0, gold:0};
   const c = S(), today = todayStr(), notes = [];
   if(dungeonEarn(q)){ notes.push('던전 열쇠 +1'); renderDungeonCard(); }
+  worldCount(q, notes);
   const tr = tier();
   if(tr.mult!==1){ bx += Math.round(xp*(tr.mult-1)); bg += Math.round(gold*(tr.mult-1)); notes.push(`컨디션 ${tr.name} ${tr.eff.replace('보상 ','')}`); }
   if(c.boostActive){ bx += Math.round(xp*0.5); bg += Math.round(gold*0.5); c.boostActive = false; notes.push('⚔️ 부스터'); }
@@ -756,7 +758,7 @@ function showBattle(p, m, r, floorNo, summary){
   window._dgTimer = setInterval(()=>{ if(i>=r.steps.length){ finish(); return; } show(r.steps[i++]); }, 420);
 }
 window.dgSkip = ()=>{ if(window._dgSkip) window._dgSkip(); };
-window.dgClose = ()=>{ clearInterval(window._dgTimer); const m = $('dg-modal'); if(m) m.remove(); renderAll(); render(); };
+window.dgClose = ()=>{ clearInterval(window._dgTimer); const m = $('dg-modal'); if(m) m.remove(); renderAll(); render(); if(typeof renderWorld==='function' && $('screen-world') && !$('screen-world').classList.contains('hidden')) renderWorld(); };
 window.dgAdvance = async ()=>{
   const c = S(), d = dg(), today = todayStr();
   if(d.cleared){ toast('오늘의 던전은 이미 클리어했어요.'); return; }
@@ -788,6 +790,119 @@ window.dgAdvance = async ()=>{
   renderDungeonCard(); renderHomeCond();
   showBattle(p, m, r, floorNo, summary);
 };
+
+
+// ---- 월드맵: 지역 성장 + 이번 달 여정 (탐험 GPS 화면은 이 탭의 하위 화면) ----
+// 지역: 카테고리별 퀘스트를 5개 완료할 때마다 지역 레벨이 오르고(최대 Lv.10) 새 장소가 열린다.
+// 여정: 이번 달 던전을 클리어한 날 수만큼 캐릭터가 길을 나아가고, 끝에서 월간 보물상자를 얻는다.
+const REGION_INFO = {
+  '공부':{name:'지식 던전',   icon:'📚', spots:['도서관 탑','현자의 서고','별 관측대'], pos:[62,60]},
+  '운동':{name:'훈련소',     icon:'🏋️', spots:['연무장','폭포 수련장','투기장'],       pos:[170,42]},
+  '창작':{name:'제작소',     icon:'🎨', spots:['공방','유리 온실','예술가의 언덕'],    pos:[278,60]},
+  '생활':{name:'마을',       icon:'🏘', spots:['우물가','시장 골목','풍차 언덕'],      pos:[62,176]},
+  '기타':{name:'상업 도시',  icon:'💼', spots:['항구 시장','환전소','대상 숙소'],      pos:[170,194]},
+  '사회':{name:'축제 지역',  icon:'🎉', spots:['중앙 광장','등불 거리','대극장'],      pos:[278,176]},
+};
+const REGION_ORDER = ['공부','운동','창작','생활','기타','사회'];
+const REGION_STEP = 5;   // 지역 레벨 1개당 필요한 퀘스트 수
+const REGION_MAX = 10;
+const regionLv = (n)=> Math.min(REGION_MAX, 1 + Math.floor(n/REGION_STEP));
+let wRegion = '공부', worldPaneName = 'map';
+
+// 퀘스트 완료 시 해당 카테고리 지역 진행도를 올린다 (같은 퀘스트는 하루 1번만 셈)
+function worldCount(q, notes){
+  const w = S().world, t = todayStr();
+  if(w.date!==t){ w.date = t; w.counted = {}; }
+  if(w.counted[q.id]) return;
+  w.counted[q.id] = 1;
+  const cat = REGION_INFO[q.category] ? q.category : '기타';
+  const before = regionLv(w.regions[cat]||0);
+  w.regions[cat] = (w.regions[cat]||0) + 1;
+  const after = regionLv(w.regions[cat]);
+  if(after>before) notes.push(`${REGION_INFO[cat].name} Lv.${after}`);
+}
+
+function worldMap(){
+  const c = S(), w = c.world;
+  const ring = 2*Math.PI*30;
+  const roads = [['공부','운동'],['운동','창작'],['생활','기타'],['기타','사회'],['공부','생활'],['운동','기타'],['창작','사회']]
+    .map(([a,b])=>`<line x1="${REGION_INFO[a].pos[0]}" y1="${REGION_INFO[a].pos[1]}" x2="${REGION_INFO[b].pos[0]}" y2="${REGION_INFO[b].pos[1]}" style="stroke:var(--cl)" stroke-width="3" stroke-dasharray="6 6"/>`).join('');
+  const nodes = REGION_ORDER.map(cat=>{
+    const r = REGION_INFO[cat], n = w.regions[cat]||0, lv = regionLv(n);
+    const frac = lv>=REGION_MAX ? 1 : (n%REGION_STEP)/REGION_STEP;
+    const sel = cat===wRegion;
+    return `<g onclick="worldSel('${cat}')" style="cursor:pointer">
+      <circle cx="${r.pos[0]}" cy="${r.pos[1]}" r="30" style="fill:var(--cb);stroke:${sel?'var(--ca)':'var(--cl)'}" stroke-width="${sel?3:2}"/>
+      <circle cx="${r.pos[0]}" cy="${r.pos[1]}" r="30" fill="none" style="stroke:var(--ca)" stroke-width="4" stroke-dasharray="${(ring*frac).toFixed(1)} ${ring.toFixed(1)}" transform="rotate(-90 ${r.pos[0]} ${r.pos[1]})" stroke-linecap="round"/>
+      <text x="${r.pos[0]}" y="${r.pos[1]-3}" text-anchor="middle" font-size="18">${r.icon}</text>
+      <text x="${r.pos[0]}" y="${r.pos[1]+15}" text-anchor="middle" font-size="11" font-weight="700" style="fill:var(--text)">Lv.${lv}</text>
+      <text x="${r.pos[0]}" y="${r.pos[1]+46}" text-anchor="middle" font-size="11" style="fill:var(--text-dim)">${r.name}</text></g>`;
+  }).join('');
+  return `<svg viewBox="0 0 340 262" width="100%" role="img" aria-label="지역 월드맵">${roads}${nodes}</svg>`;
+}
+function regionDetail(){
+  const w = S().world, r = REGION_INFO[wRegion], n = w.regions[wRegion]||0, lv = regionLv(n);
+  const need = lv>=REGION_MAX ? '최대 레벨' : `다음 레벨까지 ${REGION_STEP - n%REGION_STEP}개`;
+  const spots = r.spots.map((sp,i)=>{ const nd = 2+i*2; return `<div class="cal-row"><span class="t">${lv>=nd?sp:'잠긴 장소'}<div class="s">${lv>=nd?'해방됨':`${wRegion} 퀘스트로 지역 Lv.${nd}에 해방`}</div></span></div>`; }).join('');
+  return `<div class="cal-panel"><h3>${r.icon} ${r.name} · Lv.${lv}</h3><div style="font-size:12px;color:var(--text-dim);margin-bottom:4px">'${wRegion}' 카테고리 퀘스트를 ${n}개 완료했어요. ${need}</div>${spots}</div>`;
+}
+function journey(){
+  const c = S(), k = monthKey(), days = Object.keys(c.clearDays).filter(d=>d.startsWith(k)).sort();
+  const goal = MONTH_CLEAR_GOAL, lit = Math.min(days.length, goal);
+  const pts = [];
+  for(let i=0;i<goal;i++){ const row = i<5?0:1, col = row===0 ? i : 9-i; pts.push([34+col*68, row===0?36:110]); }
+  const boss = [34, 186];
+  const line = pts.map(p=>p.join(',')).join(' ') + ' ' + boss.join(',');
+  const claimed = c.monthClaimed===k, ready = lit>=goal && !claimed;
+  const nodes = pts.map((p,i)=>{
+    const on = i<lit;
+    return `<circle cx="${p[0]}" cy="${p[1]}" r="14" style="fill:${on?'var(--ca)':'var(--cb)'};stroke:var(--${on?'ca':'cl'})" stroke-width="2"/><text x="${p[0]}" y="${p[1]+4}" text-anchor="middle" font-size="11" font-weight="700" style="fill:${on?'#1B1300':'var(--text-faint)'}">${on?Number(days[i].slice(8)):'·'}</text>`;
+  }).join('');
+  const hero = lit>0 ? pts[lit-1] : pts[0];
+  const cls = (typeof CLASSES!=='undefined' && state.character && CLASSES[state.character.cls]) ? CLASSES[state.character.cls].icon : '⚔️';
+  return `<svg viewBox="0 0 340 226" width="100%" role="img" aria-label="이번 달 여정">
+    <polyline points="${line}" fill="none" style="stroke:var(--cl)" stroke-width="4" stroke-dasharray="7 6"/>
+    ${nodes}
+    <g onclick="worldBoss()" style="cursor:pointer"><circle cx="${boss[0]}" cy="${boss[1]}" r="22" style="fill:var(--cb);stroke:var(--ca)" stroke-width="${ready?4:2}"/><text x="${boss[0]}" y="${boss[1]+6}" text-anchor="middle" font-size="20">${claimed?'🎁':'👑'}</text><text x="${boss[0]+34}" y="${boss[1]-2}" font-size="12" font-weight="700" style="fill:var(--text)">월간 보스</text><text x="${boss[0]+34}" y="${boss[1]+14}" font-size="11" style="fill:var(--text-dim)">${claimed?'보상 수령 완료':ready?'눌러서 보상 받기':`던전 ${lit}/${goal}일 클리어`}</text></g>
+    <text x="${hero[0]}" y="${hero[1]-20}" text-anchor="middle" font-size="20">${cls}</text></svg>`;
+}
+function renderWorld(){
+  const wrap = $('world-wrap');
+  if(!wrap || !state || !state.character) return;
+  const c = S(), th = theme(), d = dg(), p = pStats();
+  wrap.className = ['cal-scope', th.cls, c.effect ? `fx-${c.effect}` : ''].filter(Boolean).join(' ');
+  wrap.style.setProperty('--ca', th.accent); wrap.style.setProperty('--cb', th.bg); wrap.style.setProperty('--cl', th.line);
+  const f = Math.min(d.floor, 4), m = mStats(f, p.lv);
+  const dgLine = d.cleared ? '오늘의 던전 클리어! 내일 새 던전이 열려요.' : `${f+1}층 · ${m.name}${m.boss?' (보스)':''} · 열쇠 ${d.keys}개`;
+  wrap.innerHTML = `
+    <div class="cal-box">
+      <div class="cal-head"><button onclick="worldMove(-1)">‹</button><span class="ttl">${th.icon} ${ym.y}년 ${ym.m+1}월 월드맵</span><button onclick="worldMove(1)">›</button></div>
+      ${worldMap()}
+    </div>
+    ${regionDetail()}
+    <div class="cal-panel"><h3>이번 달 여정</h3>${journey()}</div>
+    <div class="cal-panel"><h3>오늘의 던전</h3><div class="cal-row"><span class="t">${dgLine}<div class="s">퀘스트를 완료하면 열쇠를 얻고, 던전을 클리어하면 여정이 한 칸 나아가요.</div></span><button ${d.cleared||d.keys<1?'disabled':''} onclick="dgAdvance()">진격</button></div></div>${pending ? confirmModal() : ''}`;
+}
+window.worldSel = (cat)=>{ wRegion = cat; renderWorld(); };
+window.worldMove = (dm)=>{ const d = new Date(ym.y, ym.m+dm, 1); ym = {y:d.getFullYear(), m:d.getMonth()}; renderWorld(); };
+window.worldBoss = ()=>{
+  const c = S(), k = monthKey();
+  if(c.monthClaimed===k){ toast('이번 달 보상은 이미 받았어요.'); return; }
+  if(monthClears()<MONTH_CLEAR_GOAL){ toast(`던전을 ${MONTH_CLEAR_GOAL}일 클리어하면 열려요. (${monthClears()}/${MONTH_CLEAR_GOAL})`); return; }
+  calClaimMonth().then(()=>renderWorld());
+};
+window.renderWorld = renderWorld;
+// 월드맵 탭 표시: 월드맵(worldPaneName='map') 또는 탐험(GPS) 화면 중 하나를 보여준다
+window.worldShow = ()=>{
+  const w = $('screen-world'), e = $('screen-explore');
+  if(!w || !e) return;
+  const onExplore = worldPaneName==='explore';
+  w.classList.toggle('hidden', onExplore); e.classList.toggle('hidden', !onExplore);
+  document.querySelectorAll('#screen-world .chip-row .chip').forEach((b,i)=>b.classList.toggle('active', (i===0)===!onExplore));
+  if(onExplore){ if(typeof initExploreScreen==='function') initExploreScreen(); }
+  else { if(typeof walkTracking!=='undefined' && !walkTracking && typeof stopWatchingPosition==='function') stopWatchingPosition(); renderWorld(); }
+};
+window.worldPane = (name)=>{ worldPaneName = name; worldShow(); };
 
 // 퀘스트 완료/취소 때마다 index.html에서 호출한다: 컨디션 표시를 새로 고친다
 window.renderDungeonCard = renderDungeonCard;

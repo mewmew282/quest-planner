@@ -1542,7 +1542,7 @@
     <!-- CALENDAR -->
     <div class="screen hidden" id="screen-calendar">
       <div class="section-head" style="margin-top:4px;"><h2>캘린더</h2></div>
-      <div id="cal-wrap"></div>
+      <div id="cal-wrap" class="cal-scope"></div>
     </div>
 
     <!-- QUEST LIST -->
@@ -1631,8 +1631,21 @@
       <div id="shop-screen-list"></div>
     </div>
 
+    <!-- WORLD MAP (calendar.js가 내용을 그린다. 탐험은 이 탭의 하위 화면) -->
+    <div class="screen hidden" id="screen-world">
+      <div class="chip-row" style="margin-bottom:10px;">
+        <button class="chip active" onclick="worldPane('map')">월드맵</button>
+        <button class="chip" onclick="worldPane('explore')">탐험</button>
+      </div>
+      <div id="world-wrap" class="cal-scope"></div>
+    </div>
+
     <!-- EXPLORE -->
     <div class="screen hidden" id="screen-explore">
+      <div class="chip-row" style="margin-bottom:10px;">
+        <button class="chip" onclick="worldPane('map')">월드맵</button>
+        <button class="chip active" onclick="worldPane('explore')">탐험</button>
+      </div>
       <div class="section-head" style="margin-top:4px;"><h2>탐험</h2><span class="meta">실시간 GPS 기반</span></div>
 
       <div class="explore-note" id="explore-permission-note">
@@ -1787,7 +1800,7 @@
       <button class="nav-item" data-tab="growth" onclick="switchTab('growth')"><span class="ic">📈</span>성장</button>
       <button class="nav-item" data-tab="calendar" onclick="switchTab('calendar')"><span class="ic">📅</span>캘린더</button>
       <button class="nav-item active" data-tab="home" onclick="switchTab('home')"><span class="ic">🏠</span>홈</button>
-      <button class="nav-item" data-tab="explore" onclick="switchTab('explore')"><span class="ic">🗺️</span>탐험</button>
+      <button class="nav-item" data-tab="world" onclick="switchTab('world')"><span class="ic">🗺️</span>월드맵</button>
       <button class="nav-item" data-tab="shop" onclick="switchTab('shop')"><span class="ic">🛒</span>상점</button>
     </div>
   </div>
@@ -6096,7 +6109,7 @@ function startWatchingPosition(){
 /* ===================== NAV ===================== */
 function switchTab(tab){
   const prevTab = document.querySelector('.nav-item.active')?.dataset.tab;
-  ['home','quest','calendar','character','growth','shop','explore','settings','social'].forEach(t=>{
+  ['home','quest','calendar','character','growth','shop','world','explore','settings','social'].forEach(t=>{
     const screen=document.getElementById('screen-'+t);
     if(screen) screen.classList.toggle('hidden', t!==tab);
   });
@@ -6105,7 +6118,7 @@ function switchTab(tab){
   });
   // leaving the explore tab: stop GPS watch to save battery, unless an active
   // walk session needs to keep tracking distance in the background
-  if(prevTab==='explore' && tab!=='explore' && !walkTracking){
+  if(prevTab==='world' && tab!=='world' && !walkTracking){
     stopWatchingPosition();
   }
   if(tab==='quest') renderAllQuests();
@@ -6114,7 +6127,7 @@ function switchTab(tab){
   if(tab==='growth') renderGrowth();
   if(tab==='shop'){ renderShopScreen(); }
   if(tab==='settings') renderSettings();
-  if(tab==='explore') initExploreScreen();
+  if(tab==='world' && window.worldShow) worldShow(); // 월드맵/탐험 하위 화면 표시 (calendar.js)
   if(tab==='social') socialOpen(); else socialClose();
 }
 
