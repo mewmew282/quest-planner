@@ -246,6 +246,7 @@
     z-index:15;
   }
   .fab:active{transform:scale(0.94);}
+  .fab.off{display:none;} /* 빠른 퀘스트 등록 버튼은 홈 화면에서만 보인다 */
 
   .sheet-overlay{
     position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:40;
@@ -6167,6 +6168,8 @@ function switchTab(tab){
   document.querySelectorAll('.nav-item').forEach(el=>{
     el.classList.toggle('active', el.dataset.tab===(tab==='character' ? 'home' : tab)); // 캐릭터 화면은 홈 프로필에서 진입하므로 홈 탭을 강조
   });
+  const fab = document.querySelector('.fab');
+  if(fab) fab.classList.toggle('off', tab!=='home'); // 다른 화면의 버튼·목록을 가리지 않도록 홈에서만 표시
   // leaving the explore tab: stop GPS watch to save battery, unless an active
   // walk session needs to keep tracking distance in the background
   if(prevTab==='world' && tab!=='world' && !walkTracking){
