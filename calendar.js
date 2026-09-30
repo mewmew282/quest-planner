@@ -1,4 +1,4 @@
-/* 캘린더 월드맵: 월간 캘린더 · 테마/날짜 장식/이펙트/스킨 · 일정 아이템 · 휴식 · 미래 일정 투자 · 보물상자 · 보관함.
+/* 캘린더 월드맵: 월간 캘린더 · 테마/이펙트/스킨 · 일정 아이템 · 휴식 · 미래 일정 투자 · 보물상자 · 보관함.
    하단 '캘린더' 탭(#screen-calendar)에 그려진다.
    index.html의 전역(state, saveState, trackGold, todayStr, catIcon, escapeHtml, toast, renderAll, awardCoin, logGain, CLASSES)을 사용한다. */
 (function(){
@@ -13,22 +13,9 @@ const THEMES = [
   {id:'academy',   name:'마법 학교',   icon:'🔮', price:800,  accent:'#B58CFF', bg:'#24173F', line:'#4A3479', desc:'보랏빛 마법진 지도'},
   {id:'cyber',     name:'사이버 도시', icon:'🌆', price:1500, accent:'#00F0FF', bg:'#05070F', line:'#1A2B4A', desc:'검은 밤과 네온 격자', cls:'th-cyber'},
 ];
-const DECORS = [ // 선택한 날짜 한 칸에 적용 (같은 날짜는 덮어쓰기)
-  {id:'star',  name:'별 테두리',   icon:'⭐', price:50,  color:'#F5D76E'},
-  {id:'flame', name:'불꽃 테두리', icon:'🔥', price:100, color:'#FF8A4C'},
-  {id:'gem',   name:'보석 테두리', icon:'💎', price:200, color:'#5CE1E6'},
-  {id:'rune',  name:'룬 테두리',   icon:'ᚱ',  price:300, color:'#C79BFF'},
-  {id:'ic_sword',  name:'검 아이콘',     icon:'⚔️', price:80, color:'#C0C8D8'},
-  {id:'ic_shield', name:'방패 아이콘',   icon:'🛡', price:80, color:'#8FB4E8'},
-  {id:'ic_book',   name:'책 아이콘',     icon:'📚', price:80, color:'#E8B98F'},
-  {id:'ic_potion', name:'포션 아이콘',   icon:'🧪', price:80, color:'#7DE3A8'},
-  {id:'ic_chest',  name:'보물상자 아이콘', icon:'🎁', price:80, color:'#F0A0C0'},
-  {id:'stamp', name:'캐릭터 스탬프', icon:'', price:150, color:'#F4EFEA', stamp:true},
-  {id:'bg',    name:'특별 배경',     icon:'🌌', price:250, color:'#7C5CFF', bg:true},
-];
 const EFFECTS = [ // 캘린더 전체에 적용되는 애니메이션
   {id:'sparkle', name:'반짝임', icon:'✨', price:400,  desc:'오늘 칸이 반짝입니다'},
-  {id:'flame',   name:'불꽃',   icon:'🔥', price:800,  desc:'꾸민 날짜가 타오릅니다'},
+  {id:'flame',   name:'불꽃',   icon:'🔥', price:800,  desc:'오늘과 클리어한 날이 타오릅니다'},
   {id:'magic',   name:'마법진', icon:'🌀', price:1200, desc:'캘린더 테두리가 빛납니다'},
 ];
 const SKINS = {
@@ -60,7 +47,7 @@ const INVEST = [ // 미래 일정 투자: 완료해야 보상, 미완료 시 소
 const REGION = {'공부':['📚','지식 던전'], '운동':['🏋️','훈련소'], '창작':['🎨','제작소'], '사회':['🎉','축제 지역'], '생활':['🏘','마을'], '기타':['💼','상업 도시']};
 const MOVE_RATE = {change:0.5, keep:0.5, time:0.75, revive:1};
 const GOLDEN_CHEST_PRICE = 300;
-const DAILY_BUY_CAP = 3;        // 꾸미기(테마·장식·이펙트·스킨)·황금 상자 하루 구매 한도(3회)
+const DAILY_BUY_CAP = 3;        // 꾸미기(테마·이펙트·스킨)·황금 상자 하루 구매 한도(3회)
 const WEEKLY_TICKET_CAP = 2;    // 변경권·보존권·시간 연장권 사용: 주 2회
 const MONTH_CLEAR_GOAL = 10;    // 월간 보물상자: 이달 던전 클리어 일수
 
@@ -81,7 +68,7 @@ function S(){
   const c = state.calendar || (state.calendar = {});
   const fill = (o, k, v)=>{ if(o[k]===undefined || o[k]===null) o[k] = v; };
   fill(c,'themes',['kingdom']); fill(c,'active','kingdom'); fill(c,'buyDate',null); fill(c,'buyCount',0);
-  fill(c,'decor',{}); fill(c,'effects',[]); fill(c,'effect',null);
+  fill(c,'effects',[]); fill(c,'effect',null);
   fill(c,'tickets',{}); Object.keys(TICKETS).forEach(k=>fill(c.tickets,k,0));
   fill(c,'usage',{}); fill(c.usage,'week',null); fill(c.usage,'n',0);
   fill(c,'moved',{}); fill(c,'revived',{}); fill(c,'invest',{});
@@ -109,7 +96,6 @@ const isDone = (q, ds)=> q.type==='daily' ? q.lastDoneDate===ds : q.status==='do
 const isBoss = (q)=> q.type==='dated' && (q.difficulty==='hard' || q.difficulty==='veryhard'); // 중요 일정 = 보스
 const rIcon = (q)=> (REGION[q.category]||['✨'])[0];
 const rName = (q)=> (REGION[q.category]||['','기타 지역'])[1];
-const decIcon = (d)=> d.stamp ? ((typeof CLASSES!=='undefined' && state.character && CLASSES[state.character.cls]) ? CLASSES[state.character.cls].icon : '⭐') : d.icon;
 
 // HP·스트레스 게이지: 놓친 퀘스트와 오늘 남은 퀘스트로 계산하고, 휴식하면 0/100으로 회복
 function gauges(){
@@ -133,9 +119,7 @@ css.textContent = `
 .cal-day{min-height:52px;border:1px solid var(--cl);border-radius:8px;padding:3px;font-size:11px;background:rgba(0,0,0,.15);color:var(--text);text-align:left;display:flex;flex-direction:column;gap:1px;cursor:pointer;min-width:0}
 .cal-day.blank{visibility:hidden}
 .cal-day.today{border-color:var(--ca);box-shadow:0 0 0 1px var(--ca) inset}
-.cal-day.dbg{background:linear-gradient(135deg,var(--dc),rgba(0,0,0,.25))}
 .cal-day.sel{background:var(--ca);color:#1B1300}
-.cal-day.dc{border-width:2px;border-color:var(--dc)}
 .cal-day .n{font-weight:800;display:flex;justify-content:space-between;gap:2px}
 .cal-day .ic{font-size:11px;line-height:1.15;word-break:keep-all}
 .cal-panel{margin-top:10px;background:var(--cb);border:1px solid var(--cl);border-radius:var(--radius-s,12px);padding:10px}
@@ -186,9 +170,9 @@ css.textContent = `
 @keyframes calFlick{from{box-shadow:0 0 4px 0 #FF8A4C}to{box-shadow:0 0 12px 3px #FFB347}}
 @keyframes calGlow{from{box-shadow:0 0 4px 0 var(--ca)}to{box-shadow:0 0 16px 3px var(--ca)}}
 .fx-sparkle .cal-day.today{animation:calPulse 1.6s ease-in-out infinite}
-.fx-flame .cal-day.dc{animation:calFlick .9s ease-in-out infinite alternate}
+.fx-flame .cal-day.today,.fx-flame .cal-day.clr{animation:calFlick .9s ease-in-out infinite alternate}
 .fx-magic .cal-box{animation:calGlow 2s ease-in-out infinite alternate}
-@media (prefers-reduced-motion:reduce){.fx-sparkle .cal-day.today,.fx-flame .cal-day.dc,.fx-magic .cal-box{animation:none}}
+@media (prefers-reduced-motion:reduce){.fx-sparkle .cal-day.today,.fx-flame .cal-day.today,.fx-flame .cal-day.clr,.fx-magic .cal-box{animation:none}}
 `;
 document.head.appendChild(css);
 
@@ -198,10 +182,8 @@ function dayCell(d, today){
   const icons = dated.slice(0,2).map(q=> isBoss(q) ? '👑' : rIcon(q)).join('');
   const more = dated.length>2 ? `+${dated.length-2}` : '';
   const rep = qs.length-dated.length>0 ? '·' : '';
-  const dec = DECORS.find(x=>x.id===c.decor[ds]);
-  const style = dec ? ` style="--dc:${dec.color}"` : '';
-  const cls = `${ds===today?' today':''}${ds===sel?' sel':''}${dec?(dec.bg?' dbg':' dc'):''}`;
-  return `<button class="cal-day${cls}"${style} onclick="calSelect('${ds}')"><span class="n"><span>${d}</span><span>${dec&&!dec.bg?decIcon(dec):''}${c.clearDays[ds]?'🏆':''}${c.restDays[ds]?'🏨':''}</span></span><span class="ic">${icons}${more}${rep}</span></button>`;
+  const cls = `${ds===today?' today':''}${ds===sel?' sel':''}${c.clearDays[ds]?' clr':''}`;
+  return `<button class="cal-day${cls}" onclick="calSelect('${ds}')"><span class="n"><span>${d}</span><span>${c.clearDays[ds]?'🏆':''}${c.restDays[ds]?'🏨':''}</span></span><span class="ic">${icons}${more}${rep}</span></button>`;
 }
 
 // ---- 일정 아이템 규칙 ----
@@ -295,7 +277,7 @@ function dayPanel(){
 const capLeft = ()=>{ const c = S(); return DAILY_BUY_CAP - (c.buyDate===todayStr() ? c.buyCount : 0); };
 function shopPanel(){
   const c = S();
-  const tabs = [['theme','테마'],['decor','날짜 장식'],['fx','이펙트'],['skin','스킨'],['item','아이템'],['chest','상자']]
+  const tabs = [['theme','테마'],['fx','이펙트'],['skin','스킨'],['item','아이템'],['chest','상자']]
     .map(([k,l])=>`<button class="${shopTab===k?'on':''}" onclick="calShopTab('${k}')">${l}</button>`).join('');
   let body = '';
   if(shopTab==='theme') body = THEMES.map(t=>{
@@ -303,13 +285,6 @@ function shopPanel(){
     const btn = on ? `<button class="on" disabled>사용 중</button>` : own ? `<button onclick="calApply('${t.id}')">적용</button>` : `<button onclick="calBuy('${t.id}')">🪙${t.price}</button>`;
     return `<div class="cal-row"><span style="font-size:20px">${t.icon}</span><span class="t">${t.name}<div class="s">${t.desc}</div></span><button onclick="calPreview('${t.id}')">미리보기</button>${btn}</div>`;
   }).join('');
-  if(shopTab==='decor'){
-    const cur = c.decor[sel];
-    body = `<div style="font-size:12px;color:var(--text-dim);margin-bottom:4px">선택한 날짜 <b>${sel}</b>에 적용됩니다. (날짜 전용 이펙트는 이펙트 탭의 '불꽃')</div>` + DECORS.map(d=>{
-      const on = cur===d.id;
-      return `<div class="cal-row"><span style="font-size:20px">${decIcon(d)||'🌌'}</span><span class="t">${d.name}</span>${on?`<button class="on" disabled>적용됨</button>`:`<button onclick="calBuyDecor('${d.id}')">🪙${d.price}</button>`}</div>`;
-    }).join('') + (cur?`<div class="cal-row"><span class="t">장식 제거 (무료)</span><button onclick="calClearDecor()">제거</button></div>`:'');
-  }
   if(shopTab==='fx') body = EFFECTS.map(e=>{
     const own = c.effects.includes(e.id), on = c.effect===e.id;
     const btn = on ? `<button onclick="calSetEffect(null)">끄기</button>` : own ? `<button onclick="calSetEffect('${e.id}')">적용</button>` : `<button onclick="calBuyEffect('${e.id}')">🪙${e.price}</button>`;
@@ -440,17 +415,6 @@ window.calBuy = (id)=>{
     await done(`${t.icon} ${t.name} 테마를 구매했어요!`);
   });
 };
-window.calBuyDecor = (id)=>{
-  const d = DECORS.find(x=>x.id===id), c = S();
-  if(!d || !sel) return;
-  const day = sel;
-  ask(`${decIcon(d)} ${d.name} (${day})`, d.price, async ()=>{
-    if(!(await pay(d.price, true))) return;
-    c.decor[day] = id;
-    await done(`${day}을 꾸몄어요!`);
-  });
-};
-window.calClearDecor = async ()=>{ const c = S(); delete c.decor[sel]; await saveState(); render(); };
 window.calBuyEffect = (id)=>{
   const e = EFFECTS.find(x=>x.id===id), c = S();
   if(!e || c.effects.includes(id)) return;
