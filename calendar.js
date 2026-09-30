@@ -36,7 +36,9 @@ const TICKETS = {
   keep:    {name:'일정 보존권',   icon:'🛡', price:150,  desc:'놓친 퀘스트를 내일로 옮깁니다 (보상 50%)'},
   time:    {name:'시간 연장권',   icon:'⏳', price:120,  desc:'오늘 마감 퀘스트를 내일까지 연장합니다 (보상 75%)'},
   revive:  {name:'부활권',        icon:'✨', price:1000, desc:'놓친 퀘스트를 오늘로 되살립니다 (보상 유지, 보스 가능)'},
-  rest:    {name:'휴식권',        icon:'🏨', price:500,  desc:'오늘 하루 쉬기: 스트레스 해소·HP 회복·연속 출석 보호'},
+  rest:    {name:'휴식권',        icon:'🏨', price:500,  desc:'오늘 하루 쉬기: HP 100 회복·스트레스 0·연속 출석 보호'},
+  potion:  {name:'회복 포션',     icon:'🧪', price:100,  desc:'HP +30 회복'},
+  tea:     {name:'진정 차',       icon:'🍵', price:100,  desc:'오늘 스트레스 −30'},
   boost:   {name:'퀘스트 부스터', icon:'⚔️', price:250,  desc:'다음 퀘스트 1개 완료 보상 +50%'},
 };
 const INVEST = [ // 미래 일정 투자: 완료해야 보상, 미완료 시 소멸 (게임 내 골드만 사용)
@@ -75,6 +77,7 @@ function S(){
   fill(c,'chests',{}); fill(c.chests,'normal',0); fill(c.chests,'golden',0);
   fill(c,'clearDays',{}); fill(c,'monthClaimed',null);
   fill(c,'restDays',{}); fill(c,'boostActive',false);
+  fill(c,'cond',{}); fill(c.cond,'hp',100); fill(c.cond,'date',null); fill(c.cond,'dayStress',0); fill(c.cond,'relief',0);
   fill(c,'skinOwned',[]); fill(c,'skinChar',null); fill(c,'skinNpc',null);
   return c;
 }
@@ -97,14 +100,49 @@ const isBoss = (q)=> q.type==='dated' && (q.difficulty==='hard' || q.difficulty=
 const rIcon = (q)=> (REGION[q.category]||['✨'])[0];
 const rName = (q)=> (REGION[q.category]||['','기타 지역'])[1];
 
-// HP·스트레스 게이지: 놓친 퀘스트와 오늘 남은 퀘스트로 계산하고, 휴식하면 0/100으로 회복
+// ---- 컨디션 시스템 ----
+// 스트레스(0~100, 하루 단위): 놓친 퀘스트×20 + 오늘 남은 퀘스트×5 − 진정 차 효과. 퀘스트를 끝내면 바로 내려가고, 휴식한 날은 0.
+// HP(0~100, 저장): 매일 처음 열 때 전날의 스트레스로 정산한다. 60 이상 −20 / 30 이상 −10 / 그 미만 +10 / 휴식한 날 +20.
+// 컨디션 등급이 퀘스트 완료 보상을 바꾼다: 최상 +10% / 보통 ±0 / 피곤 −10% / 탈진 −25% (휴식 중에는 변화 없음).
+function settle(){
+  const c = S(), k = c.cond, today = todayStr();
+  if(k.date===today) return;
+  if(k.date){
+    const rested = !!c.restDays[k.date], sv = rested ? 0 : k.dayStress;
+    const d = rested ? 20 : sv>=60 ? -20 : sv>=30 ? -10 : 10;
+    k.hp = Math.max(0, Math.min(100, k.hp + d));
+  }
+  k.date = today; k.relief = 0; k.dayStress = 0;
+}
 function gauges(){
-  const c = S(), today = todayStr();
-  if(c.restDays[today]) return {hp:100, stress:0, rest:true};
-  const over = state.quests.filter(q=>q.type==='dated' && q.status!=='done' && q.dueDate<today).length;
-  const left = questsOn(today).filter(q=>!isDone(q, today)).length;
-  const stress = Math.min(100, over*20 + left*5);
-  return {hp:100-stress, stress, rest:false};
+  const c = S(), k = c.cond, today = todayStr();
+  settle();
+  const rest = !!c.restDays[today];
+  let stress = 0;
+  if(!rest){
+    const over = state.quests.filter(q=>q.type==='dated' && q.status!=='done' && q.dueDate<today).length;
+    const left = questsOn(today).filter(q=>!isDone(q, today)).length;
+    stress = Math.max(0, Math.min(100, over*20 + left*5) - k.relief);
+  }
+  k.dayStress = stress;
+  return {hp:k.hp, stress, rest};
+}
+function tier(){
+  const g = gauges();
+  let t = {name:'보통', mult:1};
+  if(g.rest) t = {name:'휴식', mult:1};
+  else if(g.hp<25 || g.stress>=85) t = {name:'탈진', mult:0.75};
+  else if(g.hp<50 || g.stress>=60) t = {name:'피곤', mult:0.9};
+  else if(g.hp>=90 && g.stress<30) t = {name:'최상', mult:1.1};
+  t.eff = t.mult>1 ? `보상 +${Math.round((t.mult-1)*100)}%` : t.mult<1 ? `보상 −${Math.round((1-t.mult)*100)}%` : '보상 변화 없음';
+  return {...t, g};
+}
+function renderHomeCond(){
+  const el = $('home-cond');
+  if(!el || !state || !state.character) return;
+  const t = tier();
+  el.style.display = '';
+  el.textContent = `컨디션 ${t.name} · HP ${t.g.hp} · 스트레스 ${t.g.stress} · ${t.eff}`;
 }
 
 const css = document.createElement('style');
@@ -330,11 +368,13 @@ function shopPanel(){
 
 // ---- 보관함 ----
 function bagPanel(){
-  const c = S(), g = gauges();
+  const c = S(), tr = tier(), g = tr.g;
   const bar = (v,col)=>`<span class="cal-bar"><i style="width:${v}%;background:${col}"></i></span>`;
   const rows = Object.entries(TICKETS).map(([k,t])=>{
     let btn = `<span class="s">일정 카드에서 사용</span>`;
     if(k==='rest') btn = `<button ${c.tickets.rest?'':'disabled'} onclick="calUseRest()">사용</button>`;
+    if(k==='potion') btn = `<button ${c.tickets.potion?'':'disabled'} onclick="calUsePotion()">사용</button>`;
+    if(k==='tea') btn = `<button ${c.tickets.tea?'':'disabled'} onclick="calUseTea()">사용</button>`;
     if(k==='boost') btn = c.boostActive ? `<button class="on" disabled>활성 중</button>` : `<button ${c.tickets.boost?'':'disabled'} onclick="calUseBoost()">활성화</button>`;
     return `<div class="cal-row"><span style="font-size:20px">${t.icon}</span><span class="t">${t.name} <b>×${c.tickets[k]}</b><div class="s">${t.desc}</div></span>${btn}</div>`;
   }).join('');
@@ -342,6 +382,7 @@ function bagPanel(){
   return `<div class="cal-panel"><h3>🎒 아이템 보관함</h3>
     <div class="cal-row"><span>❤️ HP</span>${bar(g.hp,'#5EE08A')}<span>${g.hp}</span></div>
     <div class="cal-row"><span>😣 스트레스</span>${bar(g.stress,'#FF6A6A')}<span>${g.stress}</span>${g.rest?'<span class="s">🏨 휴식 중</span>':''}</div>
+    <div class="cal-row"><span class="t">컨디션 ${tr.name} · ${tr.eff}<div class="s">HP는 매일 정산돼요. 전날 스트레스가 60 이상이면 −20, 30 이상이면 −10, 그 미만이면 +10, 휴식한 날은 +20. 스트레스는 놓친 퀘스트×20 + 오늘 남은 퀘스트×5이고 퀘스트를 끝내면 바로 줄어요.</div></span></div>
     ${rows}
     <div class="cal-row"><span style="font-size:20px">🎁</span><span class="t">황금 보물상자 <b>×${c.chests.golden}</b></span></div>
     <div class="cal-row"><span class="t">보유 꾸미기<div class="s">테마 ${c.themes.length}/${THEMES.length} · 이펙트 ${c.effects.length}/${EFFECTS.length} · 스킨 ${c.skinOwned.length}/${SKINS.char.length+SKINS.npc.length} · 진행 중 투자 ${inv}건</div></span></div></div>`;
@@ -363,7 +404,8 @@ function render(){
   const wrap = $('cal-wrap');
   if(!wrap || !state) return;
   if(!sel) sel = todayStr();
-  const c = S(), th = previewId ? (THEMES.find(t=>t.id===previewId)||theme()) : theme(), g = gauges();
+  const c = S(), th = previewId ? (THEMES.find(t=>t.id===previewId)||theme()) : theme(), tr = tier(), g = tr.g;
+  renderHomeCond();
   wrap.className = [th.cls, c.effect ? `fx-${c.effect}` : ''].filter(Boolean).join(' ');
   wrap.style.setProperty('--ca', th.accent); wrap.style.setProperty('--cb', th.bg); wrap.style.setProperty('--cl', th.line);
   const first = new Date(ym.y, ym.m, 1).getDay(), days = new Date(ym.y, ym.m+1, 0).getDate(), today = todayStr();
@@ -373,7 +415,7 @@ function render(){
   const own = previewId && c.themes.includes(previewId);
   const prev = previewId ? `<div class="cal-prev"><span>👀 ${th.icon} ${th.name} 미리보기 중</span>${own?`<button onclick="calApply('${previewId}')">적용</button>`:`<button onclick="calBuy('${previewId}')">🪙${th.price} 구매</button>`}<button onclick="calClosePreview()">닫기</button></div>` : '';
   wrap.innerHTML = `
-    <div class="cal-top"><span class="g">❤️ ${g.hp} · 😣 ${g.stress}${g.rest?' · 🏨 휴식 중':''}</span><span><button class="chip" onclick="calTogglePanel('bag')">🎒 보관함</button> <button class="chip" onclick="calTogglePanel('shop')">🎨 상점</button></span></div>
+    <div class="cal-top"><span class="g">❤️ ${g.hp} · 😣 ${g.stress} · 컨디션 ${tr.name}</span><span><button class="chip" onclick="calTogglePanel('bag')">🎒 보관함</button> <button class="chip" onclick="calTogglePanel('shop')">🎨 상점</button></span></div>
     ${prev}
     <div class="cal-box">
       <div class="cal-head"><button onclick="calMove(-1)">‹</button><span class="ttl">${th.icon} ${ym.y}년 ${ym.m+1}월</span><button onclick="calMove(1)">›</button></div>
@@ -413,9 +455,9 @@ function applySkins(){
   if(cs) document.querySelectorAll('.char-aura').forEach(el=>el.style.setProperty('--class-color', cs.color));
   if(ns) document.querySelectorAll('.npc-bubble .npc-ic').forEach(el=>{ el.textContent = ns.icon; });
 }
-['renderCharacterVisual','showNpcBubble'].forEach(fn=>{ // 캐릭터/NPC가 다시 그려질 때 스킨을 덮어쓴다
+['renderCharacterVisual','showNpcBubble','renderHome'].forEach(fn=>{ // 캐릭터/NPC/홈이 다시 그려질 때 스킨·컨디션 표시를 덮어쓴다
   const orig = window[fn];
-  if(typeof orig==='function') window[fn] = function(){ const r = orig.apply(this, arguments); try{ applySkins(); }catch(e){} return r; };
+  if(typeof orig==='function') window[fn] = function(){ const r = orig.apply(this, arguments); try{ applySkins(); renderHomeCond(); }catch(e){} return r; };
 });
 
 window.calRender = render;
@@ -503,8 +545,26 @@ window.calUseRest = ()=>{
   if(c.restDays[today]){ toast('오늘은 이미 쉬고 있어요.'); return; }
   if(c.restDays[addDays(today,-1)]){ toast('휴식은 이틀 연속으로 쓸 수 없어요.'); return; }
   ask('🏨 휴식권', null, async ()=>{
-    c.tickets.rest--; c.restDays[today] = true;
-    await done('🏨 여관에서 푹 쉬었어요. 스트레스가 풀리고 HP가 회복됐어요.');
+    c.tickets.rest--; c.restDays[today] = true; c.cond.hp = 100;
+    await done('🏨 여관에서 푹 쉬었어요. HP가 100으로 회복되고 스트레스가 풀렸어요.');
+  }, '사용');
+};
+window.calUsePotion = ()=>{
+  const c = S(); gauges();
+  if(!c.tickets.potion){ toast('회복 포션이 없어요.'); return; }
+  if(c.cond.hp>=100){ toast('HP가 이미 가득해요.'); return; }
+  ask('🧪 회복 포션', null, async ()=>{
+    c.tickets.potion--; c.cond.hp = Math.min(100, c.cond.hp+30);
+    await done(`HP가 회복됐어요. (${c.cond.hp})`);
+  }, '사용');
+};
+window.calUseTea = ()=>{
+  const c = S(), g = gauges();
+  if(!c.tickets.tea){ toast('진정 차가 없어요.'); return; }
+  if(g.stress<=0){ toast('지금은 스트레스가 없어요.'); return; }
+  ask('🍵 진정 차', null, async ()=>{
+    c.tickets.tea--; c.cond.relief += 30;
+    await done('차를 마시니 마음이 가라앉아요. 오늘 스트레스 −30');
   }, '사용');
 };
 window.calUseBoost = ()=>{
@@ -529,6 +589,8 @@ window.calQuestBonus = (q, xp, gold)=>{
   let bx = 0, bg = 0;
   if(!state || !state.character) return {xp:0, gold:0};
   const c = S(), today = todayStr(), notes = [];
+  const tr = tier();
+  if(tr.mult!==1){ bx += Math.round(xp*(tr.mult-1)); bg += Math.round(gold*(tr.mult-1)); notes.push(`컨디션 ${tr.name} ${tr.eff.replace('보상 ','')}`); }
   if(c.boostActive){ bx += Math.round(xp*0.5); bg += Math.round(gold*0.5); c.boostActive = false; notes.push('⚔️ 부스터'); }
   const inv = c.invest[q.id];
   if(inv && !inv.used){
@@ -538,7 +600,7 @@ window.calQuestBonus = (q, xp, gold)=>{
       notes.push('💰 투자');
     } else notes.push('💰 투자 소멸(마감 경과)');
   }
-  if(notes.length) setTimeout(()=>toast(notes.join(' · ')+(bx||bg?` +${bx}XP${bg?` +${bg}G`:''}`:'')), 400);
+  if(notes.length) setTimeout(()=>toast(notes.join(' · ')+(bx||bg?` ${bx>=0?'+':''}${bx}XP${bg?` ${bg>=0?'+':''}${bg}G`:''}`:'')), 400);
   return {xp:bx, gold:bg};
 };
 
@@ -593,6 +655,7 @@ window.calClaimMonth = async ()=>{
 // 오늘의 던전 클리어 판정: 퀘스트 완료/취소 때마다 index.html에서 호출한다 (하루 1회 일반 상자)
 window.calOnQuestChange = ()=>{
   if(!state || !state.character) return;
+  gauges(); renderHomeCond();
   const c = S(), today = todayStr(), qs = questsOn(today);
   if(qs.length && qs.every(q=>isDone(q, today)) && !c.clearDays[today]){
     c.clearDays[today] = true; c.chests.normal++;
@@ -602,5 +665,5 @@ window.calOnQuestChange = ()=>{
   }
 };
 
-try{ applySkins(); }catch(e){} // 스크립트가 늦게 로드돼 첫 렌더가 이미 끝난 경우를 보정
+try{ applySkins(); renderHomeCond(); }catch(e){} // 스크립트가 늦게 로드돼 첫 렌더가 이미 끝난 경우를 보정
 })();
