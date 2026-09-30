@@ -199,7 +199,7 @@ css.textContent = `
 .cal-tabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
 .cal-act{width:100%;display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--text-dim);padding:4px 0}
 .cal-act input{background:var(--card);color:var(--text);border:1px solid var(--cl);border-radius:8px;padding:6px}
-.cal-prev{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;padding:8px;border:1px dashed var(--ca);border-radius:10px;font-size:12px}
+.cal-prev{color:var(--text);display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;padding:8px;border:1px dashed var(--ca);border-radius:10px;font-size:12px}
 .cal-prev span{flex:1;min-width:0}.cal-prev button{padding:6px 10px;border-radius:8px;border:1px solid var(--cl);background:var(--card-hi);color:var(--text);font-size:12px}
 .cal-bar{height:8px;border-radius:6px;background:rgba(255,255,255,.1);overflow:hidden;flex:1;min-width:80px}.cal-bar i{display:block;height:100%}
 .cal-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px}
@@ -470,13 +470,14 @@ function render(){
   const own = previewId && c.themes.includes(previewId);
   const prev = previewId ? `<div class="cal-prev"><span>👀 ${th.icon} ${th.name} 미리보기 중</span>${own?`<button onclick="calApply('${previewId}')">적용</button>`:`<button onclick="calBuy('${previewId}')">🪙${th.price} 구매</button>`}<button onclick="calClosePreview()">닫기</button></div>` : '';
   wrap.innerHTML = `
-    <div class="cal-top"><span class="g">❤️ ${g.hp} · 😣 ${g.stress} · 컨디션 ${tr.name}</span><span><button class="chip" onclick="calTogglePanel('bag')">🎒 보관함</button> <button class="chip" onclick="calTogglePanel('shop')">🎨 상점</button></span></div>
+    <div class="cal-top"><span class="g">❤️ ${g.hp} · 😣 ${g.stress} · 컨디션 ${tr.name}</span><span><button class="chip" onclick="calTogglePanel('bag')">🎒 보관함</button> <button class="chip" onclick="calGoShop()">🎨 상점</button></span></div>
     ${prev}
     <div class="cal-box">
       <div class="cal-head"><button onclick="calMove(-1)">‹</button><span class="ttl">${th.icon} ${ym.y}년 ${ym.m+1}월</span><button onclick="calMove(1)">›</button></div>
       <div class="cal-grid">${['일','월','화','수','목','금','토'].map(w=>`<div class="cal-dow">${w}</div>`).join('')}${cells}</div>
     </div>
-    ${panel==='shop' ? shopPanel() : panel==='bag' ? bagPanel() : ''}${dayPanel()}${chestPanel()}${pending ? confirmModal() : ''}`;
+    ${panel==='bag' ? bagPanel() : ''}${dayPanel()}${chestPanel()}${pending ? confirmModal() : ''}`;
+  renderShopCal(); // 상점 탭의 캘린더 상점도 같은 상태로 다시 그린다
 }
 
 // 구매·사용 확인: 실수로 누르지 않도록 모든 소비는 확인 창을 거친다
@@ -519,6 +520,27 @@ window.calMove = (dm)=>{ const d = new Date(ym.y, ym.m+dm, 1); ym = {y:d.getFull
 window.calSelect = (ds)=>{ sel = ds; act = null; render(); };
 window.calTogglePanel = (k)=>{ panel = panel===k ? null : k; render(); };
 window.calShopTab = (k)=>{ shopTab = k; render(); };
+// ---- 캘린더 상점: 상점 탭의 '캘린더' 대분류에 그린다 ----
+function miniCal(th){
+  const first = new Date(ym.y, ym.m, 1).getDay(), days = new Date(ym.y, ym.m+1, 0).getDate(), today = todayStr();
+  let cells = '';
+  for(let i=0;i<first;i++) cells += `<div class="cal-day blank"></div>`;
+  for(let d=1; d<=days; d++) cells += `<div class="cal-day${ymd(ym.y, ym.m, d)===today?' today':''}"><span class="n"><span>${d}</span></span></div>`;
+  return `<div class="cal-box" style="margin-bottom:8px"><div class="cal-head"><span class="ttl">${th.icon} ${ym.y}년 ${ym.m+1}월</span></div><div class="cal-grid">${['일','월','화','수','목','금','토'].map(w=>`<div class="cal-dow">${w}</div>`).join('')}${cells}</div></div>`;
+}
+function renderShopCal(){
+  const wrap = $('shop-cal-wrap');
+  if(!wrap || !state || !state.character) return;
+  const c = S(), th = previewId ? (THEMES.find(t=>t.id===previewId)||theme()) : theme();
+  [...wrap.classList].filter(x=>/^(th-|fx-)/.test(x)).forEach(x=>wrap.classList.remove(x));
+  wrap.classList.add('cal-scope'); if(th.cls) wrap.classList.add(th.cls); if(c.effect) wrap.classList.add('fx-'+c.effect);
+  wrap.style.setProperty('--ca', th.accent); wrap.style.setProperty('--cb', th.bg); wrap.style.setProperty('--cl', th.line);
+  const own = previewId && c.themes.includes(previewId);
+  const prev = previewId ? `<div class="cal-prev"><span>${th.icon} ${th.name} 미리보기 중</span>${own?`<button onclick="calApply('${previewId}')">적용</button>`:`<button onclick="calBuy('${previewId}')">🪙${th.price} 구매</button>`}<button onclick="calClosePreview()">닫기</button></div>${miniCal(th)}` : '';
+  wrap.innerHTML = `${prev}${shopPanel()}${pending ? confirmModal() : ''}`;
+}
+window.renderShopCal = renderShopCal;
+window.calGoShop = (tab)=>{ if(tab) shopTab = tab; switchTab('shop'); setShopMain('cal'); };
 window.calPreview = (id)=>{ previewId = id; render(); };
 window.calClosePreview = ()=>{ previewId = null; render(); };
 window.calApply = async (id)=>{ const c = S(); if(!c.themes.includes(id)) return; c.active = id; previewId = null; await saveState(); render(); };
@@ -609,7 +631,7 @@ window.calStartMove = (id, mode)=>{
   const q = state.quests.find(x=>x.id===id); if(!q) return;
   if(mode==='invest'){ const why = investBlock(q); if(why){ toast(why); return; } act = {id, mode}; render(); return; }
   const why = moveBlock(q, mode); if(why){ toast(why); return; }
-  if(!S().tickets[mode]){ toast(`${TICKETS[mode].name}이 없어요. 상점의 아이템 탭에서 살 수 있어요.`); panel = 'shop'; shopTab = 'item'; render(); return; }
+  if(!S().tickets[mode]){ toast(`${TICKETS[mode].name}이 없어요. 상점의 아이템 탭에서 살 수 있어요.`); shopTab = 'item'; calGoShop(); return; }
   act = {id, mode}; render();
 };
 window.calCancelMove = ()=>{ act = null; render(); };

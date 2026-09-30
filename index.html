@@ -1618,17 +1618,23 @@
         <div class="shop-story" id="shop-story-line" style="flex:1;">📜 <b>상점의 소문</b> — 이 가게는 오래전 모험가 길드의 창고였대요. 벽 뒤 어딘가에는 아직 열리지 않은 비밀 진열장이 있다는 소문도…</div>
         <button class="shop-rumor-reroll" type="button" onclick="rerollShopRumor()" aria-label="상점 소문 다시 듣기" title="새로운 소문 듣기">🔄</button>
       </div>
-      <div class="shop-special-row" style="margin:0 0 10px;">
-        <button class="shop-special-btn" onclick="openEquip();">🎒 장비</button>
+      <div class="shop-special-row" style="margin:0 0 10px;grid-template-columns:1fr;">
         <button class="shop-special-btn" onclick="handleMiniBlackMarket(event);">🕶️ 암시장</button>
       </div>
       <div class="shop-screen-gold"><span class="label">현재 보유 골드</span><span class="value" id="shop-screen-gold-pill">🪙0</span></div>
-      <div class="shop-tabs" id="shop-screen-tabs">
-        <button class="shop-tab active" data-cat="weapon" onclick="setShopCategory('weapon')">⚔️ 무기</button>
-        <button class="shop-tab" data-cat="armor" onclick="setShopCategory('armor')">🛡️ 방어구</button>
-        <button class="shop-tab" data-cat="accessory" onclick="setShopCategory('accessory')">💍 장신구</button>
+      <div class="chip-row" id="shop-main-tabs" style="margin-bottom:10px;">
+        <button class="chip active" data-main="equip" onclick="setShopMain('equip')">장비</button>
+        <button class="chip" data-main="cal" onclick="setShopMain('cal')">캘린더</button>
       </div>
-      <div id="shop-screen-list"></div>
+      <div id="shop-equip-wrap">
+        <div class="shop-tabs" id="shop-screen-tabs">
+          <button class="shop-tab active" data-cat="weapon" onclick="setShopCategory('weapon')">⚔️ 무기</button>
+          <button class="shop-tab" data-cat="armor" onclick="setShopCategory('armor')">🛡️ 방어구</button>
+          <button class="shop-tab" data-cat="accessory" onclick="setShopCategory('accessory')">💍 장신구</button>
+        </div>
+        <div id="shop-screen-list"></div>
+      </div>
+      <div id="shop-cal-wrap" class="cal-scope hidden"></div>
     </div>
 
     <!-- WORLD MAP (calendar.js가 내용을 그린다. 탐험은 이 탭의 하위 화면) -->
@@ -3618,6 +3624,15 @@ async function selectEquipItem(slot, itemId){
 function closeEquipPicker(){ document.getElementById('equip-picker-overlay').classList.remove('show'); equipPickerSlot = null; }
 function closeEquipPickerOnBg(e){ if(e.target.id==='equip-picker-overlay') closeEquipPicker(); }
 
+/* 상점 대분류: 장비(무기·방어구·장신구) / 캘린더(테마·이펙트·스킨·펫·아이템·상자, calendar.js) */
+let shopMain = 'equip';
+function setShopMain(k){
+  shopMain = k;
+  document.querySelectorAll('#shop-main-tabs .chip').forEach(b=>b.classList.toggle('active', b.dataset.main===k));
+  document.getElementById('shop-equip-wrap').classList.toggle('hidden', k!=='equip');
+  document.getElementById('shop-cal-wrap').classList.toggle('hidden', k!=='cal');
+  if(k==='cal' && window.renderShopCal) renderShopCal();
+}
 let shopCategory = 'weapon';
 function setShopCategory(cat){
   shopCategory = cat;
@@ -3703,6 +3718,7 @@ function rerollShopRumor(){
   playSound('click');
 }
 function renderShopScreen(){
+  if(window.renderShopCal) renderShopCal(); // 캘린더 상점 (calendar.js)
   const gp=document.getElementById('shop-screen-gold-pill'); if(gp) gp.textContent=`🪙${state.gold}`;
   // 소문은 화면 렌더링 때마다 바뀌지 않습니다. 🔄 버튼을 눌렀을 때만 다시 추첨합니다.
   const storyEl=document.getElementById('shop-story-line'); if(storyEl){
