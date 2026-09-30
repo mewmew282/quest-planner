@@ -3310,6 +3310,7 @@ async function toggleQuest(id){
     checkAchievements();
     if(Math.random()<0.03) triggerMysteryQuest();
     checkExtendedEasterEggs();
+    if(window.calOnQuestChange) calOnQuestChange(); // 오늘의 던전 클리어 판정 (calendar.js)
     await saveState();
     renderAll();
   }, rapid?150:950);
