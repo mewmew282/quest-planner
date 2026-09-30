@@ -275,6 +275,18 @@ css.textContent = `
 .dg-side em{font-style:normal;font-size:11px;color:var(--text-dim);text-align:right}
 .dg-log{height:110px;overflow-y:auto;margin:10px 0;padding:8px;border-radius:8px;background:rgba(0,0,0,.25);font-size:12px;line-height:1.6}
 .dg-res{font-size:13px;font-weight:700;color:var(--gold);min-height:20px}
+/* 인벤토리 */
+.inv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.inv-slot{position:relative;aspect-ratio:1;min-width:0;border:1px solid var(--cl);border-radius:10px;background:rgba(0,0,0,.2);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px}
+.inv-slot .inv-ic{font-size:24px;line-height:1}
+.inv-slot .inv-nm{font-size:9.5px;color:var(--text-dim);line-height:1.15;text-align:center;word-break:keep-all}
+.inv-slot .inv-cnt{position:absolute;right:5px;bottom:3px;font-size:12px;font-weight:800}
+.inv-slot.empty{opacity:.4}.inv-slot.empty .inv-cnt{font-weight:600}
+.inv-slot.sel{border-color:var(--ca);box-shadow:0 0 0 1px var(--ca) inset}
+.inv-detail{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--cl);font-size:13px}
+.inv-detail .t{flex:1;min-width:0}.inv-detail .s{font-size:11.5px;color:var(--text-dim);margin-top:2px}
+.inv-detail button{padding:7px 12px;border-radius:8px;border:1px solid var(--cl);background:var(--card-hi);color:var(--text);font-size:12px}
+.inv-detail button:disabled{opacity:.5}.inv-detail button.on{background:var(--ca);color:#1B1300;border-color:var(--ca)}
 @keyframes calPulse{0%,100%{box-shadow:0 0 0 1px var(--ca) inset,0 0 0 rgba(255,255,255,0)}50%{box-shadow:0 0 0 1px var(--ca) inset,0 0 10px 2px var(--ca)}}
 @keyframes calFlick{from{box-shadow:0 0 4px 0 #FF8A4C}to{box-shadow:0 0 12px 3px #FFB347}}
 @keyframes calGlow{from{box-shadow:0 0 4px 0 var(--ca)}to{box-shadow:0 0 16px 3px var(--ca)}}
@@ -422,25 +434,32 @@ function shopPanel(){
 }
 
 // ---- 보관함 ----
+// ---- 보관함 (인벤토리): 보유 수만 간략하게 보여주고, 칸을 누르면 설명과 사용 버튼이 나온다 ----
+let bagSel = null;
+function bagItems(){
+  const c = S();
+  const items = Object.entries(TICKETS).map(([k,t])=>({key:k, icon:t.icon, name:t.name, n:c.tickets[k], desc:t.desc}));
+  items.push({key:'chestN', icon:'🎁', name:'일반 보물상자', n:c.chests.normal, desc:'오늘의 던전 보스를 쓰러뜨리면 얻어요'});
+  items.push({key:'chestG', icon:'🔒', name:'황금 보물상자', n:c.chests.golden, desc:'투자 보상이나 상점에서 얻어요'});
+  return items;
+}
+function bagAction(it){
+  const c = S();
+  if(it.key==='rest') return `<button ${it.n?'':'disabled'} onclick="calUseRest()">사용</button>`;
+  if(it.key==='potion') return `<button ${it.n?'':'disabled'} onclick="calUsePotion()">사용</button>`;
+  if(it.key==='tea') return `<button ${it.n?'':'disabled'} onclick="calUseTea()">사용</button>`;
+  if(it.key==='boost') return c.boostActive ? `<button class="on" disabled>활성 중</button>` : `<button ${it.n?'':'disabled'} onclick="calUseBoost()">활성화</button>`;
+  if(it.key==='chestN') return `<button ${it.n?'':'disabled'} onclick="calOpenChest('normal')">열기</button>`;
+  if(it.key==='chestG') return `<button ${it.n?'':'disabled'} onclick="calOpenChest('golden')">열기</button>`;
+  return `<span class="s">일정 카드에서 사용</span>`;
+}
+window.calBagSel = (k)=>{ bagSel = bagSel===k ? null : k; render(); };
 function bagPanel(){
-  const c = S(), tr = tier(), g = tr.g;
-  const bar = (v,col)=>`<span class="cal-bar"><i style="width:${v}%;background:${col}"></i></span>`;
-  const rows = Object.entries(TICKETS).map(([k,t])=>{
-    let btn = `<span class="s">일정 카드에서 사용</span>`;
-    if(k==='rest') btn = `<button ${c.tickets.rest?'':'disabled'} onclick="calUseRest()">사용</button>`;
-    if(k==='potion') btn = `<button ${c.tickets.potion?'':'disabled'} onclick="calUsePotion()">사용</button>`;
-    if(k==='tea') btn = `<button ${c.tickets.tea?'':'disabled'} onclick="calUseTea()">사용</button>`;
-    if(k==='boost') btn = c.boostActive ? `<button class="on" disabled>활성 중</button>` : `<button ${c.tickets.boost?'':'disabled'} onclick="calUseBoost()">활성화</button>`;
-    return `<div class="cal-row"><span style="font-size:20px">${t.icon}</span><span class="t">${t.name} <b>×${c.tickets[k]}</b><div class="s">${t.desc}</div></span>${btn}</div>`;
-  }).join('');
-  const inv = Object.entries(c.invest).filter(([,v])=>!v.used).length;
-  return `<div class="cal-panel"><h3>🎒 아이템 보관함</h3>
-    <div class="cal-row"><span>❤️ HP</span>${bar(g.hp,'#5EE08A')}<span>${g.hp}</span></div>
-    <div class="cal-row"><span>😣 스트레스</span>${bar(g.stress,'#FF6A6A')}<span>${g.stress}</span>${g.rest?'<span class="s">🏨 휴식 중</span>':''}</div>
-    <div class="cal-row"><span class="t">컨디션 ${tr.name} · ${tr.eff}<div class="s">HP는 매일 정산돼요. 전날 스트레스가 60 이상이면 −20, 30 이상이면 −10, 그 미만이면 +10, 휴식한 날은 +20. 스트레스는 놓친 퀘스트×20 + 오늘 남은 퀘스트×5이고 퀘스트를 끝내면 바로 줄어요.</div></span></div>
-    ${rows}
-    <div class="cal-row"><span style="font-size:20px">🎁</span><span class="t">황금 보물상자 <b>×${c.chests.golden}</b></span></div>
-    <div class="cal-row"><span class="t">보유 꾸미기<div class="s">테마 ${c.themes.length}/${THEMES.length} · 이펙트 ${c.effects.length}/${EFFECTS.length} · 스킨 ${c.skinOwned.length}/${SKINS.char.length} · 펫 ${c.pets.owned.length}/${PETS.length} · 진행 중 투자 ${inv}건</div></span></div></div>`;
+  const items = bagItems(), total = items.reduce((a,x)=>a+x.n, 0);
+  const slots = items.map(it=>`<button class="inv-slot${it.n?'':' empty'}${bagSel===it.key?' sel':''}" onclick="calBagSel('${it.key}')" aria-label="${it.name} ${it.n}개"><span class="inv-ic">${it.icon}</span><span class="inv-nm">${it.name}</span><span class="inv-cnt">${it.n}</span></button>`).join('');
+  const cur = items.find(x=>x.key===bagSel);
+  const detail = cur ? `<div class="inv-detail"><span class="t"><b>${cur.name}</b> ×${cur.n}<div class="s">${cur.desc}</div></span>${bagAction(cur)}</div>` : '';
+  return `<div class="cal-panel"><h3>인벤토리 · 아이템 ${total}개</h3><div class="inv-grid">${slots}</div>${detail}</div>`;
 }
 
 // ---- 보물상자 ----
@@ -470,7 +489,7 @@ function render(){
   const own = previewId && c.themes.includes(previewId);
   const prev = previewId ? `<div class="cal-prev"><span>👀 ${th.icon} ${th.name} 미리보기 중</span>${own?`<button onclick="calApply('${previewId}')">적용</button>`:`<button onclick="calBuy('${previewId}')">🪙${th.price} 구매</button>`}<button onclick="calClosePreview()">닫기</button></div>` : '';
   wrap.innerHTML = `
-    <div class="cal-top"><span class="g">❤️ ${g.hp} · 😣 ${g.stress} · 컨디션 ${tr.name}</span><span><button class="chip" onclick="calTogglePanel('bag')">🎒 보관함</button> <button class="chip" onclick="calGoShop()">🎨 상점</button></span></div>
+    <div class="cal-top"><span class="g">❤️ ${g.hp} · 😣 ${g.stress} · 컨디션 ${tr.name}</span><span><button class="chip" onclick="calTogglePanel('bag')">🎒 보관함</button></span></div>
     ${prev}
     <div class="cal-box">
       <div class="cal-head"><button onclick="calMove(-1)">‹</button><span class="ttl">${th.icon} ${ym.y}년 ${ym.m+1}월</span><button onclick="calMove(1)">›</button></div>
