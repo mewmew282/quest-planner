@@ -6,11 +6,11 @@ const $ = (id)=>document.getElementById(id);
 
 // 가격은 퀘스트 골드(XP÷5: 보통 20G, 하루 5개 약 100G) 기준
 const THEMES = [
-  {id:'kingdom',   name:'기본 왕국',   icon:'🏰', price:0,    accent:'#E7B549', bg:'#221C3B', line:'#372C55', desc:'기본 월드맵'},
-  {id:'forest',    name:'숲속 마을',   icon:'🌲', price:300,  accent:'#6FCF97', bg:'#16281F', line:'#2C4A38', desc:'초록빛 숲속 지도'},
+  {id:'kingdom',   name:'기본 왕국',   icon:'🏰', price:0,    accent:'#E7B549', bg:'#1C1740', line:'#3A3170', desc:'성벽과 깃발이 있는 왕국 지도', cls:'th-kingdom'},
+  {id:'forest',    name:'숲속 마을',   icon:'🌲', price:300,  accent:'#7BD389', bg:'#14261B', line:'#2F5A3F', desc:'이끼 낀 숲길과 오두막', cls:'th-forest'},
   {id:'winter',    name:'겨울 왕국',   icon:'❄️', price:600,  accent:'#2F8FD6', bg:'#E4F1FA', line:'#B7D7EC', desc:'눈 내리는 밝은 얼음 성', cls:'th-winter'},
   {id:'pirate',    name:'해적 항구',   icon:'🏴‍☠️', price:700,  accent:'#E0B25A', bg:'#3A2817', line:'#6B4A2B', desc:'낡은 항해 지도와 나무 부두', cls:'th-pirate'},
-  {id:'academy',   name:'마법 학교',   icon:'🔮', price:800,  accent:'#B58CFF', bg:'#24173F', line:'#4A3479', desc:'보랏빛 마법진 지도'},
+  {id:'academy',   name:'마법 학교',   icon:'🔮', price:800,  accent:'#C39BFF', bg:'#1B1038', line:'#4D3A85', desc:'별빛 아래 마법진 교실', cls:'th-academy'},
   {id:'cyber',     name:'사이버 도시', icon:'🌆', price:1500, accent:'#00F0FF', bg:'#05070F', line:'#1A2B4A', desc:'검은 밤과 네온 격자', cls:'th-cyber'},
 ];
 const EFFECTS = [ // 캘린더 전체에 적용되는 애니메이션
@@ -166,6 +166,26 @@ css.textContent = `
 .th-cyber .cal-head .ttl{text-shadow:0 0 8px var(--ca);letter-spacing:.14em;text-transform:uppercase}
 .th-cyber .cal-panel h3{text-transform:uppercase;letter-spacing:.14em;color:var(--cx)}
 .th-cyber .cal-row button,.th-cyber .cal-tabs button{border-radius:0}
+#cal-wrap.th-kingdom .cal-box{border:2px solid var(--ca);border-radius:3px;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 22px),repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 1px,transparent 1px 44px)}
+.th-kingdom .cal-panel{border:1px solid var(--cl);border-top:3px solid var(--ca);border-radius:2px}
+.th-kingdom .cal-day{border-radius:2px;border-bottom:3px solid var(--ca);background:rgba(255,255,255,.04)}
+.th-kingdom .cal-day.sel{background:var(--ca);color:#1B1300}
+.th-kingdom .cal-head .ttl{font-weight:800;letter-spacing:.16em;text-shadow:0 1px 0 #000}
+.th-kingdom .cal-panel h3{letter-spacing:.12em}
+#cal-wrap.th-forest{font-family:'Trebuchet MS','Malgun Gothic',system-ui,sans-serif}
+.th-forest .cal-box{border:2px dotted var(--ca);border-radius:26px 8px 26px 8px;background-image:radial-gradient(circle at 15% 20%,rgba(123,211,137,.22) 0 14px,transparent 15px),radial-gradient(circle at 85% 75%,rgba(123,211,137,.18) 0 22px,transparent 23px),radial-gradient(circle at 60% 10%,rgba(123,211,137,.12) 0 10px,transparent 11px)}
+.th-forest .cal-panel{border:1px dotted var(--ca);border-radius:18px 6px 18px 6px}
+.th-forest .cal-day{border-radius:14px 3px 14px 3px;background:rgba(123,211,137,.06);border-style:dotted}
+.th-forest .cal-day.sel{background:var(--ca);color:#0E2415}
+.th-forest .cal-head .ttl{letter-spacing:.04em}
+#cal-wrap.th-academy{font-family:'Palatino Linotype','Book Antiqua',Palatino,serif}
+.th-academy .cal-box{border:1px solid var(--ca);border-radius:16px;outline:1px dashed rgba(195,155,255,.55);outline-offset:4px;box-shadow:0 0 22px rgba(195,155,255,.28);background-image:radial-gradient(circle at 12% 18%,#fff 0 1px,transparent 2px),radial-gradient(circle at 78% 32%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 40% 70%,#fff 0 1px,transparent 2px),radial-gradient(circle at 90% 88%,#fff 0 1px,transparent 2px);background-size:90px 90px,120px 120px,70px 70px,100px 100px}
+.th-academy .cal-panel{border:1px solid var(--cl);border-radius:14px;box-shadow:inset 0 0 18px rgba(195,155,255,.12)}
+.th-academy .cal-day{border-radius:50% 50% 6px 6px;background:rgba(195,155,255,.08);text-align:center;align-items:center}
+.th-academy .cal-day .n{justify-content:center}
+.th-academy .cal-day.sel{background:var(--ca);color:#1B1038}
+.th-academy .cal-head .ttl{font-variant:small-caps;letter-spacing:.12em;text-shadow:0 0 10px var(--ca)}
+.th-academy .cal-panel h3{font-variant:small-caps;letter-spacing:.1em}
 @keyframes calPulse{0%,100%{box-shadow:0 0 0 1px var(--ca) inset,0 0 0 rgba(255,255,255,0)}50%{box-shadow:0 0 0 1px var(--ca) inset,0 0 10px 2px var(--ca)}}
 @keyframes calFlick{from{box-shadow:0 0 4px 0 #FF8A4C}to{box-shadow:0 0 12px 3px #FFB347}}
 @keyframes calGlow{from{box-shadow:0 0 4px 0 var(--ca)}to{box-shadow:0 0 16px 3px var(--ca)}}
