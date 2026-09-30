@@ -25,12 +25,16 @@ const SKINS = {
     {id:'flame', name:'화염 오라',   icon:'🟠', price:3000, color:'#FF6A3D'},
     {id:'royal', name:'왕가의 오라', icon:'🟣', price:5000, color:'#C77DFF'},
   ],
-  npc: [ // 홈 NPC 말풍선 아이콘
-    {id:'dragon', name:'드래곤 NPC', icon:'🐉', price:1500},
-    {id:'robot',  name:'로봇 NPC',   icon:'🤖', price:2500},
-    {id:'fairy',  name:'요정 NPC',   icon:'🧚', price:3500},
-  ],
 };
+// 펫: 한 마리를 골라 함께 다닌다. 함께한 동안 퀘스트를 완료하면 성장하고(10개당 1레벨, 최대 Lv.5), 레벨당 효과가 커진다.
+const PETS = [
+  {id:'dragon', name:'드래곤', icon:'🐉', price:1500, kind:'atk',  unit:'%', desc:'던전 공격력'},
+  {id:'golem',  name:'골렘',   icon:'🗿', price:2500, kind:'hp',   unit:'%', desc:'던전 최대 HP'},
+  {id:'horse',  name:'말',     icon:'🐴', price:3000, kind:'gold', unit:'%', desc:'퀘스트 골드'},
+  {id:'fairy',  name:'요정',   icon:'🧚', price:3500, kind:'heal', unit:'',  desc:'매일 HP 정산 회복'},
+];
+const PET_STEP = 10, PET_MAX = 5, PET_PER_LV = 2; // 레벨당 효과 +2 (%, 요정은 HP)
+const petLv = (n)=> Math.min(PET_MAX, 1 + Math.floor((n||0)/PET_STEP));
 const TICKETS = {
   change:  {name:'일정 변경권',   icon:'📜', price:50,   desc:'마감 전 퀘스트의 날짜를 바꿉니다 (보상 50%)'},
   keep:    {name:'일정 보존권',   icon:'🛡', price:150,  desc:'놓친 퀘스트를 내일로 옮깁니다 (보상 50%)'},
@@ -88,6 +92,13 @@ function S(){
   fill(c,'restDays',{}); fill(c,'boostActive',false);
   fill(c,'cond',{}); fill(c.cond,'hp',100); fill(c.cond,'date',null); fill(c.cond,'dayStress',0); fill(c.cond,'relief',0);
   fill(c,'skinOwned',[]); fill(c,'skinChar',null); fill(c,'skinNpc',null);
+  fill(c,'pets',{}); fill(c.pets,'owned',[]); fill(c.pets,'active',null); fill(c.pets,'exp',{}); fill(c,'petsMigrated',false);
+  if(!c.petsMigrated){ // 이전 버전에서 산 NPC 스킨(드래곤·로봇·요정)은 같은 펫으로 이어준다 (로봇은 골렘)
+    const map = {dragon:'dragon', robot:'golem', fairy:'fairy'};
+    c.skinOwned.filter(x=>x.startsWith('npc:')).forEach(x=>{ const id = map[x.slice(4)]; if(id && !c.pets.owned.includes(id)) c.pets.owned.push(id); });
+    if(c.skinNpc && map[c.skinNpc]) c.pets.active = map[c.skinNpc];
+    c.skinOwned = c.skinOwned.filter(x=>!x.startsWith('npc:')); c.skinNpc = null; c.petsMigrated = true;
+  }
   return c;
 }
 const theme = ()=> THEMES.find(t=>t.id===S().active) || THEMES[0];
@@ -118,7 +129,7 @@ function settle(){
   if(k.date===today) return;
   if(k.date){
     const rested = !!c.restDays[k.date], sv = rested ? 0 : k.dayStress;
-    const d = rested ? 20 : sv>=60 ? -20 : sv>=30 ? -10 : 10;
+    const d = (rested ? 20 : sv>=60 ? -20 : sv>=30 ? -10 : 10) + petPct('heal');
     k.hp = Math.max(0, Math.min(100, k.hp + d));
   }
   k.date = today; k.relief = 0; k.dayStress = 0;
@@ -233,6 +244,9 @@ css.textContent = `
 .th-academy .cal-day.sel{background:var(--ca);color:#1B1038}
 .th-academy .cal-head .ttl{font-variant:small-caps;letter-spacing:.12em;text-shadow:0 0 10px var(--ca)}
 .th-academy .cal-panel h3{font-variant:small-caps;letter-spacing:.1em}
+/* 홈 펫 */
+.home-pet{position:absolute;right:-14px;bottom:-6px;width:46px;height:46px;border-radius:50%;border:2px solid var(--border);background:var(--card);font-size:26px;line-height:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;cursor:pointer}
+.home-pet small{font-size:9px;color:var(--text-dim);margin-top:1px}
 /* 던전 카드·전투 창 */
 .dg-card{margin:14px 0 4px;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-s,12px)}
 .dg-top{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;margin-bottom:8px}
@@ -365,7 +379,7 @@ function dayPanel(){
 const capLeft = ()=>{ const c = S(); return DAILY_BUY_CAP - (c.buyDate===todayStr() ? c.buyCount : 0); };
 function shopPanel(){
   const c = S();
-  const tabs = [['theme','테마'],['fx','이펙트'],['skin','스킨'],['item','아이템'],['chest','상자']]
+  const tabs = [['theme','테마'],['fx','이펙트'],['skin','스킨'],['pet','펫'],['item','아이템'],['chest','상자']]
     .map(([k,l])=>`<button class="${shopTab===k?'on':''}" onclick="calShopTab('${k}')">${l}</button>`).join('');
   let body = '';
   if(shopTab==='theme') body = THEMES.map(t=>{
@@ -378,13 +392,17 @@ function shopPanel(){
     const btn = on ? `<button onclick="calSetEffect(null)">끄기</button>` : own ? `<button onclick="calSetEffect('${e.id}')">적용</button>` : `<button onclick="calBuyEffect('${e.id}')">🪙${e.price}</button>`;
     return `<div class="cal-row"><span style="font-size:20px">${e.icon}</span><span class="t">${e.name}<div class="s">${e.desc}${on?' · 사용 중':''}</div></span>${btn}</div>`;
   }).join('');
-  if(shopTab==='skin') body = ['char','npc'].map(kind=>{
-    const key = kind==='char' ? 'skinChar' : 'skinNpc';
-    return `<div style="font-size:12px;color:var(--text-dim);margin:6px 0 2px">${kind==='char'?'캐릭터 스킨 (홈 캐릭터 오라)':'NPC 스킨 (홈 NPC 아이콘)'}</div>` + SKINS[kind].map(s=>{
-      const sid = kind+':'+s.id, own = c.skinOwned.includes(sid), on = c[key]===s.id;
-      const btn = on ? `<button onclick="calSetSkin('${kind}',null)">해제</button>` : own ? `<button onclick="calSetSkin('${kind}','${s.id}')">적용</button>` : `<button onclick="calBuySkin('${kind}','${s.id}')">🪙${s.price}</button>`;
-      return `<div class="cal-row"><span style="font-size:20px">${s.icon}</span><span class="t">${s.name}${on?' · 사용 중':''}</span>${btn}</div>`;
-    }).join('');
+  if(shopTab==='skin') body = `<div style="font-size:12px;color:var(--text-dim);margin:6px 0 2px">캐릭터 스킨 (홈 캐릭터 오라)</div>` + SKINS.char.map(s=>{
+    const sid = 'char:'+s.id, own = c.skinOwned.includes(sid), on = c.skinChar===s.id;
+    const btn = on ? `<button onclick="calSetSkin('char',null)">해제</button>` : own ? `<button onclick="calSetSkin('char','${s.id}')">적용</button>` : `<button onclick="calBuySkin('char','${s.id}')">🪙${s.price}</button>`;
+    return `<div class="cal-row"><span style="font-size:20px">${s.icon}</span><span class="t">${s.name}${on?' · 사용 중':''}</span>${btn}</div>`;
+  }).join('');
+  if(shopTab==='pet') body = `<div style="font-size:12px;color:var(--text-dim);margin-bottom:4px">한 마리와 함께 다니며, 함께한 동안 퀘스트를 완료하면 성장해요. (${PET_STEP}개당 1레벨, 최대 Lv.${PET_MAX})</div>` + PETS.map(pt=>{
+    const own = c.pets.owned.includes(pt.id), on = c.pets.active===pt.id, n = c.pets.exp[pt.id]||0, lv = petLv(n);
+    const eff = `${pt.desc} +${lv*PET_PER_LV}${pt.unit}`;
+    const left = lv>=PET_MAX ? '최대 레벨' : `다음 레벨까지 ${PET_STEP - n%PET_STEP}개`;
+    const btn = on ? `<button onclick="calSetPet(null)">쉬게 하기</button>` : own ? `<button onclick="calSetPet('${pt.id}')">함께하기</button>` : `<button onclick="calBuyPet('${pt.id}')">🪙${pt.price}</button>`;
+    return `<div class="cal-row"><span style="font-size:24px">${pt.icon}</span><span class="t">${pt.name}${own?` · Lv.${lv}`:''}${on?' · 함께하는 중':''}<div class="s">${own?`${eff} · ${left}`:`${pt.desc} +${PET_PER_LV}${pt.unit} (Lv.1) ~ +${PET_MAX*PET_PER_LV}${pt.unit} (Lv.${PET_MAX})`}</div></span>${btn}</div>`;
   }).join('');
   if(shopTab==='item'){
     const wk = weekKey(todayStr()), used = c.usage.week===wk ? c.usage.n : 0;
@@ -415,7 +433,7 @@ function bagPanel(){
     <div class="cal-row"><span class="t">컨디션 ${tr.name} · ${tr.eff}<div class="s">HP는 매일 정산돼요. 전날 스트레스가 60 이상이면 −20, 30 이상이면 −10, 그 미만이면 +10, 휴식한 날은 +20. 스트레스는 놓친 퀘스트×20 + 오늘 남은 퀘스트×5이고 퀘스트를 끝내면 바로 줄어요.</div></span></div>
     ${rows}
     <div class="cal-row"><span style="font-size:20px">🎁</span><span class="t">황금 보물상자 <b>×${c.chests.golden}</b></span></div>
-    <div class="cal-row"><span class="t">보유 꾸미기<div class="s">테마 ${c.themes.length}/${THEMES.length} · 이펙트 ${c.effects.length}/${EFFECTS.length} · 스킨 ${c.skinOwned.length}/${SKINS.char.length+SKINS.npc.length} · 진행 중 투자 ${inv}건</div></span></div></div>`;
+    <div class="cal-row"><span class="t">보유 꾸미기<div class="s">테마 ${c.themes.length}/${THEMES.length} · 이펙트 ${c.effects.length}/${EFFECTS.length} · 스킨 ${c.skinOwned.length}/${SKINS.char.length} · 펫 ${c.pets.owned.length}/${PETS.length} · 진행 중 투자 ${inv}건</div></span></div></div>`;
 }
 
 // ---- 보물상자 ----
@@ -481,13 +499,12 @@ async function done(msg){ await saveState(); if(msg) toast(msg); renderAll(); re
 function applySkins(){
   if(!state || !state.character) return;
   const c = S();
-  const cs = SKINS.char.find(s=>s.id===c.skinChar), ns = SKINS.npc.find(s=>s.id===c.skinNpc);
+  const cs = SKINS.char.find(s=>s.id===c.skinChar);
   if(cs) document.querySelectorAll('.char-aura').forEach(el=>el.style.setProperty('--class-color', cs.color));
-  if(ns) document.querySelectorAll('.npc-bubble .npc-ic').forEach(el=>{ el.textContent = ns.icon; });
 }
 ['renderCharacterVisual','showNpcBubble','renderHome'].forEach(fn=>{ // 캐릭터/NPC/홈이 다시 그려질 때 스킨·컨디션 표시를 덮어쓴다
   const orig = window[fn];
-  if(typeof orig==='function') window[fn] = function(){ const r = orig.apply(this, arguments); try{ applySkins(); renderHomeCond(); renderDungeonCard(); }catch(e){} return r; };
+  if(typeof orig==='function') window[fn] = function(){ const r = orig.apply(this, arguments); try{ applySkins(); renderHomePet(); renderHomeCond(); renderDungeonCard(); }catch(e){} return r; };
 });
 
 window.calRender = render;
@@ -522,17 +539,47 @@ window.calBuySkin = (kind, id)=>{
   if(!s || c.skinOwned.includes(sid)) return;
   ask(`${s.icon} ${s.name}`, s.price, async ()=>{
     if(!(await pay(s.price, true))) return;
-    c.skinOwned.push(sid); c[kind==='char'?'skinChar':'skinNpc'] = id;
+    c.skinOwned.push(sid); c.skinChar = id;
     await done(`${s.icon} ${s.name}을 적용했어요!`);
   });
 };
 window.calSetSkin = async (kind, id)=>{
   const c = S(); if(id && !c.skinOwned.includes(kind+':'+id)) return;
-  c[kind==='char'?'skinChar':'skinNpc'] = id;
+  c.skinChar = id;
   await saveState(); renderAll(); render();
-  if(!id){ toast('스킨을 해제했어요. 화면을 새로 열면 기본 모습으로 돌아와요.'); if(kind==='npc') document.querySelectorAll('.npc-bubble .npc-ic').forEach(el=>{ el.textContent = '🧙'; }); }
+  if(!id) toast('스킨을 해제했어요. 화면을 새로 열면 기본 모습으로 돌아와요.');
   applySkins();
 };
+window.calBuyPet = (id)=>{
+  const pt = PETS.find(x=>x.id===id), c = S();
+  if(!pt || c.pets.owned.includes(id)) return;
+  ask(`${pt.icon} ${pt.name} 펫`, pt.price, async ()=>{
+    if(!(await pay(pt.price, true))) return;
+    c.pets.owned.push(id); c.pets.active = id;
+    await done(`${pt.name}이(가) 함께하게 됐어요.`);
+  });
+};
+window.calSetPet = async (id)=>{
+  const c = S(); if(id && !c.pets.owned.includes(id)) return;
+  c.pets.active = id;
+  await saveState(); renderAll(); render(); renderHomePet();
+};
+window.petTap = (e)=>{
+  if(e) e.stopPropagation();
+  const pi = petInfo(); if(!pi) return;
+  toast(`${pi.pet.name} Lv.${pi.lv} · ${pi.pet.desc} +${pi.val}${pi.pet.unit}`);
+};
+// 홈 화면: 캐릭터 옆에 함께하는 펫을 보여준다
+function renderHomePet(){
+  const aura = $('home-char-aura');
+  if(!aura || !state || !state.character) return;
+  let el = $('home-pet');
+  const pi = petInfo();
+  if(!pi){ if(el) el.remove(); return; }
+  if(!el){ el = document.createElement('button'); el.id = 'home-pet'; el.className = 'home-pet'; el.setAttribute('aria-label','펫 정보'); el.addEventListener('click', petTap); el.addEventListener('pointerdown', e=>e.stopPropagation()); aura.appendChild(el); }
+  el.innerHTML = `${pi.pet.icon}<small>Lv.${pi.lv}</small>`;
+}
+window.renderHomePet = renderHomePet;
 window.calBuyTicket = (k)=>{
   const t = TICKETS[k], c = S();
   if(!t) return;
@@ -621,6 +668,8 @@ window.calQuestBonus = (q, xp, gold)=>{
   const c = S(), today = todayStr(), notes = [];
   if(dungeonEarn(q)){ notes.push('던전 열쇠 +1'); renderDungeonCard(); }
   worldCount(q, notes);
+  const gp = petPct('gold');
+  if(gp){ bg += Math.round(gold*gp/100); notes.push(`펫 골드 +${gp}%`); }
   const tr = tier();
   if(tr.mult!==1){ bx += Math.round(xp*(tr.mult-1)); bg += Math.round(gold*(tr.mult-1)); notes.push(`컨디션 ${tr.name} ${tr.eff.replace('보상 ','')}`); }
   if(c.boostActive){ bx += Math.round(xp*0.5); bg += Math.round(gold*0.5); c.boostActive = false; notes.push('⚔️ 부스터'); }
@@ -692,10 +741,17 @@ function dg(){
   if(!c.dungeon || c.dungeon.date!==t) c.dungeon = {date:t, floor:0, keys:1, earned:0, earnedIds:{}, hp:null, cleared:false};
   return c.dungeon;
 }
+function petInfo(){
+  const c = S(), pet = PETS.find(x=>x.id===c.pets.active);
+  if(!pet) return null;
+  const n = c.pets.exp[pet.id]||0, lv = petLv(n);
+  return {pet, n, lv, val:lv*PET_PER_LV};
+}
+const petPct = (kind)=>{ const pi = petInfo(); return pi && pi.pet.kind===kind ? pi.val : 0; };
 function pStats(){
   const st = state.stats || {}, lv = Math.floor(state.totalXP/1000)+1, cm = tier().mult;
   const g = (k)=> st[k]||10;
-  return {lv, atk:Math.round((8 + lv*2 + (g('힘')+g('지능'))/2)*cm), maxHp:60 + lv*4 + g('체력')*2, crit:Math.min(0.4, g('민첩')/200), red:Math.min(0.3, g('의지')/300)};
+  return {lv, atk:Math.round((8 + lv*2 + (g('힘')+g('지능'))/2)*cm*(1+petPct('atk')/100)), maxHp:Math.round((60 + lv*4 + g('체력')*2)*(1+petPct('hp')/100)), crit:Math.min(0.4, g('민첩')/200), red:Math.min(0.3, g('의지')/300)};
 }
 function mStats(f, lv){
   const m = DG_MONSTERS[f];
@@ -810,11 +866,20 @@ const regionLv = (n)=> Math.min(REGION_MAX, 1 + Math.floor(n/REGION_STEP));
 let wRegion = '공부', worldPaneName = 'map';
 
 // 퀘스트 완료 시 해당 카테고리 지역 진행도를 올린다 (같은 퀘스트는 하루 1번만 셈)
+function petGrow(notes){
+  const c = S(), id = c.pets.active;
+  if(!id) return;
+  const before = petLv(c.pets.exp[id]||0);
+  c.pets.exp[id] = (c.pets.exp[id]||0) + 1;
+  const after = petLv(c.pets.exp[id]);
+  if(after>before){ const pet = PETS.find(x=>x.id===id); notes.push(`${pet.name} Lv.${after}`); }
+}
 function worldCount(q, notes){
   const w = S().world, t = todayStr();
   if(w.date!==t){ w.date = t; w.counted = {}; }
   if(w.counted[q.id]) return;
   w.counted[q.id] = 1;
+  petGrow(notes);
   const cat = REGION_INFO[q.category] ? q.category : '기타';
   const before = regionLv(w.regions[cat]||0);
   w.regions[cat] = (w.regions[cat]||0) + 1;
@@ -912,5 +977,5 @@ window.calOnQuestChange = ()=>{
   if($('cal-wrap') && !$('screen-calendar').classList.contains('hidden')) render();
 };
 
-try{ applySkins(); renderHomeCond(); renderDungeonCard(); }catch(e){} // 스크립트가 늦게 로드돼 첫 렌더가 이미 끝난 경우를 보정
+try{ applySkins(); renderHomePet(); renderHomeCond(); renderDungeonCard(); }catch(e){} // 스크립트가 늦게 로드돼 첫 렌더가 이미 끝난 경우를 보정
 })();
