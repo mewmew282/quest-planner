@@ -1539,6 +1539,11 @@
     <!-- QUEST LIST -->
     <div class="screen hidden" id="screen-quest">
       <div class="section-head"><h2>전체 퀘스트</h2><span class="meta" id="quest-count-meta"></span></div>
+      <div class="chip-row" id="quest-view-row" style="margin-bottom:10px;">
+        <button class="chip active" data-val="list" onclick="setQuestView('list')">📋 목록</button>
+        <button class="chip" data-val="cal" onclick="setQuestView('cal')">📅 캘린더</button>
+      </div>
+      <div id="cal-wrap" style="display:none"></div>
       <div class="chip-row" id="quest-filter-row" style="margin-bottom:14px;">
         <button class="chip active" data-val="all" onclick="setQuestFilter(this,'all')">전체</button>
         <button class="chip" data-val="운동" onclick="setQuestFilter(this,'운동')">🏃 운동</button>
@@ -2371,6 +2376,7 @@ function defaultState(){
       card:{ lastRewardDate:null, stats:{easy:{played:0,cleared:0}, normal:{played:0,cleared:0}, hard:{played:0,cleared:0}} },
       vault:{ lastRewardDate:null, stats:{played:0, clears:0} },
     },
+    calendar:{ themes:['kingdom'], active:'kingdom', buyDate:null, buyCount:0 }, // 캘린더 테마 보유/적용, 하루 구매 한도 집계
     goldLedger:{ date:null, earned:0, spent:0 }, // 오늘 획득/오늘 사용 골드 (경제 지표, 매일 초기화)
     recentGains:[], // [{icon,label,detail,ts}] 홈 화면 '최근 획득' 표시용, 최대 3개
     npc:{ visitCount:0, lastGreetDate:null, lastZeroGoldDate:null, dawnSeenDate:null, allDoneShownDate:null, lastMarketLineDate:null, blackMarketTapCount:0 },
@@ -2448,6 +2454,8 @@ async function loadState(){
   state.inventory = state.inventory || [];
   state.equipped = Object.assign({weapon:null, armor:null, accessory:null}, state.equipped||{});
   state.goldLedger = Object.assign({date:null, earned:0, spent:0}, state.goldLedger||{});
+  state.calendar = Object.assign(defaultState().calendar, state.calendar||{});
+  if(!state.calendar.themes.includes('kingdom')) state.calendar.themes.push('kingdom');
   state.npc = Object.assign({visitCount:0, lastGreetDate:null, lastZeroGoldDate:null, dawnSeenDate:null, allDoneShownDate:null, lastMarketLineDate:null, blackMarketTapCount:0}, state.npc||{});
   state.jail = Object.assign({active:false, jailedUntil:null, storyStage:0, lastTriggeredTap:0}, state.jail||{});
   state.blackMarketChain = Object.assign({stage:0, expiresAt:0}, state.blackMarketChain||{});
@@ -3109,6 +3117,7 @@ function setQuestFilter(el, cat){
   renderAllQuests();
 }
 function renderAllQuests(){
+  if(window.calRender) calRender(); // 캘린더 보기 (calendar.js)
   const wrap = document.getElementById('all-quest-list');
   wrap.innerHTML='';
   let list = [...state.quests].reverse();
@@ -6136,5 +6145,6 @@ async function init(){
 init();
 </script>
 <script src="social.js"></script>
+<script src="calendar.js"></script>
 </body>
 </html>

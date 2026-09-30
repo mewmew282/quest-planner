@@ -1,8 +1,9 @@
-const CACHE_NAME = 'quest-planner-v3';
+const CACHE_NAME = 'quest-planner-v4';
 const ASSETS = [
   './index.html',
   './manifest.json',
   './social.js',
+  './calendar.js',
   './icons/icon-192.png',
   './icons/icon-512.png'
 ];
