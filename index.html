@@ -6205,5 +6205,123 @@ init();
 </script>
 <script src="social.js?v=20261001-1"></script>
 <script src="calendar.js?v=20261001-1"></script>
+<script>
+/* ===================== 개발자 전용 테스트 패널 (?dev=1 로만 활성화, 일반 사용자에게는 영향 없음) ===================== */
+(function(){
+  if(!/(?:^|[?&])dev=1(?:&|$)/.test(location.search)) return;
+
+  const errors = [];
+  function logErr(s){
+    errors.push(s);
+    const el = document.getElementById('dev-err-log');
+    if(el){ el.textContent = errors.slice(-60).join('\n'); el.scrollTop = el.scrollHeight; }
+  }
+  window.addEventListener('error', (e)=>logErr('❌ '+e.message+(e.filename?` (${e.filename.split('/').pop()}:${e.lineno})`:'')));
+  window.addEventListener('unhandledrejection', (e)=>logErr('❌ unhandled: '+(e.reason&&e.reason.message||e.reason)));
+  const origConsoleError = console.error.bind(console);
+  console.error = (...a)=>{ logErr('⚠️ '+a.map(String).join(' ')); origConsoleError(...a); };
+
+  // 암시장은 실제로 월/수/금 저녁에만 열리는 시간제 기능이라, 평소에는 getMarketStatus()가
+  // 'none'/'before'/'after'를 돌려줘 openBlackMarket() 등이 토스트만 띄우고 끝난다.
+  // 디버그에서는 이 함수를 항상 'open'을 돌려주도록 바꿔서 요일/시간과 무관하게 열어본다.
+  let realGetMarketStatus = null;
+  function forceMarketOpen(){
+    if(!realGetMarketStatus) realGetMarketStatus = window.getMarketStatus;
+    window.getMarketStatus = ()=>({ phase:'open', openMinute:0, closeMinute:1440, minutesLeft:999 });
+  }
+  window.forceMarketOpen = forceMarketOpen; // devtools/테스트 스크립트에서도 바로 쓸 수 있도록 전역 노출
+
+  function seedDevData(){
+    if(!state.character){
+      const nickEl = document.getElementById('ob-nickname');
+      if(nickEl) nickEl.value = 'DEV테스터';
+      selectedClass = Object.keys(CLASSES)[0];
+      createCharacter();
+    }
+    state.gold = Math.max(state.gold, 5000);
+    state.totalXP = Math.max(state.totalXP, 2500);
+    if(state.quests.length===0){
+      state.quests.push({ id:'dev_q1', title:'개발용 샘플 퀘스트', type:'daily', category:'생활', difficulty:'easy', xp:50, gold:10, status:'active', weekdays:[0,1,2,3,4,5,6] });
+    }
+    ['wpn_iron','arm_leather'].forEach((id)=>{ if(!state.inventory.includes(id)) state.inventory.push(id); });
+    saveState();
+    renderAll();
+    toast('🛠 개발용 데이터 주입 완료');
+  }
+  window.seedDevData = seedDevData;
+
+  const TABS = ['home','quest','calendar','character','growth','shop','world','explore','settings','social'];
+  const MODALS = [
+    ['퀘스트 추가 시트', ()=>openAddSheet()],
+    ['퀘스트 수정 시트', ()=>{ const q=state.quests[0]; if(q) openEditQuest(q.id); else toast('퀘스트가 없어요 (먼저 데이터 주입)'); }],
+    ['동전도감', ()=>openCoinDex()],
+    ['동전 교환', ()=>openCoinExchange()],
+    ['장비함', ()=>openEquip()],
+    ['장비 선택(무기)', ()=>openEquipPicker('weapon')],
+    ['상점', ()=>openShop()],
+    ['암시장 · 상점', ()=>{ forceMarketOpen(); openBlackMarket('shop'); }],
+    ['암시장 · 결투장', ()=>{ forceMarketOpen(); openBlackMarket('duel'); }],
+    ['암시장 · 홀짝', ()=>{ forceMarketOpen(); openBlackMarket('game'); openMiniGame('evenOdd'); }],
+    ['암시장 · 슬롯머신', ()=>{ forceMarketOpen(); openBlackMarket('game'); openMiniGame('slot'); }],
+    ['암시장 · 야바위', ()=>{ forceMarketOpen(); openBlackMarket('game'); openMiniGame('shell'); }],
+    ['데일리미니게임 · 카드', ()=>openDailyMiniGame('card')],
+    ['데일리미니게임 · 금고', ()=>openDailyMiniGame('vault')],
+    ['업적도감', ()=>openAchievementDex()],
+    ['업적 상세', ()=>{ const a=ACHIEVEMENTS[0]; if(a) openAchievementDetail(a.id); }],
+    ['탐험 타임라인', ()=>openExploreTimeline()],
+    ['감옥', ()=>openJailModal()],
+    ['백업 복원 확인', ()=>openBackupImportConfirm({ character:{nickname:'백업테스트'}, totalXP:1000 })],
+    ['되돌리기 확인', ()=>openRegressConfirm()],
+  ];
+
+  function build(){
+    const fab = document.createElement('div');
+    fab.id = 'dev-fab'; fab.textContent = '🛠';
+    Object.assign(fab.style, { position:'fixed', left:'10px', bottom:'70px', zIndex:99999, width:'44px', height:'44px', borderRadius:'50%', background:'#ff4d4f', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'20px', cursor:'pointer', boxShadow:'0 2px 8px rgba(0,0,0,.4)' });
+
+    const panel = document.createElement('div');
+    panel.id = 'dev-panel';
+    Object.assign(panel.style, { position:'fixed', left:'10px', bottom:'120px', zIndex:99999, width:'min(320px, calc(100vw - 20px))', maxHeight:'70vh', overflowY:'auto', background:'#1a1a2e', color:'#eee', border:'1px solid #ff4d4f', borderRadius:'10px', padding:'10px', fontSize:'12px', display:'none' });
+
+    function section(title){ const h=document.createElement('div'); h.textContent=title; h.style.cssText='margin:8px 0 4px;font-weight:bold;color:#ffb3b3;'; panel.appendChild(h); }
+    function row(label, fn){
+      const b = document.createElement('button');
+      b.textContent = label;
+      b.style.cssText = 'display:block;width:100%;text-align:left;padding:5px 6px;margin:2px 0;background:#2a2a40;color:#eee;border:1px solid #444;border-radius:6px;cursor:pointer;font-size:11px;';
+      b.onclick = (e)=>{ e.stopPropagation(); try{ fn(); }catch(err){ logErr('❌ '+label+': '+err.message); } panel.style.display='none'; };
+      panel.appendChild(b);
+    }
+
+    section('빠른 설정');
+    row('🌱 개발용 데이터 주입', seedDevData);
+    row('🔄 상태 초기화 후 새로고침', ()=>{ localStorage.removeItem(STORAGE_KEY); location.reload(); });
+    row('🌙 암시장 강제 오픈(요일/시간 무시)', ()=>{ forceMarketOpen(); toast('암시장이 강제로 열렸어요. 홈 화면의 암시장 카드로도 들어가 보세요.'); renderAll(); });
+
+    section('탭 이동');
+    TABS.forEach((t)=>row(t, ()=>switchTab(t)));
+
+    section('모달 / 화면 열기');
+    MODALS.forEach(([label, fn])=>row(label, fn));
+
+    section('에러 로그 (window.onerror · console.error)');
+    const log = document.createElement('pre');
+    log.id = 'dev-err-log';
+    log.style.cssText = 'background:#000;color:#ff8080;padding:6px;border-radius:6px;max-height:140px;overflow:auto;white-space:pre-wrap;font-size:10px;margin:0 0 4px;';
+    log.textContent = '(없음)';
+    panel.appendChild(log);
+    const clearBtn = document.createElement('button');
+    clearBtn.textContent = '로그 지우기';
+    clearBtn.style.cssText = 'padding:4px 8px;background:#333;color:#eee;border:1px solid #555;border-radius:6px;cursor:pointer;font-size:11px;';
+    clearBtn.onclick = ()=>{ errors.length = 0; log.textContent = '(없음)'; };
+    panel.appendChild(clearBtn);
+
+    fab.onclick = ()=>{ panel.style.display = panel.style.display==='none' ? 'block' : 'none'; };
+    document.body.appendChild(fab);
+    document.body.appendChild(panel);
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', build); else build();
+})();
+</script>
 </body>
 </html>
