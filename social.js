@@ -104,7 +104,7 @@ async function openProfile(nick){
   }
 }
 const clsIcon = (c)=> (typeof CLASSES!=="undefined" && CLASSES[c] && CLASSES[c].icon) || '🧑';
-const esc = (s)=> escapeHtml(String(s));
+const esc = (s)=> String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
 /* ---------- 프로필 공유 (랭킹을 보는 모든 사용자에게 공개, 끄면 서버에서 지움) ---------- */
 const shareOn = ()=> localStorage.getItem('qp_prof_off')!=='1';
@@ -135,15 +135,18 @@ function queueQuestSync(){ // saveState()가 호출될 때마다 불려서, 편�
 }
 window.queueQuestSync = queueQuestSync;
 let lastPushedQuestsAt = null; // saveState()는 퀘스트와 무관한 변화에도 자주 불리므로, 실제로 바뀐 시점에만 전송한다
+let syncHold = false; // 서버에서 퀘스트를 가져오는 동안에는 올리지 않는다
 function pushQuests(){
-  if(!token || !state.character) return Promise.resolve();
-  const updatedAt = state.questsUpdatedAt || Date.now();
+  if(!token || !state.character || syncHold) return Promise.resolve();
+  if(!state.questsUpdatedAt) state.questsUpdatedAt = Date.now(); // 옛 저장본(0)은 한 번만 시각을 매긴다 (매번 새 시각이면 60초마다 서버를 덮어씀)
+  const updatedAt = state.questsUpdatedAt;
   if(updatedAt === lastPushedQuestsAt) return Promise.resolve();
   return api('/quests', {method:'PUT', body:{quests:state.quests, updatedAt}})
     .then(()=>{ lastPushedQuestsAt = updatedAt; }).catch(()=>{});
 }
 async function pullQuestsIfNewer(){ // 로그인 직후 / 앱 시작 시: 서버가 더 최신이면 가져오고, 아니면 이 기기 것을 올린다
   if(!token) return;
+  syncHold = true; let needPush = false;
   try{
     const d = await api('/quests');
     if(d.updatedAt > (state.questsUpdatedAt||0)){
@@ -154,14 +157,26 @@ async function pullQuestsIfNewer(){ // 로그인 직후 / 앱 시작 시: 서버
       if(typeof renderAll === 'function') renderAll();
       toast('다른 기기의 퀘스트를 불러왔어요');
     } else if(state.quests && state.quests.length){
-      pushQuests();
+      needPush = true;
     }
   }catch(e){}
+  finally{ syncHold = false; }
+  if(needPush) pushQuests();
 }
 
 function logout(){
   token = myNick = null; localStorage.removeItem('qp_token'); localStorage.removeItem('qp_nick');
+  lastPushedQuestsAt = null; // 다음 로그인 때 새로 판단한다
   stopPoll(); render();
+}
+// 다른 계정으로 로그인하면 이 기기의 퀘스트 목록을 이전 계정용으로 보관하고, 새 계정의 것(보관해 둔 것 또는 서버 것)으로 바꾼다
+function switchAccountQuests(prev, next){
+  try{
+    localStorage.setItem('qp_stash_'+prev.toLowerCase(), JSON.stringify({quests:state.quests||[], at:state.questsUpdatedAt||0}));
+    const st = JSON.parse(localStorage.getItem('qp_stash_'+next.toLowerCase())||'null');
+    state.quests = st ? st.quests : []; state.questsUpdatedAt = st ? st.at : 0; lastPushedQuestsAt = null;
+    toast(`${next} 계정의 퀘스트로 바꿨어요. 이전 계정의 퀘스트는 보관돼 있어요.`);
+  }catch(e){}
 }
 function stopPoll(){ clearInterval(pollTimer); pollTimer = null; }
 
@@ -182,7 +197,10 @@ function renderLogin(msg){
       const d = await api(path, {method:'POST', body:{nick:$('soc-nick').value, pw:$('soc-pw').value}});
       token = d.token; myNick = d.me.nick;
       localStorage.setItem('qp_token', token); localStorage.setItem('qp_nick', myNick);
-      await pullQuestsIfNewer(); await syncScore(); resubscribeIfAllowed(); view = 'rank'; render();
+      const prevNick = localStorage.getItem('qp_sync_nick');
+      if(prevNick && prevNick.toLowerCase()!==myNick.toLowerCase()){ syncHold = true; switchAccountQuests(prevNick, myNick); }
+      localStorage.setItem('qp_sync_nick', myNick);
+      await pullQuestsIfNewer(); if(typeof renderAll==='function') renderAll(); await syncScore(); resubscribeIfAllowed(); view = 'rank'; render();
     }catch(e){ err.textContent = e.message; btns.forEach(b=>b.disabled=false); }
   };
   $('soc-login').onclick = ()=>go('/login'); $('soc-reg').onclick = ()=>go('/register');
@@ -256,6 +274,8 @@ async function renderChat(){
   $('soc-sendbtn').onclick = send;
   inp.onkeydown = (e)=>{ if(e.key==='Enter' && !e.isComposing && e.keyCode!==229){ e.preventDefault(); send(); } };
   await poll();
+  if(view!=='chat' || !$('soc-log')) return; // 첫 응답을 기다리는 사이 화면을 떠났으면 타이머를 만들지 않는다
+  stopPoll();
   pollTimer = setInterval(()=>{ if(!document.hidden && !sc.classList.contains('hidden')) poll(); }, 2500);
 }
 function addBubble(m, cls=''){
@@ -286,7 +306,8 @@ async function poll(){
     const load = $('soc-load'); if(load && !list.length) load.remove();
     for(const m of list){
       lastMsgId = m.id;
-      if(seen.has(m.id) || (m.mine && pendingCount())) continue; // 내가 방금 보낸 건 이미 화면에 있음
+      if(seen.has(m.id)) continue;
+      if(m.mine){ const pend = [...sc.querySelectorAll('.soc-msg.pending')].find(b=>b.textContent===m.text); if(pend) continue; } // 내가 방금 보낸 건 이미 화면에 있음 (같은 내용의 대기 중 말풍선이 있을 때만)
       seen.add(m.id); addBubble(m);
     }
   }catch(e){ const load = $('soc-load'); if(load) load.textContent = '서버를 깨우는 중이에요… 잠시만요'; } // 일시 오류는 조용히 재시도

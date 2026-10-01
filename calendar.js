@@ -89,7 +89,9 @@ function S(){
   fill(c,'usage',{}); fill(c.usage,'week',null); fill(c.usage,'n',0);
   fill(c,'moved',{}); fill(c,'revived',{}); fill(c,'invest',{});
   fill(c,'chests',{}); fill(c.chests,'normal',0); fill(c.chests,'golden',0);
-  fill(c,'clearDays',{}); fill(c,'monthClaimed',null); fill(c,'dungeon',null);
+  fill(c,'clearDays',{}); fill(c,'monthClaimed',null); fill(c,'monthsClaimed',{});
+  if(c.monthClaimed){ c.monthsClaimed[c.monthClaimed] = true; c.monthClaimed = null; } // 이전의 '마지막 수령 달' 하나 -> 달별 기록
+  fill(c,'dungeon',null);
   fill(c,'world',{}); fill(c.world,'regions',{}); fill(c.world,'counted',{}); fill(c.world,'date',null);
   fill(c,'restDays',{}); fill(c,'boostActive',false);
   fill(c,'cond',{}); fill(c.cond,'hp',100); fill(c.cond,'date',null); fill(c.cond,'dayStress',0); fill(c.cond,'relief',0);
@@ -498,7 +500,7 @@ function monthKey(){ return `${ym.y}-${pad(ym.m+1)}`; }
 function monthClears(){ const c = S(), k = monthKey(); return Object.keys(c.clearDays).filter(d=>d.startsWith(k)).length; }
 function chestPanel(){
   const c = S(), mc = monthClears();
-  const claimed = c.monthClaimed===monthKey(), ready = mc>=MONTH_CLEAR_GOAL && !claimed;
+  const claimed = !!c.monthsClaimed[monthKey()], ready = mc>=MONTH_CLEAR_GOAL && !claimed;
   return `<div class="cal-panel"><h3>📦 보물상자</h3>
     <div class="cal-row"><span style="font-size:20px">🎁</span><span class="t">일반 보물상자 <b>×${c.chests.normal}</b><div class="s">오늘의 던전 보스를 쓰러뜨리면 1개 (무료)</div></span><button ${c.chests.normal?'':'disabled'} onclick="calOpenChest('normal')">열기</button></div>
     ${c.chests.golden?`<div class="cal-row"><span style="font-size:20px">🔒</span><span class="t">황금 보물상자 <b>×${c.chests.golden}</b><div class="s">투자 보상으로 받은 상자</div></span><button onclick="calOpenChest('golden')">열기</button></div>`:''}
@@ -823,7 +825,7 @@ window.calBuyChest = ()=>{
 };
 window.calClaimMonth = async ()=>{
   const c = S(), k = monthKey();
-  if(c.monthClaimed===k || monthClears()<MONTH_CLEAR_GOAL) return;
+  if(c.monthsClaimed[k] || monthClears()<MONTH_CLEAR_GOAL) return;
   const pool = [...THEMES.filter(t=>t.price>0 && !c.themes.includes(t.id)).map(t=>({kind:'theme',o:t})), ...EFFECTS.filter(e=>!c.effects.includes(e.id)).map(e=>({kind:'fx',o:e}))];
   let text;
   if(pool.length){
@@ -831,7 +833,7 @@ window.calClaimMonth = async ()=>{
     if(p.kind==='theme'){ c.themes.push(p.o.id); c.active = p.o.id; } else { c.effects.push(p.o.id); c.fxOn.push(p.o.id); }
     text = `${p.o.icon} ${p.o.name} ${p.kind==='theme'?'테마':'이펙트'}`;
   } else { state.gold += 300; trackGold(300); text = '+300G'; }
-  c.monthClaimed = k;
+  c.monthsClaimed[k] = true;
   if(window.logGain) logGain('👑', '월간 보물상자', text);
   await done(`👑 월간 보물상자: ${text}`);
 };
@@ -1023,7 +1025,7 @@ function journey(){
   for(let i=0;i<goal;i++){ const row = i<5?0:1, col = row===0 ? i : 9-i; pts.push([34+col*68, row===0?36:110]); }
   const boss = [34, 186];
   const line = pts.map(p=>p.join(',')).join(' ') + ' ' + boss.join(',');
-  const claimed = c.monthClaimed===k, ready = lit>=goal && !claimed;
+  const claimed = !!c.monthsClaimed[k], ready = lit>=goal && !claimed;
   const nodes = pts.map((p,i)=>{
     const on = i<lit;
     return `<circle cx="${p[0]}" cy="${p[1]}" r="14" style="fill:${on?'var(--ca)':'var(--cb)'};stroke:var(--${on?'ca':'cl'})" stroke-width="2"/><text x="${p[0]}" y="${p[1]+4}" text-anchor="middle" font-size="11" font-weight="700" style="fill:${on?'#1B1300':'var(--text-faint)'}">${on?Number(days[i].slice(8)):'·'}</text>`;
@@ -1057,7 +1059,7 @@ window.worldSel = (cat)=>{ wRegion = cat; renderWorld(); };
 window.worldMove = (dm)=>{ const d = new Date(ym.y, ym.m+dm, 1); ym = {y:d.getFullYear(), m:d.getMonth()}; renderWorld(); };
 window.worldBoss = ()=>{
   const c = S(), k = monthKey();
-  if(c.monthClaimed===k){ toast('이번 달 보상은 이미 받았어요.'); return; }
+  if(c.monthsClaimed[k]){ toast('이 달의 보상은 이미 받았어요.'); return; }
   if(monthClears()<MONTH_CLEAR_GOAL){ toast(`던전을 ${MONTH_CLEAR_GOAL}일 클리어하면 열려요. (${monthClears()}/${MONTH_CLEAR_GOAL})`); return; }
   calClaimMonth().then(()=>renderWorld());
 };

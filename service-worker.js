@@ -37,11 +37,18 @@ self.addEventListener('fetch', (event) => {
         .then((networkRes) => {
           if (networkRes && networkRes.ok) {
             const clone = networkRes.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+            caches.open(CACHE_NAME).then(async (cache) => {
+              await cache.put(event.request, clone);
+              // 같은 파일의 다른 버전(?v=...)은 지운다: 오프라인에서 옛 버전이 나가거나 캐시가 계속 늘어나지 않게
+              const keys = await cache.keys();
+              await Promise.all(keys.filter((k) => { const u = new URL(k.url); return u.pathname === url.pathname && u.search !== url.search; }).map((k) => cache.delete(k)));
+            }).catch(() => {});
           }
           return networkRes;
         })
-        .catch(() => caches.match(event.request, { ignoreSearch: true }).then((c) => c || caches.match('./index.html')))
+        .catch(() => caches.match(event.request)
+          .then((c) => c || caches.match(event.request, { ignoreSearch: true }))
+          .then((c) => c || (event.request.mode === 'navigate' ? caches.match('./index.html') : Response.error())))
     );
     return;
   }

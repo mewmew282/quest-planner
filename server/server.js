@@ -15,7 +15,7 @@ webpush.setVapidDetails('mailto:noreply@quest-planner.invalid', VAPID_PUBLIC, VA
 const app = express();
 app.set('trust proxy', 1);
 app.use(cors({ origin: ALLOWED_ORIGINS.split(',') }));
-app.use(express.json({ limit: '256kb' })); // 퀘스트 동기화 페이로드를 담기 위해 여유를 둠
+app.use(express.json({ limit: '1mb' })); // 퀘스트 동기화 페이로드(최대 1000개)를 담기 위해 여유를 둠
 
 const levelOf = (xp) => Math.floor(xp / 1000) + 1;
 const pub = (u) => ({ nick: u.nick, xp: u.xp, level: levelOf(u.xp), cls: u.cls });
@@ -42,13 +42,16 @@ const auth = (req, res, next) => {
 const token = (u) => jwt.sign({ uid: u._id.toString() }, JWT_SECRET, { expiresIn: '60d' });
 const byNick = (n) => users.findOne({ nk: String(n || '').trim().toLowerCase() });
 
+// 알림은 보내기만 하고 기다리지 않으므로, 어떤 오류도 밖으로 새지 않게 모두 잡는다 (처리하지 않은 Promise 거부는 서버를 종료시킨다)
 async function notify(userId, payload) {
-  const u = await users.findOne({ _id: userId }, { projection: { push: 1 } });
-  for (const sub of (u && u.push) || []) {
-    webpush.sendNotification(sub, JSON.stringify(payload), { TTL: 3600, urgency: 'high' }).catch((e) => {
-      if (e.statusCode === 404 || e.statusCode === 410) users.updateOne({ _id: userId }, { $pull: { push: { endpoint: sub.endpoint } } });
-    });
-  }
+  try {
+    const u = await users.findOne({ _id: userId }, { projection: { push: 1 } });
+    for (const sub of (u && u.push) || []) {
+      webpush.sendNotification(sub, JSON.stringify(payload), { TTL: 3600, urgency: 'high' }).catch((e) => {
+        if (e && (e.statusCode === 404 || e.statusCode === 410)) users.updateOne({ _id: userId }, { $pull: { push: { endpoint: sub.endpoint } } }).catch(() => {});
+      });
+    }
+  } catch (e) { console.error('notify failed', e && e.message); }
 }
 
 app.get('/health', (_, res) => res.send('ok'));
@@ -64,6 +67,7 @@ async function credentials(req, res) {
 }
 app.post('/api/register', wrap(async (req, res) => {
   const c = await credentials(req, res); if (!c) return;
+  if (/[<>"'&`\\\u0000-\u001f]/.test(c.nick)) return bad(res, '닉네임에 쓸 수 없는 문자가 있어요');
   const doc = { nick: c.nick, nk: c.nick.toLowerCase(), hash: await bcrypt.hash(c.pw, 10), xp: 0, cls: '',
     friends: [], reqIn: [], reqOut: [], push: [], at: new Date() };
   try { doc._id = (await users.insertOne(doc)).insertedId; }
@@ -81,7 +85,7 @@ app.post('/api/login', wrap(async (req, res) => {
 // ponytail: same trust model as the score endpoint above -- fields are sanitized/
 // truncated but not deeply verified. Fine for a personal/friends planner.
 function sanitizeQuests(arr) {
-  if (!Array.isArray(arr) || arr.length > 300) return null;
+  if (!Array.isArray(arr) || arr.length > 1000) return null;
   const out = [];
   for (const q of arr) {
     if (!q || typeof q !== 'object' || !q.id) continue;
@@ -110,7 +114,9 @@ app.get('/api/quests', auth, wrap(async (req, res) => {
 app.put('/api/quests', auth, wrap(async (req, res) => {
   const quests = sanitizeQuests(req.body.quests);
   if (!quests) return bad(res, '잘못된 퀘스트 데이터');
-  await users.updateOne({ _id: req.uid }, { $set: { quests, questsAt: new Date(Number(req.body.updatedAt) || Date.now()) } });
+  // 기기 시계가 크게 앞서 있어도 항상 이기지 않도록, 미래 시각은 내일까지로 제한한다
+  const at = Math.max(0, Math.min(Date.now() + 86400e3, Number(req.body.updatedAt) || Date.now()));
+  await users.updateOne({ _id: req.uid }, { $set: { quests, questsAt: new Date(at) } });
   res.json({ ok: true });
 }));
 
@@ -241,15 +247,23 @@ app.get('/api/msgs', auth, wrap(async (req, res) => {
   if (req.query.after) { try { q._id = { $gt: new ObjectId(String(req.query.after)) }; } catch { return bad(res, '잘못된 값'); } }
   let list = await msgs.find(q).sort({ _id: req.query.after ? 1 : -1 }).limit(req.query.after ? 100 : 50).toArray();
   if (!req.query.after) list.reverse();
-  msgs.updateMany({ from: f.t._id, to: req.uid, read: false }, { $set: { read: true } });
+  msgs.updateMany({ from: f.t._id, to: req.uid, read: false }, { $set: { read: true } }).catch(() => {});
   res.json(list.map((m) => ({ id: m._id, mine: m.from.equals(req.uid), text: m.text, at: m.at })));
 }));
 
 // ---- 푸시 구독 ----
+// 서버가 이 주소로 요청을 보내므로, 알려진 브라우저 푸시 서비스만 허용한다 (임의 주소로의 요청 방지)
+const PUSH_HOSTS = [/(^|\.)fcm\.googleapis\.com$/, /(^|\.)push\.services\.mozilla\.com$/, /(^|\.)notify\.windows\.com$/, /(^|\.)push\.apple\.com$/];
+function isPushHost(endpoint) {
+  try { const u = new URL(endpoint); return u.protocol === 'https:' && !u.port && PUSH_HOSTS.some((re) => re.test(u.hostname)); } catch { return false; }
+}
 app.post('/api/push', auth, wrap(async (req, res) => {
   const s = req.body.sub;
   if (!s || typeof s.endpoint !== 'string' || !s.endpoint.startsWith('https://') || !s.keys) return bad(res, '잘못된 구독');
+  if (!isPushHost(s.endpoint)) return bad(res, '지원하지 않는 푸시 서비스예요');
   const sub = { endpoint: s.endpoint, keys: { p256dh: String(s.keys.p256dh), auth: String(s.keys.auth) } };
+  // 같은 기기 구독이 다른 계정에 남아 있으면 그 계정의 알림이 계속 오므로 먼저 지운다
+  await users.updateMany({ _id: { $ne: req.uid } }, { $pull: { push: { endpoint: sub.endpoint } } });
   await users.updateOne({ _id: req.uid }, { $pull: { push: { endpoint: sub.endpoint } } });
   await users.updateOne({ _id: req.uid }, { $push: { push: { $each: [sub], $slice: -5 } } });
   res.json({ ok: true });

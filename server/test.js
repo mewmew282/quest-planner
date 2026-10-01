@@ -59,7 +59,12 @@ const call = async (path, { method = 'GET', body, tok } = {}) => {
 
   // 푸시 구독 저장
   assert.equal((await call('/push', { method: 'POST', tok: a, body: { sub: { endpoint: 'http://bad', keys: {} } } })).status, 400, 'reject non-https endpoint');
-  assert.equal((await call('/push', { method: 'POST', tok: a, body: { sub: { endpoint: 'https://push.example/abc', keys: { p256dh: 'k', auth: 'a' } } } })).status, 200);
+  assert.equal((await call('/push', { method: 'POST', tok: a, body: { sub: { endpoint: 'https://internal.service/abc', keys: { p256dh: 'k', auth: 'a' } } } })).status, 400, '알려지지 않은 주소(SSRF) 거부');
+  assert.equal((await call('/push', { method: 'POST', tok: a, body: { sub: { endpoint: 'https://fcm.googleapis.com.evil.example/x', keys: { p256dh: 'k', auth: 'a' } } } })).status, 400, '비슷한 이름의 가짜 주소 거부');
+  assert.equal((await call('/push', { method: 'POST', tok: a, body: { sub: { endpoint: 'https://fcm.googleapis.com/fcm/send/abc', keys: { p256dh: 'k', auth: 'a' } } } })).status, 200);
+  assert.equal((await call('/push', { method: 'POST', tok: b, body: { sub: { endpoint: 'https://fcm.googleapis.com/fcm/send/abc', keys: { p256dh: 'k', auth: 'a' } } } })).status, 200, '같은 기기를 다른 계정이 구독');
+  const mc = await MongoClient.connect(URI); const pushOf = async (nick) => (await mc.db(DB).collection('users').findOne({ nick })).push.length; // 같은 구독은 한 계정에만 남는다
+  assert.equal(await pushOf('Alice'), 0, '이전 계정의 구독은 정리됨'); assert.equal(await pushOf('Bob'), 1); await mc.close();
   assert.equal((await call('/vapid')).data.key, vapid.publicKey);
 
   // 퀘스트 동기화
@@ -77,6 +82,15 @@ const call = async (path, { method = 'GET', body, tok } = {}) => {
   assert.equal(saved.quests[1].gold, 0, 'gold 음수는 0으로 clamp');
   assert.equal(saved.updatedAt, 1234, 'updatedAt 반영');
   assert.equal((await call('/quests', { method: 'PUT', tok: b })).status, 400, 'quests 배열 없으면 거부');
+  const d = (await call('/register', { method: 'POST', body: { nick: 'Dave', pw: 'secret4' } })).data.token; // 대량 저장 시험용 별도 사용자
+  const many = (n) => Array.from({ length: n }, (_, i) => ({ id: 'm' + i, title: '긴 한글 제목 '.repeat(8), type: 'daily', category: '공부', difficulty: 'easy', xp: 5, gold: 1, status: 'active' }));
+  assert.equal((await call('/quests', { method: 'PUT', tok: d, body: { quests: many(400), updatedAt: 1 } })).status, 200, '300개를 넘어도 저장(최대 1000개, 큰 한글 제목도 본문 제한 안)');
+  assert.equal((await call('/quests', { tok: d })).data.quests.length, 400);
+  assert.equal((await call('/quests', { method: 'PUT', tok: d, body: { quests: many(1001), updatedAt: 1 } })).status, 400, '1000개 초과는 거부');
+  await call('/quests', { method: 'PUT', tok: d, body: { quests: many(1), updatedAt: 9e15 } });
+  assert((await call('/quests', { tok: d })).data.updatedAt <= Date.now() + 86400e3 + 5000, '먼 미래 시각은 내일로 제한');
+  assert.equal((await call('/register', { method: 'POST', body: { nick: 'a"onclick=x', pw: 'secret9' } })).status, 400, '닉네임의 따옴표·꺾쇠 거부');
+  assert.equal((await call('/register', { method: 'POST', body: { nick: '<b>hi', pw: 'secret9' } })).status, 400, '닉네임의 HTML 문자 거부');
   assert.equal((await call('/quests', { tok: c })).data.quests.length, 0, '다른 유저 데이터는 분리됨');
 
   // 프로필 (랭킹 전체 공개)
