@@ -6274,6 +6274,35 @@ init();
     ['되돌리기 확인', ()=>openRegressConfirm()],
   ];
 
+  // ACHIEVEMENTS의 secret:true 항목 = 이스터에그 전체. unlockEaster()는 한 번 달성하면 다시 안 뜨므로,
+  // 미리보기에서는 매번 unlockedAchv에서 지운 뒤 다시 달성시켜 몇 번이고 재생해 볼 수 있게 한다.
+  const EASTER_EGGS = (typeof ACHIEVEMENTS!=='undefined' ? ACHIEVEMENTS.filter((a)=>a.secret) : []).map((a)=>[
+    `${a.icon} ${a.name}`,
+    ()=>{ state.unlockedAchv = state.unlockedAchv.filter((id)=>id!==a.id); unlockEaster(a.id, a.desc, a.reward); },
+  ]);
+  EASTER_EGGS.push(
+    ['👻 숨은 NPC 조우 (홈 캐릭터 꾹 누르기)', ()=>{ state.unlockedAchv = state.unlockedAchv.filter((id)=>id!=='hidden_npc'); switchTab('home'); triggerHiddenNpc(); }],
+    ['💻 가짜 시스템 오류 (Lv뱃지 연타)', ()=>{ state.unlockedAchv = state.unlockedAchv.filter((id)=>id!=='fake_error'); triggerFakeError(); }],
+    ['🕳️ 검은 의뢰(미스터리 퀘스트) 등장', ()=>{ state.easter.mysteryQuestSeen = false; state.unlockedAchv = state.unlockedAchv.filter((id)=>id!=='mystery_quest'); triggerMysteryQuest(); }],
+    ['🕳️ 암시장 지하 2층 입장', ()=>{ state.easter.undergroundUnlocked = true; state.easter.undergroundSeen = false; state.unlockedAchv = state.unlockedAchv.filter((id)=>id!=='underground_2f'); forceMarketOpen(); openBlackMarket('shop'); enterUnderground(); }],
+  );
+
+  const ANIMATIONS = [
+    ['🎉 퀘스트 클리어 연출', ()=>showClearFx('미리보기 퀘스트', 50, 10, { stat:'힘', amt:3 })],
+    ['⬆️ 레벨업 연출', ()=>showLevelUpFx(levelFromXP(state.totalXP), levelFromXP(state.totalXP)+1)],
+    ['🪙 동전 획득 연출 (신규)', ()=>showCoinFx(COIN_TYPES[Math.floor(Math.random()*COIN_TYPES.length)], true)],
+    ['✨ 파티클 - 일반', ()=>cinematicFX('normal')],
+    ['✨ 파티클 - 시크릿', ()=>cinematicFX('secret')],
+    ['✨ 파티클 - 레벨업', ()=>cinematicFX('levelup')],
+    ['⚔️ 결투 연출 (승리)', ()=>{ forceMarketOpen(); openBlackMarket('duel'); bmSelectedOpponent=DUEL_OPPONENTS[0].id; bmSelectedBet=100; playDuelFx(DUEL_OPPONENTS[0], true); }],
+    ['⚔️ 결투 연출 (패배)', ()=>{ forceMarketOpen(); openBlackMarket('duel'); bmSelectedOpponent=DUEL_OPPONENTS[0].id; bmSelectedBet=100; playDuelFx(DUEL_OPPONENTS[0], false); }],
+    ['🎰 슬롯머신 잭팟 연출', ()=>triggerSlotJackpotCelebration(50, 1000)],
+    ['🚔 암시장 단속(체포) 연출', ()=>playBlackMarketArrestAnimation(()=>{})],
+    ['🌧️ 탐험 날씨 연출 - 비', ()=>{ switchTab('world'); worldPane('explore'); renderWeatherFx('rain'); }],
+    ['❄️ 탐험 날씨 연출 - 눈', ()=>{ switchTab('world'); worldPane('explore'); renderWeatherFx('snow'); }],
+    ['⛈️ 탐험 날씨 연출 - 뇌우', ()=>{ switchTab('world'); worldPane('explore'); renderWeatherFx('storm'); }],
+  ];
+
   function build(){
     const fab = document.createElement('div');
     fab.id = 'dev-fab'; fab.textContent = '🛠';
@@ -6302,6 +6331,12 @@ init();
 
     section('모달 / 화면 열기');
     MODALS.forEach(([label, fn])=>row(label, fn));
+
+    section('이스터에그 (몇 번이고 다시 재생 가능)');
+    EASTER_EGGS.forEach(([label, fn])=>row(label, fn));
+
+    section('애니메이션 미리보기');
+    ANIMATIONS.forEach(([label, fn])=>row(label, fn));
 
     section('에러 로그 (window.onerror · console.error)');
     const log = document.createElement('pre');
