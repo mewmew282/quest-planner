@@ -1688,7 +1688,7 @@
     </div>
 
     <!-- EXPLORE TIMELINE -->
-    <div class="sheet-overlay" id="explore-timeline-overlay" onclick="closeExploreTimelineOnBg(event)">
+    <div class="sheet-overlay" id="explore-timeline-overlay" onclick="closeOverlayOnBg(event, closeExploreTimeline)">
       <div class="sheet" onclick="event.stopPropagation()">
         <h3>🗓️ 탐험 타임라인</h3>
         <div class="tl-section-label">지난 산책 경로 (탭하면 지도에 표시)</div>
@@ -1819,7 +1819,7 @@
   </div>
 
   <!-- ADD QUEST SHEET -->
-  <div class="sheet-overlay" id="add-sheet-overlay" onclick="closeAddSheetOnBg(event)">
+  <div class="sheet-overlay" id="add-sheet-overlay" onclick="closeOverlayOnBg(event, closeAddSheet)">
     <div class="sheet" onclick="event.stopPropagation()">
       <h3 id="add-sheet-title">새 퀘스트 등록</h3>
       <input type="hidden" id="nq-edit-id" value="">
@@ -1869,7 +1869,7 @@
   </div>
 
   <!-- COIN DEX -->
-  <div class="sheet-overlay" id="achievement-dex-overlay" onclick="closeAchievementDexOnBg(event)">
+  <div class="sheet-overlay" id="achievement-dex-overlay" onclick="closeOverlayOnBg(event, closeAchievementDex)">
     <div class="sheet achievement-dex-sheet" onclick="event.stopPropagation()">
       <div class="dex-topline"><h3>📖 업적도감</h3><button class="dex-close" type="button" aria-label="업적도감 닫기" onclick="closeAchievementDex()">×</button></div>
       <div class="dex-progress" id="achievement-dex-progress"></div>
@@ -1879,7 +1879,7 @@
     </div>
   </div>
   <div class="confirm-overlay" id="achievement-detail-overlay" onclick="if(event.target===this) closeAchievementDetail()"><div class="confirm-card achv-detail-card"><div class="achv-detail-icon" id="achievement-detail-icon">🏆</div><div class="confirm-title" id="achievement-detail-name" style="color:var(--gold);"></div><div class="confirm-body" id="achievement-detail-desc"></div><div class="achv-detail-reward" id="achievement-detail-reward"></div><button class="btn btn-gold btn-block" type="button" onclick="closeAchievementDetail()">닫기</button></div></div>
-  <div class="sheet-overlay" id="coin-dex-overlay" onclick="closeCoinDexOnBg(event)">
+  <div class="sheet-overlay" id="coin-dex-overlay" onclick="closeOverlayOnBg(event, closeCoinDex)">
     <div class="sheet" onclick="event.stopPropagation()">
       <h3>🪙 코인도감 <span class="pill" id="coin-dex-progress">0/0</span></h3>
       <div class="coin-grid" id="coin-dex-grid"></div>
@@ -1889,7 +1889,7 @@
   </div>
 
   <!-- COIN EXCHANGE -->
-  <div class="sheet-overlay" id="coin-exchange-overlay" onclick="closeCoinExchangeOnBg(event)">
+  <div class="sheet-overlay" id="coin-exchange-overlay" onclick="closeOverlayOnBg(event, closeCoinExchange)">
     <div class="sheet" onclick="event.stopPropagation()">
       <div class="coin-exchange-head"><h3>🏪 코인 교환소</h3><button class="dex-close" type="button" aria-label="코인 교환소 닫기" onclick="closeCoinExchange()">×</button></div>
       <div class="coin-exchange-balance"><span class="label">현재 보유 골드</span><span class="value" id="exchange-gold-pill">🪙0</span></div>
@@ -1900,7 +1900,7 @@
   </div>
 
   <!-- EQUIPMENT -->
-  <div class="sheet-overlay" id="equip-overlay" onclick="closeEquipOnBg(event)">
+  <div class="sheet-overlay" id="equip-overlay" onclick="closeOverlayOnBg(event, closeEquip)">
     <div class="sheet" onclick="event.stopPropagation()">
       <h3>🎒 장비창</h3>
       <div class="hint" style="margin-bottom:12px;">장비를 착용하면 퀘스트·상자 보상이 늘어나요. 카드를 탭해서 보유한 장비로 바꿔보세요.</div>
@@ -1911,7 +1911,7 @@
   </div>
 
   <!-- EQUIPMENT PICKER -->
-  <div class="sheet-overlay" id="equip-picker-overlay" onclick="closeEquipPickerOnBg(event)">
+  <div class="sheet-overlay" id="equip-picker-overlay" onclick="closeOverlayOnBg(event, closeEquipPicker)">
     <div class="sheet" onclick="event.stopPropagation()">
       <h3 id="equip-picker-title">🎒 장비 선택</h3>
       <div class="hint" style="margin-bottom:12px;">보유한 장비 중에서 착용할 것을 골라보세요.</div>
@@ -1921,7 +1921,7 @@
   </div>
 
   <!-- SHOP -->
-  <div class="sheet-overlay" id="shop-overlay" onclick="closeShopOnBg(event)">
+  <div class="sheet-overlay" id="shop-overlay" onclick="closeOverlayOnBg(event, closeShop)">
     <div class="sheet" onclick="event.stopPropagation()">
       <div class="shop-header-row">
         <h3 style="margin:0;">🏪 모험가 상점</h3>
@@ -1942,7 +1942,7 @@
   </div>
 
   <!-- DAILY MINIGAMES -->
-  <div class="sheet-overlay" id="dmg-overlay" onclick="closeDailyMiniGameOnBg(event)">
+  <div class="sheet-overlay" id="dmg-overlay" onclick="closeOverlayOnBg(event, closeDailyMiniGame)">
     <div class="sheet dmg-sheet" onclick="event.stopPropagation()">
       <div class="bm-header-row">
         <h3 style="margin:0;">🎮 데일리 미니게임</h3>
@@ -1954,7 +1954,7 @@
   </div>
 
   <!-- BLACK MARKET -->
-  <div class="sheet-overlay" id="bm-overlay" onclick="closeBlackMarketOnBg(event)">
+  <div class="sheet-overlay" id="bm-overlay" onclick="closeOverlayOnBg(event, closeBlackMarket)">
     <div class="sheet bm-sheet" onclick="event.stopPropagation()">
       <div class="bm-header-row">
         <h3 style="margin:0;">🕶️ 암시장</h3>
@@ -2504,6 +2504,7 @@ function trackGold(delta){
   if(state.goldLedger.date !== t) state.goldLedger = {date:t, earned:0, spent:0};
   if(delta>0) state.goldLedger.earned += delta; else state.goldLedger.spent += -delta;
 }
+function settleBet(won, bet, winnings){ if(won){ state.gold += winnings - bet; trackGold(winnings); trackGold(-bet); } else { state.gold -= bet; trackGold(-bet); } }
 async function saveState(){
   try{
     if(window.storage){ await window.storage.set(STORAGE_KEY, JSON.stringify(state)); }
@@ -3217,7 +3218,7 @@ function onQuestTypeChange(){
   }
 }
 function closeAddSheet(){ document.getElementById('add-sheet-overlay').classList.remove('show'); }
-function closeAddSheetOnBg(e){ if(e.target.id==='add-sheet-overlay') closeAddSheet(); }
+function closeOverlayOnBg(e, closeFn){ if(e.target===e.currentTarget) closeFn(); }
 
 async function submitNewQuest(){
   const title = document.getElementById('nq-title').value.trim();
@@ -3490,7 +3491,6 @@ function openCoinDex(){
   document.getElementById('coin-dex-overlay').classList.add('show');
 }
 function closeCoinDex(){ document.getElementById('coin-dex-overlay').classList.remove('show'); }
-function closeCoinDexOnBg(e){ if(e.target.id==='coin-dex-overlay') closeCoinDex(); }
 
 /* ===================== COIN EXCHANGE ===================== */
 function renderCoinExchange(){
@@ -3537,7 +3537,6 @@ function openCoinExchange(){
   document.getElementById('coin-exchange-overlay').classList.add('show');
 }
 function closeCoinExchange(){ document.getElementById('coin-exchange-overlay').classList.remove('show'); }
-function closeCoinExchangeOnBg(e){ if(e.target.id==='coin-exchange-overlay') closeCoinExchange(); }
 
 /* ===================== EQUIPMENT / SHOP UI ===================== */
 const SLOT_META = {
@@ -3581,7 +3580,6 @@ function renderEquipSlots(){
 }
 function openEquip(){ renderEquipSlots(); document.getElementById('equip-overlay').classList.add('show'); }
 function closeEquip(){ document.getElementById('equip-overlay').classList.remove('show'); }
-function closeEquipOnBg(e){ if(e.target.id==='equip-overlay') closeEquip(); }
 
 let equipPickerSlot = null;
 function openEquipPicker(slot){
@@ -3629,7 +3627,6 @@ async function selectEquipItem(slot, itemId){
   toast(item ? `${item.icon} ${item.name} 장착!` : '장비를 해제했어요.');
 }
 function closeEquipPicker(){ document.getElementById('equip-picker-overlay').classList.remove('show'); equipPickerSlot = null; }
-function closeEquipPickerOnBg(e){ if(e.target.id==='equip-picker-overlay') closeEquipPicker(); }
 
 /* 옛 캐시와 새 화면이 섞였을 때의 자가 복구: 저장 데이터(localStorage)는 건드리지 않고 서비스워커와 캐시만 지운 뒤 한 번만 새로고침한다 */
 async function healCache(){
@@ -3700,10 +3697,6 @@ function renderShop(){
   const gold = `🪙${state.gold}`;
   const gp=document.getElementById('shop-gold-pill'); if(gp) gp.textContent=gold;
   const wrap=document.getElementById('shop-list'); if(wrap) wrap.innerHTML=getShopMarkup();
-}
-function setCoinStock(v){
-  let n=Math.max(0,Math.min(99,parseInt(v,10)||0));
-  state.shop.coinStock=n; saveState(); renderShopScreen();
 }
 async function claimDailyCoinBox(){
   state.shop=state.shop||{};
@@ -3780,7 +3773,6 @@ function openShop(){
   renderShopScreen();
 }
 function closeShop(){ const overlay=document.getElementById('shop-overlay'); if(overlay) overlay.classList.remove('show'); }
-function closeShopOnBg(e){ if(e.target.id==='shop-overlay') closeShop(); }
 
 /* ===================== BLACK MARKET UI ===================== */
 function renderDailyMgHomeCard(){
@@ -4027,7 +4019,6 @@ function openBlackMarket(tab){
   document.getElementById('bm-overlay').classList.add('show');
 }
 function closeBlackMarket(){ document.getElementById('bm-overlay').classList.remove('show'); }
-function closeBlackMarketOnBg(e){ if(e.target.id==='bm-overlay') closeBlackMarket(); }
 function refreshBmOverlayStatusIfOpen(){
   const overlay = document.getElementById('bm-overlay');
   if(!overlay.classList.contains('show')) return;
@@ -4327,12 +4318,10 @@ async function startDuel(){
 
   if(won){
     const winnings = Math.round(bmSelectedBet*opponent.multiplier);
-    state.gold += winnings - bmSelectedBet; // net gain (bet was not deducted up front)
-    trackGold(winnings); trackGold(-bmSelectedBet);
+    settleBet(true, bmSelectedBet, winnings); // net gain (bet was not deducted up front)
     logActivity('duel', `⚔️ 결투 승리 · ${opponent.name} · 베팅 ${bmSelectedBet}G → 🪙+${winnings-bmSelectedBet}`);
   } else {
-    state.gold -= bmSelectedBet;
-    trackGold(-bmSelectedBet);
+    settleBet(false, bmSelectedBet);
     logActivity('duel', `⚔️ 결투 패배 · ${opponent.name} · 베팅 ${bmSelectedBet}G 잃음`);
   }
   bm.duelDone = true;
@@ -4515,13 +4504,11 @@ async function startMgEvenOdd(){
   state.minigame.stats.evenOdd.played++;
   if(mg.win){
     const winnings = Math.round(mg.bet*1.9);
-    state.gold += winnings - mg.bet;
-    trackGold(winnings); trackGold(-mg.bet);
+    settleBet(true, mg.bet, winnings);
     state.minigame.stats.evenOdd.wins++;
     mgLogHistory('evenOdd', `홀짝 승리 (${result==='even'?'짝':'홀'} ${number})`, winnings-mg.bet);
   } else {
-    state.gold -= mg.bet;
-    trackGold(-mg.bet);
+    settleBet(false, mg.bet);
     state.minigame.stats.evenOdd.losses++;
     mgLogHistory('evenOdd', `홀짝 패배 (${result==='even'?'짝':'홀'} ${number})`, -mg.bet);
   }
@@ -4605,8 +4592,7 @@ function startMgSlot(){
     if(stage) stage.classList.remove('tension');
     if(outcome.mult>0){
       const winnings = Math.round(mg.bet*outcome.mult);
-      state.gold += winnings - mg.bet;
-      trackGold(winnings); trackGold(-mg.bet);
+      settleBet(true, mg.bet, winnings);
       state.minigame.stats.slot.bestMultiplier = Math.max(state.minigame.stats.slot.bestMultiplier, outcome.mult);
       if(outcome.kind==='gold') state.minigame.stats.slot.jackpots++;
       mgLogHistory('slot', `슬롯머신 ${outcome.kind==='gold'?'JACKPOT':'승리'} (×${outcome.mult})`, winnings-mg.bet);
@@ -4621,8 +4607,7 @@ function startMgSlot(){
         } else if(outcome.mult>=10 && navigator.vibrate){ navigator.vibrate(60); }
       }
     } else {
-      state.gold -= mg.bet;
-      trackGold(-mg.bet);
+      settleBet(false, mg.bet);
       mgLogHistory('slot', `슬롯머신 꽝 (${result.map(r=>MG_SLOT_SYMBOLS[r]).join('')})`, -mg.bet);
     }
     const slotNet = outcome.mult>0 ? (Math.round(mg.bet*outcome.mult)-mg.bet) : -mg.bet;
@@ -4740,13 +4725,11 @@ async function mgShellPick(cupId){
   state.minigame.stats.shell.played++;
   const winnings = mg.win ? Math.round(mg.bet*cfg.mult) : 0;
   if(mg.win){
-    state.gold += winnings - mg.bet;
-    trackGold(winnings); trackGold(-mg.bet);
+    settleBet(true, mg.bet, winnings);
     state.minigame.stats.shell.wins++;
     mgLogHistory('shell', `야바위 승리 (${cfg.label} ×${cfg.mult})`, winnings-mg.bet);
   } else {
-    state.gold -= mg.bet;
-    trackGold(-mg.bet);
+    settleBet(false, mg.bet);
     state.minigame.stats.shell.losses++;
     mgLogHistory('shell', `야바위 패배 (${cfg.label})`, -mg.bet);
   }
@@ -4867,7 +4850,6 @@ function openDailyMiniGame(game){
   renderDmgPanel();
 }
 function closeDailyMiniGame(){ dmgClearCountdown(); document.getElementById('dmg-overlay').classList.remove('show'); }
-function closeDailyMiniGameOnBg(e){ if(e.target.id==='dmg-overlay') closeDailyMiniGame(); }
 function backToDmgList(){ dmgClearCountdown(); dmgScreen = 'list'; dmg = {}; renderDmgPanel(); }
 function renderDmgResultCard(win, title, sub, gameKey){
   return `<div class="mg-result-overlay" role="dialog" aria-label="게임 결과">
@@ -5199,7 +5181,6 @@ function renderAchievementDex(direction){
 }
 function openAchievementDex(){achievementDexPage=0;renderAchievementDex();document.getElementById('achievement-dex-overlay').classList.add('show')}
 function closeAchievementDex(){document.getElementById('achievement-dex-overlay').classList.remove('show')}
-function closeAchievementDexOnBg(e){if(e.target.id==='achievement-dex-overlay')closeAchievementDex()}
 function setAchievementDexCategory(category){if(category===achievementDexCategory)return;achievementDexCategory=category;achievementDexPage=0;renderAchievementDex()}
 function changeAchievementDexPage(delta){const next=Math.min(Math.max(achievementDexPage+delta,0),achievementDexPageTotal()-1);if(next!==achievementDexPage){achievementDexPage=next;renderAchievementDex(delta)}}
 function openAchievementDetail(id){const a=ACHIEVEMENTS.find(item=>item.id===id);if(!a)return;const unlocked=state.unlockedAchv.includes(a.id);document.getElementById('achievement-detail-icon').textContent=a.icon;document.getElementById('achievement-detail-name').textContent=a.name;document.getElementById('achievement-detail-desc').textContent=a.desc;const reward=a.reward?`${a.reward.gold?`🪙 +${a.reward.gold}G`:''}${a.reward.gold&&a.reward.xp?' · ':''}${a.reward.xp?`⚡ +${a.reward.xp} XP`:''}`:'기록 업적 · 별도 보상 없음';document.getElementById('achievement-detail-reward').textContent=`${unlocked?'✓ 달성 완료':'○ 아직 미달성'} · ${reward}`;document.getElementById('achievement-detail-overlay').classList.add('show')}
@@ -5689,7 +5670,6 @@ function openExploreTimeline(){
   document.getElementById('explore-timeline-overlay').classList.add('show');
 }
 function closeExploreTimeline(){ document.getElementById('explore-timeline-overlay').classList.remove('show'); }
-function closeExploreTimelineOnBg(e){ if(e.target.id==='explore-timeline-overlay') closeExploreTimeline(); }
 function renderExploreTimeline(){
   const ex = state.explore;
   const walkWrap = document.getElementById('walk-history-list');
