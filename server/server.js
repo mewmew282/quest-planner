@@ -41,6 +41,7 @@ const auth = (req, res, next) => {
 };
 const token = (u) => jwt.sign({ uid: u._id.toString() }, JWT_SECRET, { expiresIn: '60d' });
 const byNick = (n) => users.findOne({ nk: String(n || '').trim().toLowerCase() });
+const meAndTarget = (req, nick) => Promise.all([users.findOne({ _id: req.uid }), byNick(nick)]);
 
 // 알림은 보내기만 하고 기다리지 않으므로, 어떤 오류도 밖으로 새지 않게 모두 잡는다 (처리하지 않은 Promise 거부는 서버를 종료시킨다)
 async function notify(userId, payload) {
@@ -191,7 +192,7 @@ app.get('/api/friends', auth, wrap(async (req, res) => {
   });
 }));
 app.post('/api/friends/request', auth, wrap(async (req, res) => {
-  const [me, t] = await Promise.all([users.findOne({ _id: req.uid }), byNick(req.body.nick)]);
+  const [me, t] = await meAndTarget(req, req.body.nick);
   if (!t) return bad(res, '그 닉네임의 모험가가 없어요', 404);
   if (t._id.equals(me._id)) return bad(res, '나 자신은 친구로 추가할 수 없어요');
   if (me.friends.some((f) => f.equals(t._id))) return bad(res, '이미 친구예요');
@@ -210,7 +211,7 @@ async function accept(me, t, res) {
   res.json({ ok: true, accepted: true });
 }
 app.post('/api/friends/respond', auth, wrap(async (req, res) => {
-  const [me, t] = await Promise.all([users.findOne({ _id: req.uid }), byNick(req.body.nick)]);
+  const [me, t] = await meAndTarget(req, req.body.nick);
   if (!t || !me.reqIn.some((f) => f.equals(t._id))) return bad(res, '받은 요청이 없어요', 404);
   if (req.body.accept) return accept(me, t, res);
   await Promise.all([users.updateOne({ _id: me._id }, { $pull: { reqIn: t._id } }),
@@ -227,7 +228,7 @@ app.post('/api/friends/remove', auth, wrap(async (req, res) => {
 
 // ---- 대화 (친구끼리만) ----
 async function friendOf(req, res, nick) {
-  const [me, t] = await Promise.all([users.findOne({ _id: req.uid }), byNick(nick)]);
+  const [me, t] = await meAndTarget(req, nick);
   if (!t || !me.friends.some((f) => f.equals(t._id))) { bad(res, '친구에게만 보낼 수 있어요', 403); return null; }
   return { me, t };
 }
