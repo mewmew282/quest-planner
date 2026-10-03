@@ -1088,7 +1088,7 @@ window.worldShow = ()=>{
   w.classList.toggle('hidden', onExplore); e.classList.toggle('hidden', !onExplore);
   document.querySelectorAll('#screen-world .chip-row .chip').forEach((b,i)=>b.classList.toggle('active', (i===0)===!onExplore));
   if(onExplore){ if(typeof initExploreScreen==='function') initExploreScreen(); }
-  else { if(typeof walkTracking!=='undefined' && !walkTracking && typeof stopWatchingPosition==='function') stopWatchingPosition(); renderWorld(); }
+  else { if(typeof walkTracking!=='undefined' && !walkTracking && typeof stopWatchingPosition==='function') stopWatchingPosition(); if(typeof walkTracking!=='undefined' && !walkTracking && typeof stopCompass==='function') stopCompass(); renderWorld(); }
 };
 window.worldPane = (name)=>{ worldPaneName = name; worldShow(); };
 

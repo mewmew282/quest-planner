@@ -1129,6 +1129,21 @@
     backdrop-filter:blur(2px);
   }
   .map-style-toggle:active{ background:rgba(15,11,26,0.9); }
+  .compass-toggle{
+    position:absolute;bottom:8px;right:8px;z-index:651;width:32px;height:32px;border-radius:50%;
+    background:rgba(15,11,26,0.72);border:1px solid var(--border);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;
+    backdrop-filter:blur(2px);transition:transform .15s linear,border-color .15s;
+  }
+  .compass-toggle.active{ border-color:var(--gold); box-shadow:0 0 0 1px var(--gold); }
+  .compass-toggle:active{ background:rgba(15,11,26,0.9); }
+  .user-marker-wrap{ position:relative;width:26px;height:26px; }
+  .user-heading-arrow{
+    position:absolute;top:13px;left:13px;width:0;height:0;opacity:0;
+    border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:9px solid var(--gold);
+    transform:translate(-50%,-22px) rotate(0deg);transform-origin:50% 22px;
+    transition:opacity .2s,transform .15s linear;
+  }
   .weather-rain-drop{
     position:absolute;top:-8%;width:1.5px;height:16px;
     background:linear-gradient(to bottom, transparent, rgba(180,210,255,0.7));
@@ -1664,6 +1679,7 @@
         <div id="explore-weather-fx"></div>
         <div class="weather-badge hidden" id="explore-weather-badge"></div>
         <button class="map-style-toggle" id="map-style-toggle" onclick="toggleMapStyle()" title="지도 테마 변경">☀️</button>
+        <button class="compass-toggle" id="compass-toggle" onclick="toggleCompass()" title="나침반">🧭</button>
       </div>
       <div class="hint" id="explore-accuracy-text" style="display:none;text-align:center;margin:8px 0 4px;"></div>
 
@@ -5582,6 +5598,7 @@ let exploreMap = null, exploreUserMarker = null, exploreAccuracyCircle = null, e
 let exploreWalkPolyline = null, exploreHistoryPolyline = null;
 let exploreWatchId = null, exploreLastFix = null, walkTracking = false;
 let exploreStarted = false;
+let compassActive = false, compassHandler = null;
 let currentRegionKey = null;
 let gpsWarmedUp = false, gpsWarmupStartedAt = null, lastKnownAccuracy = null;
 let weatherFlashInterval = null;
@@ -5787,7 +5804,7 @@ function setupExploreMap(lat,lng,accuracy){
   exploreAccuracyCircle = L.circle([lat,lng], {
     radius: accuracy||30, color:'#5B8DEF', weight:1, fillColor:'#5B8DEF', fillOpacity:0.12, interactive:false
   }).addTo(exploreMap);
-  const userIcon = L.divIcon({className:'', html:'<span class="user-marker-ic">🧍</span>', iconSize:[26,26], iconAnchor:[13,13]});
+  const userIcon = L.divIcon({className:'', html:'<span class="user-marker-wrap"><span class="user-heading-arrow" id="user-heading-arrow"></span><span class="user-marker-ic">🧍</span></span>', iconSize:[26,26], iconAnchor:[13,13]});
   exploreUserMarker = L.marker([lat,lng], {icon:userIcon}).addTo(exploreMap);
   // restore today's in-progress walk breadcrumb trail, if any (e.g. after a page reload)
   const ex = state.explore;
@@ -6138,6 +6155,51 @@ function startWatchingPosition(){
   );
 }
 
+/* ===================== 나침반 (탐험 지도) ===================== */
+// iOS Safari gives true heading directly via webkitCompassHeading; everywhere else we derive it
+// from alpha on the 'absolute' orientation event (0 = device top points at true north).
+function headingFromOrientation(e){
+  if(typeof e.webkitCompassHeading==='number' && !isNaN(e.webkitCompassHeading)) return e.webkitCompassHeading;
+  if(e.alpha!=null && e.absolute) return (360 - e.alpha) % 360;
+  return null;
+}
+function onCompassOrientation(e){
+  const h = headingFromOrientation(e);
+  if(h==null) return;
+  const btn = document.getElementById('compass-toggle');
+  if(btn) btn.style.transform = 'rotate(' + (-h) + 'deg)'; // dial rotates so the icon's "N" stays pointed at true north
+  const arrow = document.getElementById('user-heading-arrow');
+  if(arrow){ arrow.style.opacity = '1'; arrow.style.transform = 'translate(-50%,-22px) rotate(' + h + 'deg)'; }
+}
+async function toggleCompass(){
+  if(compassActive){ stopCompass(); return; }
+  if(typeof DeviceOrientationEvent==='undefined'){ toast('이 기기에서는 나침반을 지원하지 않아요.'); return; }
+  // iOS 13+ requires an explicit, user-gesture-triggered permission prompt before orientation events fire
+  if(typeof DeviceOrientationEvent.requestPermission==='function'){
+    try{
+      const res = await DeviceOrientationEvent.requestPermission();
+      if(res!=='granted'){ toast('나침반을 쓰려면 방향 센서 권한이 필요해요.'); return; }
+    }catch(e){ toast('나침반 권한 요청에 실패했어요.'); return; }
+  }
+  const evName = 'ondeviceorientationabsolute' in window ? 'deviceorientationabsolute' : 'deviceorientation';
+  compassHandler = onCompassOrientation;
+  window.addEventListener(evName, compassHandler);
+  compassActive = true;
+  const btn = document.getElementById('compass-toggle');
+  if(btn) btn.classList.add('active');
+  toast('🧭 나침반을 켰어요.');
+}
+function stopCompass(){
+  if(!compassActive) return;
+  const evName = 'ondeviceorientationabsolute' in window ? 'deviceorientationabsolute' : 'deviceorientation';
+  if(compassHandler) window.removeEventListener(evName, compassHandler);
+  compassHandler = null; compassActive = false;
+  const btn = document.getElementById('compass-toggle');
+  if(btn){ btn.classList.remove('active'); btn.style.transform = ''; }
+  const arrow = document.getElementById('user-heading-arrow');
+  if(arrow) arrow.style.opacity = '0';
+}
+
 /* ===================== NAV ===================== */
 function switchTab(tab){
   const prevTab = document.querySelector('.nav-item.active')?.dataset.tab;
@@ -6154,6 +6216,7 @@ function switchTab(tab){
   // walk session needs to keep tracking distance in the background
   if(prevTab==='world' && tab!=='world' && !walkTracking){
     stopWatchingPosition();
+    stopCompass();
   }
   if(tab==='quest') renderAllQuests();
   if(tab==='calendar'){ if(window.calRender) calRender(); else missingScriptNotice(document.getElementById('cal-wrap')); }
