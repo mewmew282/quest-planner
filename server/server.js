@@ -70,7 +70,7 @@ app.post('/api/register', wrap(async (req, res) => {
   const c = await credentials(req, res); if (!c) return;
   if (/[<>"'&`\\\u0000-\u001f]/.test(c.nick)) return bad(res, '닉네임에 쓸 수 없는 문자가 있어요');
   const doc = { nick: c.nick, nk: c.nick.toLowerCase(), hash: await bcrypt.hash(c.pw, 10), xp: 0, cls: '',
-    friends: [], reqIn: [], reqOut: [], push: [], at: new Date() };
+    friends: [], reqIn: [], reqOut: [], push: [], diary: [], friendGroups: [], at: new Date() };
   try { doc._id = (await users.insertOne(doc)).insertedId; }
   catch (e) { if (e.code === 11000) return bad(res, '이미 있는 닉네임이에요', 409); throw e; }
   res.json({ token: token(doc), me: pub(doc) });
@@ -250,6 +250,80 @@ app.get('/api/msgs', auth, wrap(async (req, res) => {
   if (!req.query.after) list.reverse();
   msgs.updateMany({ from: f.t._id, to: req.uid, read: false }, { $set: { read: true } }).catch(() => {});
   res.json(list.map((m) => ({ id: m._id, mine: m.from.equals(req.uid), text: m.text, at: m.at })));
+}));
+
+// ---- 친구 그룹 (일기 등을 선택한 친구에게만 공개할 때 쓰는 재사용 그룹) ----
+function sanitizeGroupName(n) { const s = String(n || '').trim().slice(0, 20); return s || null; }
+app.get('/api/friend-groups', auth, wrap(async (req, res) => {
+  const me = await users.findOne({ _id: req.uid }, { projection: { friendGroups: 1 } });
+  const groups = (me && me.friendGroups) || [];
+  const ids = [...new Set(groups.flatMap((g) => g.members.map(String)))].map((id) => new ObjectId(id));
+  const members = ids.length ? await users.find({ _id: { $in: ids } }, { projection: { nick: 1 } }).toArray() : [];
+  const nickOf = Object.fromEntries(members.map((u) => [u._id.toString(), u.nick]));
+  res.json({ groups: groups.map((g) => ({ id: g.id, name: g.name, members: g.members.map((id) => ({ id: id.toString(), nick: nickOf[id.toString()] || '?' })) })) });
+}));
+app.put('/api/friend-groups', auth, wrap(async (req, res) => {
+  const name = sanitizeGroupName(req.body.name);
+  if (!name) return bad(res, '그룹 이름을 입력하세요');
+  const nicks = Array.isArray(req.body.memberNicks) ? req.body.memberNicks.slice(0, 100) : [];
+  const me = await users.findOne({ _id: req.uid }, { projection: { friends: 1, friendGroups: 1 } });
+  const friendSet = new Set((me.friends || []).map(String));
+  const resolved = [];
+  for (const n of nicks) {
+    const t = await byNick(n);
+    if (t && friendSet.has(t._id.toString())) resolved.push(t._id);
+  }
+  const groups = me.friendGroups || [];
+  const editingExisting = req.body.id && groups.some((g) => g.id === req.body.id);
+  if (!editingExisting && groups.length >= 30) return bad(res, '그룹은 최대 30개까지 만들 수 있어요');
+  const id = editingExisting ? req.body.id : 'g_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const idx = groups.findIndex((g) => g.id === id);
+  const group = { id, name, members: resolved };
+  if (idx >= 0) groups[idx] = group; else groups.push(group);
+  await users.updateOne({ _id: req.uid }, { $set: { friendGroups: groups } });
+  res.json({ ok: true, id });
+}));
+app.post('/api/friend-groups/delete', auth, wrap(async (req, res) => {
+  const id = String(req.body.id || '');
+  await users.updateOne({ _id: req.uid }, { $pull: { friendGroups: { id } } });
+  // 그 그룹을 공개 범위로 쓰던 일기 항목은 비공개로 되돌린다 (존재하지 않는 그룹을 가리키며 남지 않도록)
+  await users.updateOne({ _id: req.uid }, { $set: { 'diary.$[e].groupId': null } }, { arrayFilters: [{ 'e.groupId': id }] });
+  res.json({ ok: true });
+}));
+
+// ---- 일기 (날짜당 1개. groupId: null=비공개, 'public'=친구 전체 공개, 그 외=친구그룹 id) ----
+// ponytail: 퀘스트 동기화와 같은 신뢰 수준 -- 필드는 다듬지만 깊이 검증하진 않는다.
+function sanitizeDiary(arr) {
+  if (!Array.isArray(arr) || arr.length > 366) return null;
+  const out = [];
+  for (const d of arr) {
+    if (!d || typeof d !== 'object' || !/^\d{4}-\d{2}-\d{2}$/.test(String(d.date))) continue;
+    out.push({
+      date: String(d.date),
+      text: String(d.text || '').slice(0, 1000),
+      groupId: d.groupId ? String(d.groupId).slice(0, 40) : null,
+      updatedAt: Number(d.updatedAt) || Date.now(),
+    });
+  }
+  return out;
+}
+app.get('/api/diary', auth, wrap(async (req, res) => {
+  const u = await users.findOne({ _id: req.uid }, { projection: { diary: 1 } });
+  res.json({ entries: (u && u.diary) || [] });
+}));
+app.put('/api/diary', auth, wrap(async (req, res) => {
+  const entries = sanitizeDiary(req.body.entries);
+  if (!entries) return bad(res, '잘못된 일기 데이터');
+  await users.updateOne({ _id: req.uid }, { $set: { diary: entries } });
+  res.json({ ok: true });
+}));
+app.get('/api/diary/:nick', auth, wrap(async (req, res) => {
+  const f = await friendOf(req, res, req.params.nick); if (!f) return;
+  const target = await users.findOne({ _id: f.t._id }, { projection: { diary: 1, friendGroups: 1 } });
+  const myGroupIds = ((target && target.friendGroups) || []).filter((g) => g.members.some((m) => m.equals(req.uid))).map((g) => g.id);
+  const visible = new Set(['public', ...myGroupIds]);
+  const entries = ((target && target.diary) || []).filter((d) => d.groupId && visible.has(d.groupId)).map((d) => ({ date: d.date, text: d.text }));
+  res.json({ nick: f.t.nick, entries });
 }));
 
 // ---- 푸시 구독 ----

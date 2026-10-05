@@ -137,38 +137,82 @@
     resize:vertical;min-height:84px;line-height:1.5;
   }
   textarea:focus{outline:none;border-color:var(--gold-dim);}
+
+  /* ---- 모험 일지 (일기) ---- */
+  .diary-banner{text-align:center;padding:2px 0 10px;}
+  .diary-banner .diary-flourish{
+    color:var(--gold-dim);font-size:10px;letter-spacing:7px;margin-bottom:3px;opacity:.8;
+  }
+  .diary-banner .diary-banner-title{
+    font-family:var(--font-display);font-weight:700;font-size:19px;color:var(--gold);
+    letter-spacing:.4px;text-shadow:0 0 14px rgba(231,181,73,.25);
+  }
+  .diary-banner .diary-banner-sub{font-size:11px;color:var(--text-faint);margin-top:3px;font-style:italic;}
+  .diary-streak-pill{
+    display:inline-flex;align-items:center;gap:4px;margin-top:8px;padding:4px 11px;border-radius:999px;
+    background:var(--card-hi);border:1px solid var(--gold-dim);color:var(--gold);font-size:11px;font-weight:700;
+  }
+
   .diary-write-card{
-    position:relative;background:linear-gradient(155deg, var(--card-hi) 0%, var(--card) 65%);
-    border:1px solid var(--gold-dim);border-radius:var(--radius-m);padding:14px;margin-top:4px;
-    box-shadow:0 0 0 1px rgba(231,181,73,0.08) inset, 0 6px 18px rgba(0,0,0,0.25);
+    position:relative;overflow:hidden;
+    background:radial-gradient(ellipse at top left, rgba(231,181,73,.12), transparent 55%),
+      linear-gradient(155deg, #2b2246 0%, #221c3b 58%, #1b1730 100%);
+    border:1px solid var(--gold-dim);border-radius:var(--radius-m);padding:16px 14px 14px;margin-top:4px;
+    box-shadow:0 0 0 1px rgba(231,181,73,.08) inset, 0 8px 22px rgba(0,0,0,.3);
+  }
+  .diary-write-card::before{
+    content:'❖ ❖ ❖';display:block;text-align:center;color:var(--gold-dim);
+    font-size:10px;letter-spacing:9px;margin-bottom:12px;opacity:.65;
   }
   .diary-write-head{
     display:flex;align-items:center;gap:7px;font-family:var(--font-display);font-weight:700;
     font-size:13px;color:var(--gold);margin-bottom:10px;letter-spacing:.2px;
   }
-  .diary-quill{font-size:16px;filter:drop-shadow(0 0 4px rgba(231,181,73,.4));}
-  .diary-write-card textarea{background:var(--bg);border-color:var(--gold-dim);}
-  .diary-save-btn{margin-top:10px;}
+  .diary-quill{font-size:17px;filter:drop-shadow(0 0 5px rgba(231,181,73,.45));}
+  .diary-write-card textarea{background:rgba(10,8,18,.55);border-color:var(--gold-dim);}
+  .diary-save-btn{margin-top:12px;}
+
+  .diary-visibility-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:12px 0 2px;}
+  .diary-vis-chip{
+    font-family:var(--font-body);font-size:11px;padding:6px 11px;border-radius:999px;
+    border:1px solid var(--border);background:var(--bg-elev);color:var(--text-dim);
+    cursor:pointer;font-weight:700;transition:background .12s,border-color .12s,color .12s;
+  }
+  .diary-vis-chip.active{background:linear-gradient(135deg, var(--gold-dim), var(--gold));border-color:var(--gold);color:#1a1424;}
+  .diary-vis-manage{font-size:10.5px;color:var(--text-faint);text-decoration:underline;cursor:pointer;margin-left:auto;align-self:center;white-space:nowrap;}
+
   .diary-entry{
-    position:relative;background:linear-gradient(155deg, var(--card) 0%, var(--bg-elev) 100%);
-    border:1px solid var(--border);border-left:3px solid var(--gold-dim);border-radius:var(--radius-s);
-    padding:12px 14px 12px 16px;margin-top:10px;box-shadow:0 2px 8px rgba(0,0,0,.18);
+    position:relative;overflow:hidden;
+    background:linear-gradient(160deg, var(--card) 0%, var(--bg-elev) 100%);
+    border:1px solid var(--border);border-radius:var(--radius-s);
+    padding:13px 42px 13px 17px;margin-top:12px;box-shadow:0 3px 10px rgba(0,0,0,.2);
+  }
+  .diary-entry::before{ /* 왼쪽 책갈피 리본 */
+    content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
+    background:linear-gradient(180deg, var(--gold), var(--gold-dim));
+  }
+  .diary-entry .diary-seal{
+    position:absolute;top:10px;right:10px;width:24px;height:24px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:12px;
+    background:var(--card-hi);border:1px solid var(--gold-dim);
+    box-shadow:0 0 0 2px var(--card) , 0 2px 5px rgba(0,0,0,.3);
   }
   .diary-entry .diary-date{
     display:flex;align-items:center;gap:6px;font-family:var(--font-display);font-weight:700;
-    font-size:12px;color:var(--gold);margin-bottom:7px;padding-bottom:7px;
+    font-size:12.5px;color:var(--gold);margin-bottom:8px;padding-bottom:8px;
     border-bottom:1px dashed var(--border);
   }
   .diary-entry .diary-today-badge{
     font-family:var(--font-body);font-weight:700;font-size:9px;color:var(--bg);
     background:var(--gold);border-radius:999px;padding:2px 7px;letter-spacing:.3px;
   }
-  .diary-entry .diary-text{font-size:13px;line-height:1.65;color:var(--text);white-space:pre-wrap;word-break:break-word;}
+  .diary-entry .diary-text{font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap;word-break:break-word;}
   .diary-empty{
-    text-align:center;padding:34px 16px;color:var(--text-faint);font-size:13px;
-    border:1px dashed var(--border);border-radius:var(--radius-m);margin-top:12px;
+    text-align:center;padding:36px 16px;color:var(--text-faint);font-size:13px;
+    border:1px dashed var(--gold-dim);border-radius:var(--radius-m);margin-top:14px;
+    background:radial-gradient(ellipse at center, rgba(231,181,73,.05), transparent 70%);
   }
-  .diary-empty .diary-empty-ic{font-size:26px;display:block;margin-bottom:8px;opacity:.6;}
+  .diary-empty .diary-empty-ic{font-size:28px;display:block;margin-bottom:8px;opacity:.55;}
   .quest-date-pill{background:var(--bg-elev);color:var(--text-dim);}
   .quest-date-pill.overdue{background:rgba(224,102,92,0.15);color:var(--danger);border-color:var(--danger);}
   .class-grid{
@@ -1662,10 +1706,17 @@
 
     <!-- DIARY (하단 네비게이션의 '일기' 탭. 내부 id/tab key는 과거 이름인 'growth'를 그대로 씀) -->
     <div class="screen hidden" id="screen-growth">
-      <div class="section-head" style="margin-top:4px;"><h2>📜 모험 일지</h2><span class="meta" id="diary-streak-meta"></span></div>
+      <div class="diary-banner">
+        <div class="diary-flourish">❦ ❦ ❦</div>
+        <div class="diary-banner-title">📜 모험 일지</div>
+        <div class="diary-banner-sub">그대가 걸어온 하루하루를 이곳에 남기라</div>
+        <div id="diary-streak-meta"></div>
+      </div>
+
       <div class="diary-write-card">
         <div class="diary-write-head"><span class="diary-quill">🖋️</span>오늘의 기록을 남겨보세요</div>
         <textarea id="diary-input" maxlength="1000" placeholder="오늘 하루, 어떤 모험이 있었나요..."></textarea>
+        <div class="diary-visibility-row" id="diary-visibility-row"></div>
         <button class="btn btn-gold btn-block diary-save-btn" onclick="saveDiaryEntry()">📖 기록 저장</button>
       </div>
       <div id="diary-list"></div>
@@ -5245,15 +5296,19 @@ function renderCharacterScreen(){
 }
 
 /* ===================== DIARY SCREEN (하단 네비게이션 '일기' 탭. 내부 tab key는 과거 이름인 'growth') ===================== */
+let diaryVisibility = null; // 지금 쓰는 중인 글의 공개 범위: null=비공개, 'public'=친구 전체, 그 외=친구그룹 id
+let diaryGroupsCache = []; // [{id,name}] -- renderDiaryVisibilityPicker가 채움(이름 조회용 캐시)
 function renderGrowth(){
   const diaryInput = document.getElementById('diary-input');
   if(diaryInput && document.activeElement!==diaryInput){ // 입력 중일 땐 건드리지 않음(다른 화면 갱신으로 renderGrowth가 재호출돼도 커서/내용 유지)
     const todays = (state.diary||[]).find(d=>d.date===todayStr());
     diaryInput.value = todays ? todays.text : '';
+    if(todays) diaryVisibility = todays.groupId||null; // 오늘 글이 있으면 그 공개 범위를 따라가고, 없으면 마지막 선택을 유지
   }
   const streak = diaryStreak();
   const meta = document.getElementById('diary-streak-meta');
-  if(meta) meta.textContent = streak>0 ? `🔥 ${streak}일째 기록 중` : '';
+  if(meta) meta.innerHTML = streak>0 ? `<span class="diary-streak-pill">🔥 ${streak}일째 기록 중</span>` : '';
+  renderDiaryVisibilityPicker();
   renderDiaryList();
 }
 function diaryStreak(){
@@ -5268,6 +5323,27 @@ function diaryStreak(){
   }
   return streak;
 }
+async function renderDiaryVisibilityPicker(){
+  const row = document.getElementById('diary-visibility-row');
+  if(!row) return;
+  const loggedIn = typeof socIsLoggedIn==='function' && socIsLoggedIn();
+  if(!loggedIn){
+    diaryVisibility = null;
+    row.innerHTML = '<span class="hint" style="margin:0;">🔒 비공개 기록 · 소셜에 로그인하면 친구에게 공개할 수 있어요</span>';
+    return;
+  }
+  diaryGroupsCache = typeof socGetFriendGroups==='function' ? await socGetFriendGroups() : [];
+  const row2 = document.getElementById('diary-visibility-row'); // await 도중 화면이 바뀌었을 수 있어 다시 조회
+  if(!row2) return;
+  const options = [{id:null, label:'🔒 비공개'}, {id:'public', label:'🌐 전체 공개'}].concat(diaryGroupsCache.map(g=>({id:g.id, label:'👪 '+g.name})));
+  row2.innerHTML = options.map(o=>`<button type="button" class="diary-vis-chip${diaryVisibility===o.id?' active':''}" data-vis="${o.id===null?'':o.id}">${escapeHtml(o.label)}</button>`).join('')
+    + '<span class="diary-vis-manage" onclick="typeof socOpenGroupManager===\'function\' && socOpenGroupManager()">그룹 관리</span>';
+  row2.querySelectorAll('.diary-vis-chip').forEach(b=>b.onclick=()=>{
+    diaryVisibility = b.dataset.vis || null;
+    row2.querySelectorAll('.diary-vis-chip').forEach(x=>x.classList.toggle('active', x===b));
+  });
+  renderDiaryList(); // 그룹 이름을 알게 됐으니 봉인 라벨을 다시 그린다
+}
 function saveDiaryEntry(){
   const ta = document.getElementById('diary-input');
   const text = ta.value.trim();
@@ -5275,10 +5351,11 @@ function saveDiaryEntry(){
   const t = todayStr();
   state.diary = state.diary || [];
   const existing = state.diary.find(d=>d.date===t);
-  if(existing){ existing.text = text; existing.updatedAt = Date.now(); }
-  else { state.diary.unshift({date:t, text, updatedAt:Date.now()}); }
+  if(existing){ existing.text = text; existing.groupId = diaryVisibility; existing.updatedAt = Date.now(); }
+  else { state.diary.unshift({date:t, text, groupId:diaryVisibility, updatedAt:Date.now()}); }
   state.diary.sort((a,b)=> b.date<a.date?-1:1);
   saveState();
+  if(typeof queueDiarySync==='function') queueDiarySync();
   renderGrowth();
   toast('📜 모험 일지에 기록했어요');
 }
@@ -5286,12 +5363,21 @@ function formatDiaryDate(d){
   const [y,m,day] = d.split('-').map(Number);
   return `${y}년 ${m}월 ${day}일`;
 }
+function diarySeal(groupId){
+  if(!groupId) return {ic:'🔒', title:'비공개'};
+  if(groupId==='public') return {ic:'🌐', title:'친구 전체 공개'};
+  const g = diaryGroupsCache.find(x=>x.id===groupId);
+  return {ic:'👪', title: g ? g.name+'에게 공개' : '친구 그룹에 공개'};
+}
 function renderDiaryList(){
   const wrap = document.getElementById('diary-list');
   if(!wrap) return;
   const entries = (state.diary||[]).slice(0,30);
   wrap.innerHTML = entries.length
-    ? entries.map(e=>`<div class="diary-entry"><div class="diary-date">${formatDiaryDate(e.date)}${e.date===todayStr()?'<span class="diary-today-badge">오늘</span>':''}</div><div class="diary-text">${escapeHtml(e.text)}</div></div>`).join('')
+    ? entries.map(e=>{
+        const seal = diarySeal(e.groupId);
+        return `<div class="diary-entry"><span class="diary-seal" title="${escapeHtml(seal.title)}">${seal.ic}</span><div class="diary-date">${formatDiaryDate(e.date)}${e.date===todayStr()?'<span class="diary-today-badge">오늘</span>':''}</div><div class="diary-text">${escapeHtml(e.text)}</div></div>`;
+      }).join('')
     : '<div class="diary-empty"><span class="diary-empty-ic">📜</span>아직 적힌 모험 기록이 없어요.<br>오늘의 이야기를 남겨보세요!</div>';
 }
 

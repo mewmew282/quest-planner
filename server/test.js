@@ -117,6 +117,36 @@ const call = async (path, { method = 'GET', body, tok } = {}) => {
   await call('/score', { method: 'PUT', tok: a, body: { xp: 2600, cls: 'warrior', profile: null } }); // 공개 끄기
   assert.equal((await call('/profile/Alice', { tok: c })).data.profile, null, '공개를 끄면 프로필 삭제');
 
+  // 친구 그룹 · 일기 공개 범위
+  await call('/friends/request', { method: 'POST', tok: a, body: { nick: 'Carol' } });
+  await call('/friends/respond', { method: 'POST', tok: c, body: { nick: 'Alice', accept: true } });
+  const grpRes = (await call('/friend-groups', { method: 'PUT', tok: a, body: { name: '친한친구', memberNicks: ['Bob'] } })).data;
+  assert(grpRes.id, 'create friend group');
+  const groups = (await call('/friend-groups', { tok: a })).data.groups;
+  assert.equal(groups.length, 1, 'group listed');
+  assert.deepEqual(groups[0].members.map((m) => m.nick), ['Bob'], 'member nick resolved');
+  const grpBad = (await call('/friend-groups', { method: 'PUT', tok: a, body: { name: '' } })).status;
+  assert.equal(grpBad, 400, '이름 없는 그룹 거부');
+
+  const diaryPayload = [
+    { date: '2026-01-01', text: '비공개 일기', groupId: null, updatedAt: 1 },
+    { date: '2026-01-02', text: '전체 공개 일기', groupId: 'public', updatedAt: 2 },
+    { date: '2026-01-03', text: '그룹 공개 일기', groupId: grpRes.id, updatedAt: 3 },
+  ];
+  assert.equal((await call('/diary', { method: 'PUT', tok: a, body: { entries: diaryPayload } })).status, 200, 'save diary');
+  assert.equal((await call('/diary', { tok: a })).data.entries.length, 3, '내 일기는 비공개 포함 전부 보임');
+
+  const bobView = (await call('/diary/Alice', { tok: b })).data.entries.map((e) => e.text).sort();
+  assert.deepEqual(bobView, ['그룹 공개 일기', '전체 공개 일기'], '그룹 멤버는 공개+그룹 글을 봄');
+  const carolView = (await call('/diary/Alice', { tok: c })).data.entries.map((e) => e.text);
+  assert.deepEqual(carolView, ['전체 공개 일기'], '그룹에 없는 친구는 공개 글만 봄');
+  assert.equal((await call('/diary/Alice', { tok: d })).status, 403, '친구가 아니면 일기 접근 거부');
+
+  await call('/friend-groups/delete', { method: 'POST', tok: a, body: { id: grpRes.id } });
+  assert.equal((await call('/friend-groups', { tok: a })).data.groups.length, 0, '그룹 삭제됨');
+  const afterDelete = (await call('/diary', { tok: a })).data.entries.find((e) => e.date === '2026-01-03');
+  assert.equal(afterDelete.groupId, null, '그룹 삭제 시 그 그룹을 쓰던 일기는 비공개로 되돌아감');
+
   // 삭제
   await call('/friends/remove', { method: 'POST', tok: a, body: { nick: 'Bob' } });
   assert.equal((await call('/msgs', { method: 'POST', tok: b, body: { to: 'Alice', text: 'x' } })).status, 403, 'removed friend blocked');

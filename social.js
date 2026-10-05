@@ -71,7 +71,7 @@ function profileHtml(u){
   const cls = (typeof CLASSES!=='undefined' && CLASSES[u.cls]) || null;
   const stage = cls && typeof evoStageFor==='function' ? evoStageFor(u.cls, u.level) : null;
   const head = `<div class="soc-prof-head"><div class="soc-prof-ic">${stage ? stage.emoji : clsIcon(u.cls)}</div><div><b>${esc(u.nick)}${u.me?' (나)':''}</b><div class="sub">Lv.${u.level} · ${cls ? esc(cls.name) : '모험가'}${stage ? ' · '+esc(stage.title) : ''}</div><div class="sub">${u.xp.toLocaleString()} XP</div></div></div>`;
-  const foot = `<div class="soc-prof-foot">${!u.me && !u.friend ? `<button class="btn btn-gold" data-add>친구 신청</button>` : ''}<button class="btn btn-ghost" data-x>닫기</button></div>`;
+  const foot = `<div class="soc-prof-foot">${!u.me && u.friend ? `<button class="btn btn-ghost" data-diary>📜 일기 보기</button>` : ''}${!u.me && !u.friend ? `<button class="btn btn-gold" data-add>친구 신청</button>` : ''}<button class="btn btn-ghost" data-x>닫기</button></div>`;
   const p = u.profile;
   if(!p) return head + `<div class="hint" style="margin:14px 0">이 모험가는 프로필을 공개하지 않았거나 아직 공유한 적이 없어요.</div>` + foot;
   const d = window.calDescribe ? window.calDescribe(p) : {pets:[], regions:[]};
@@ -98,6 +98,30 @@ async function openProfile(nick){
     card.querySelector('[data-x]').onclick = ()=>box.remove();
     const add = card.querySelector('[data-add]');
     if(add) add.onclick = async ()=>{ try{ await api('/friends/request', {method:'POST', body:{nick:u.nick}}); toast('친구 신청을 보냈어요'); add.disabled = true; }catch(e){ toast(e.message); } };
+    const diaryBtn = card.querySelector('[data-diary]');
+    if(diaryBtn) diaryBtn.onclick = ()=>openFriendDiary(u.nick);
+  }catch(e){
+    card.innerHTML = `<div class="soc-err">${esc(e.message)}</div><div class="soc-prof-foot"><button class="btn btn-ghost" data-x>닫기</button></div>`;
+    card.querySelector('[data-x]').onclick = ()=>box.remove();
+  }
+}
+
+/* ---------- 친구의 일기 보기 (그 친구가 나를 포함한 공개 범위로 올린 글만) ---------- */
+async function openFriendDiary(nick){
+  const old = $('soc-fdiary'); if(old) old.remove();
+  const box = document.createElement('div'); box.id = 'soc-fdiary'; box.className = 'soc-prof';
+  box.innerHTML = '<div class="soc-prof-card"><div class="hint">불러오는 중…</div></div>';
+  box.onclick = (e)=>{ if(e.target===box) box.remove(); };
+  document.body.appendChild(box);
+  const card = box.firstChild;
+  try{
+    const d = await api('/diary/'+encodeURIComponent(nick));
+    const entries = [...d.entries].sort((a,b)=> b.date<a.date?-1:1);
+    card.innerHTML = `<h4 style="margin-top:0">📜 ${esc(d.nick)}님의 모험 일지</h4>` +
+      (entries.length ? entries.map((e)=>`<div class="diary-entry"><div class="diary-date">${esc(e.date)}</div><div class="diary-text">${esc(e.text)}</div></div>`).join('')
+        : '<div class="hint">아직 나에게 공개된 일기가 없어요.</div>') +
+      `<div class="soc-prof-foot"><button class="btn btn-ghost" data-x>닫기</button></div>`;
+    card.querySelector('[data-x]').onclick = ()=>box.remove();
   }catch(e){
     card.innerHTML = `<div class="soc-err">${esc(e.message)}</div><div class="soc-prof-foot"><button class="btn btn-ghost" data-x>닫기</button></div>`;
     card.querySelector('[data-x]').onclick = ()=>box.remove();
@@ -164,6 +188,98 @@ async function pullQuestsIfNewer(){ // 로그인 직후 / 앱 시작 시: 서버
   if(needPush) pushQuests();
 }
 
+/* ---------- 일기 동기화 (기기 간 백업/다른 사람에게 공개) ---------- */
+let diarySyncTimer = null;
+function queueDiarySync(){ // index.html의 saveDiaryEntry()가 저장할 때마다 불러서, 잠시 후 한 번만 올린다
+  if(!token) return;
+  clearTimeout(diarySyncTimer);
+  diarySyncTimer = setTimeout(pushDiary, 1500);
+}
+window.queueDiarySync = queueDiarySync;
+function pushDiary(){
+  if(!token || !state.character) return Promise.resolve();
+  return api('/diary', {method:'PUT', body:{entries: state.diary||[]}}).catch(()=>{});
+}
+async function pullDiaryIfNewer(){ // 로그인 직후 / 앱 시작 시: 날짜별로 더 최근에 바뀐 쪽을 남긴다
+  if(!token) return;
+  try{
+    const server = (await api('/diary')).entries || [];
+    const local = state.diary || [];
+    const byDate = new Map(local.map((e)=>[e.date, e]));
+    let changed = false;
+    for(const se of server){
+      const le = byDate.get(se.date);
+      if(!le || (se.updatedAt||0) > (le.updatedAt||0)){ byDate.set(se.date, se); changed = true; }
+    }
+    if(changed){
+      state.diary = [...byDate.values()].sort((a,b)=> b.date<a.date?-1:1);
+      await saveState();
+      if(typeof renderGrowth==='function' && $('diary-list')) renderGrowth();
+    }
+  }catch(e){}
+  pushDiary(); // 이 기기에만 있던 항목을 서버에도 올려 둔다
+}
+window.addEventListener('load', pullDiaryIfNewer); // 이미 로그인된 상태로 앱을 다시 열었을 때
+
+/* ---------- 친구 그룹 관리 (일기 공개 범위로 재사용) ---------- */
+window.socGetFriendGroups = async function(){
+  if(!token) return [];
+  try{ const d = await api('/friend-groups'); return d.groups.map((g)=>({id:g.id, name:g.name})); }
+  catch(e){ return []; }
+};
+window.socIsLoggedIn = ()=> !!token;
+async function openGroupManager(){
+  const old = $('soc-groups'); if(old) old.remove();
+  const box = document.createElement('div'); box.id = 'soc-groups'; box.className = 'soc-prof';
+  box.innerHTML = '<div class="soc-prof-card"><div class="hint">불러오는 중…</div></div>';
+  box.onclick = (e)=>{ if(e.target===box) box.remove(); };
+  document.body.appendChild(box);
+  const card = box.firstChild;
+  try{
+    const [g, f] = await Promise.all([api('/friend-groups'), api('/friends')]);
+    renderGroupManager(card, g.groups, f.friends);
+  }catch(e){
+    card.innerHTML = `<div class="soc-err">${esc(e.message)}</div><div class="soc-prof-foot"><button class="btn btn-ghost" data-x>닫기</button></div>`;
+    card.querySelector('[data-x]').onclick = ()=>box.remove();
+  }
+}
+window.socOpenGroupManager = openGroupManager;
+function renderGroupManager(card, groups, friends, editingId){
+  const editing = editingId ? groups.find((g)=>g.id===editingId) : null;
+  const memberSet = new Set((editing ? editing.members : []).map((m)=>m.nick));
+  card.innerHTML = `
+    <h4 style="margin-top:0">👪 공개 그룹 관리</h4>
+    <div class="hint" style="margin-bottom:10px">일기를 쓸 때 공개 범위로 고를 수 있는, 이름 붙인 친구 묶음이에요.</div>
+    ${groups.map((g)=>`<div class="soc-row"><span class="nm">📁 ${esc(g.name)}</span><span class="sub">${g.members.length}명</span><button data-edit-grp="${esc(g.id)}">수정</button><button data-del-grp="${esc(g.id)}">✕</button></div>`).join('') || '<div class="hint">아직 만든 그룹이 없어요.</div>'}
+    <h4>${editing ? '그룹 수정' : '새 그룹 만들기'}</h4>
+    <input type="text" id="grp-name" maxlength="20" placeholder="그룹 이름 (예: 친한 친구)" value="${editing ? esc(editing.name) : ''}">
+    ${friends.length ? `<div class="hint" style="margin:4px 0 8px">포함할 친구를 선택하세요</div>` + friends.map((fr)=>`<label style="display:flex;align-items:center;gap:8px;padding:6px 0"><input type="checkbox" value="${esc(fr.nick)}" ${memberSet.has(fr.nick)?'checked':''}> ${esc(fr.nick)}</label>`).join('') : '<div class="hint">친구를 먼저 추가해 주세요.</div>'}
+    <div class="soc-prof-foot" style="margin-top:12px">
+      <button class="btn btn-gold" id="grp-save">${editing ? '저장' : '만들기'}</button>
+      ${editing ? `<button class="btn btn-ghost" id="grp-cancel">취소</button>` : ''}
+      <button class="btn btn-ghost" data-x>닫기</button>
+    </div>`;
+  card.querySelector('[data-x]').onclick = ()=>$('soc-groups').remove();
+  const cancelBtn = card.querySelector('#grp-cancel');
+  if(cancelBtn) cancelBtn.onclick = ()=>renderGroupManager(card, groups, friends);
+  card.querySelectorAll('[data-edit-grp]').forEach((b)=>b.onclick = ()=>renderGroupManager(card, groups, friends, b.dataset.editGrp));
+  card.querySelectorAll('[data-del-grp]').forEach((b)=>b.onclick = async ()=>{
+    if(!confirm('이 그룹을 삭제할까요? 이 그룹으로 공개했던 일기는 비공개로 바뀌어요.')) return;
+    try{ await api('/friend-groups/delete', {method:'POST', body:{id:b.dataset.delGrp}}); toast('그룹을 삭제했어요'); openGroupManager(); }
+    catch(e){ toast(e.message); }
+  });
+  card.querySelector('#grp-save').onclick = async ()=>{
+    const name = $('grp-name').value.trim();
+    if(!name){ toast('그룹 이름을 입력해주세요'); return; }
+    const memberNicks = [...card.querySelectorAll('input[type=checkbox]:checked')].map((c)=>c.value);
+    try{
+      await api('/friend-groups', {method:'PUT', body:{id: editing ? editing.id : undefined, name, memberNicks}});
+      toast(editing ? '그룹을 수정했어요' : '그룹을 만들었어요');
+      openGroupManager();
+    }catch(e){ toast(e.message); }
+  };
+}
+
 function logout(){
   token = myNick = null; localStorage.removeItem('qp_token'); localStorage.removeItem('qp_nick');
   lastPushedQuestsAt = null; // 다음 로그인 때 새로 판단한다
@@ -200,7 +316,7 @@ function renderLogin(msg){
       const prevNick = localStorage.getItem('qp_sync_nick');
       if(prevNick && prevNick.toLowerCase()!==myNick.toLowerCase()){ syncHold = true; switchAccountQuests(prevNick, myNick); }
       localStorage.setItem('qp_sync_nick', myNick);
-      await pullQuestsIfNewer(); if(typeof renderAll==='function') renderAll(); await syncScore(); resubscribeIfAllowed(); view = 'rank'; render();
+      await pullQuestsIfNewer(); await pullDiaryIfNewer(); if(typeof renderAll==='function') renderAll(); await syncScore(); resubscribeIfAllowed(); view = 'rank'; render();
     }catch(e){ err.textContent = e.message; btns.forEach(b=>b.disabled=false); }
   };
   $('soc-login').onclick = ()=>go('/login'); $('soc-reg').onclick = ()=>go('/register');
@@ -232,6 +348,7 @@ async function renderFriends(){
   <div class="soc-send" style="margin-bottom:14px"><input type="text" id="soc-add" maxlength="10" placeholder="친구 닉네임"><button class="btn btn-gold" id="soc-add-btn">신청</button></div>
   <div class="soc-err" id="soc-err"></div>
   <button class="btn btn-ghost btn-block" id="soc-push" style="margin-bottom:12px">🔔 푸시 알림 켜기</button>
+  <button class="btn btn-ghost btn-block" id="soc-groups-btn" style="margin-bottom:12px">👪 일기 공개 그룹 관리</button>
   ${d.requests.length ? `<h3 style="font-size:13px;margin:6px 0">받은 친구 요청</h3>` + d.requests.map(u=>`<div class="soc-row"><span class="nm">${clsIcon(u.cls)} ${esc(u.nick)}</span><button data-acc="${esc(u.nick)}">수락</button><button data-rej="${esc(u.nick)}">거절</button></div>`).join('') : ''}
   <h3 style="font-size:13px;margin:10px 0 6px">친구 ${d.friends.length}명${d.sent?` · 신청 대기 ${d.sent}`:''}</h3>
   ${d.friends.map(u=>`<div class="soc-row"><span class="nm" data-prof="${esc(u.nick)}" style="cursor:pointer">${clsIcon(u.cls)} ${esc(u.nick)}</span><span class="sub">Lv.${u.level}</span>${u.unread?`<span class="soc-badge">${u.unread}</span>`:''}<button data-chat="${esc(u.nick)}">💬</button><button data-del="${esc(u.nick)}">✕</button></div>`).join('') || '<div class="hint">아직 친구가 없어요. 친구의 닉네임으로 신청해 보세요.</div>'}`;
@@ -242,6 +359,7 @@ async function renderFriends(){
   sc.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ if(confirm(b.dataset.del+'님을 친구에서 삭제할까요?')) act('/friends/remove', {nick:b.dataset.del}, '삭제했어요'); });
   sc.querySelectorAll('[data-chat]').forEach(b=>b.onclick=()=>{ chatWith = b.dataset.chat; view = 'chat'; render(); });
   const pb = $('soc-push'); pb.onclick = enablePush; refreshPushButton();
+  $('soc-groups-btn').onclick = openGroupManager;
 }
 
 /* ---------- 대화 ---------- */
