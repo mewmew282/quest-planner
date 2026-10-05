@@ -131,6 +131,18 @@
     color-scheme:dark;
   }
   input[type=date]:focus{outline:none;border-color:var(--gold-dim);}
+  textarea{
+    width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);
+    border-radius:var(--radius-s);padding:12px 14px;font-size:14px;font-family:var(--font-body);
+    resize:vertical;min-height:84px;line-height:1.5;
+  }
+  textarea:focus{outline:none;border-color:var(--gold-dim);}
+  .diary-entry{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius-s);
+    padding:10px 12px;margin-top:8px;
+  }
+  .diary-entry .diary-date{font-size:11px;color:var(--text-dim);margin-bottom:4px;font-weight:700;}
+  .diary-entry .diary-text{font-size:13px;line-height:1.5;white-space:pre-wrap;word-break:break-word;}
   .quest-date-pill{background:var(--bg-elev);color:var(--text-dim);}
   .quest-date-pill.overdue{background:rgba(224,102,92,0.15);color:var(--danger);border-color:var(--danger);}
   .class-grid{
@@ -1589,17 +1601,17 @@
         <div class="char-sub" id="char-char-sub"></div>
         <div class="char-badges" id="char-equip-badges" style="justify-content:center;"></div>
       </div>
-
-      <div class="section-head"><h2>능력치</h2></div>
-      <div id="stat-list"></div>
-
-      <div class="section-head"><h2>성장 단계</h2></div>
-      <div class="evo-timeline" id="evo-timeline"></div>
     </div>
 
     <!-- GROWTH -->
     <div class="screen hidden" id="screen-growth">
-      <div class="section-head" style="margin-top:4px;"><h2>이번 주 리포트</h2></div>
+      <div class="section-head" style="margin-top:4px;"><h2>능력치</h2></div>
+      <div id="stat-list"></div>
+
+      <div class="section-head"><h2>성장 단계</h2></div>
+      <div class="evo-timeline" id="evo-timeline"></div>
+
+      <div class="section-head"><h2>이번 주 리포트</h2></div>
       <div class="stat-grid-2">
         <div class="metric-card"><div class="num" id="m-cleared">0</div><div class="lbl">완료 퀘스트</div></div>
         <div class="metric-card"><div class="num" id="m-xp">0</div><div class="lbl">획득 XP</div></div>
@@ -1615,6 +1627,11 @@
 
       <div class="section-head"><h2>업적</h2><span class="meta" id="achv-meta"></span></div>
       <button class="achievement-dex-launch" type="button" onclick="openAchievementDex()"><span><span class="dex-launch-title">📖 업적도감</span><span class="dex-launch-sub" id="achv-dex-summary">발견한 업적을 확인하세요</span></span><span class="dex-launch-arrow">›</span></button>
+
+      <div class="section-head"><h2>📔 오늘의 일기</h2></div>
+      <textarea id="diary-input" maxlength="1000" placeholder="오늘 하루는 어땠나요?"></textarea>
+      <button class="btn btn-gold btn-block" style="margin-top:10px;" onclick="saveDiaryEntry()">일기 저장</button>
+      <div id="diary-list"></div>
     </div>
 
     <!-- SHOP -->
@@ -2426,6 +2443,7 @@ function defaultState(){
     calendar:{ themes:['kingdom'], active:'kingdom', buyDate:null, buyCount:0 }, // 캘린더 테마 보유/적용, 하루 구매 한도 집계
     goldLedger:{ date:null, earned:0, spent:0 }, // 오늘 획득/오늘 사용 골드 (경제 지표, 매일 초기화)
     recentGains:[], // [{icon,label,detail,ts}] 홈 화면 '최근 획득' 표시용, 최대 3개
+    diary:[], // [{date,text,updatedAt}] 성장 탭의 하루 일기, 날짜당 1개
     npc:{ visitCount:0, lastGreetDate:null, lastZeroGoldDate:null, dawnSeenDate:null, allDoneShownDate:null, lastMarketLineDate:null, blackMarketTapCount:0 },
     jail:{active:false, jailedUntil:null, storyStage:0, lastTriggeredTap:0, visitCount:0},
     blackMarketChain:{stage:0, expiresAt:0},
@@ -5131,6 +5149,10 @@ function renderCharacterScreen(){
     }).join('');
     badgeWrap.innerHTML = icons;
   }
+}
+
+/* ===================== GROWTH SCREEN (능력치·성장 단계·주간 리포트·경제·업적·일기) ===================== */
+function renderGrowth(){
   const wrap = document.getElementById('stat-list');
   wrap.innerHTML='';
   const max = Math.max(100, ...STAT_ORDER.map(s=>state.stats[s]||0));
@@ -5155,10 +5177,7 @@ function renderCharacterScreen(){
     div.innerHTML = `<div class="evo-lv">Lv.${st.lv}</div><div class="evo-name">${st.emoji} ${st.title}</div>`;
     tl.appendChild(div);
   });
-}
 
-/* ===================== GROWTH SCREEN ===================== */
-function renderGrowth(){
   const cleared = state.weekLog.reduce((a,e)=>a+e.cleared,0);
   const xp = state.weekLog.reduce((a,e)=>a+e.xp,0);
   const totalQuestSlots = state.weekLog.length ? state.weekLog.reduce((a,e)=>a+e.cleared,0) : 0;
@@ -5179,6 +5198,39 @@ function renderGrowth(){
   document.getElementById('achv-meta').textContent = `${unlockedCount}/${ACHIEVEMENTS.length}`;
   document.getElementById('achv-dex-summary').textContent = `${unlockedCount} / ${ACHIEVEMENTS.length} 발견 · 도감을 펼쳐보세요`;
   if(document.getElementById('achievement-dex-overlay').classList.contains('show')) renderAchievementDex();
+
+  const diaryInput = document.getElementById('diary-input');
+  if(diaryInput && document.activeElement!==diaryInput){ // 입력 중일 땐 건드리지 않음(퀘스트 완료 등으로 renderGrowth가 재호출돼도 커서/내용 유지)
+    const todays = (state.diary||[]).find(d=>d.date===todayStr());
+    diaryInput.value = todays ? todays.text : '';
+  }
+  renderDiaryList();
+}
+function saveDiaryEntry(){
+  const ta = document.getElementById('diary-input');
+  const text = ta.value.trim();
+  if(!text){ toast('일기 내용을 입력해주세요'); return; }
+  const t = todayStr();
+  state.diary = state.diary || [];
+  const existing = state.diary.find(d=>d.date===t);
+  if(existing){ existing.text = text; existing.updatedAt = Date.now(); }
+  else { state.diary.unshift({date:t, text, updatedAt:Date.now()}); }
+  state.diary.sort((a,b)=> b.date<a.date?-1:1);
+  saveState();
+  renderDiaryList();
+  toast('📔 일기를 저장했어요');
+}
+function formatDiaryDate(d){
+  const [y,m,day] = d.split('-').map(Number);
+  return `${y}년 ${m}월 ${day}일`;
+}
+function renderDiaryList(){
+  const wrap = document.getElementById('diary-list');
+  if(!wrap) return;
+  const entries = (state.diary||[]).slice(0,30);
+  wrap.innerHTML = entries.length
+    ? entries.map(e=>`<div class="diary-entry"><div class="diary-date">${formatDiaryDate(e.date)}${e.date===todayStr()?' · 오늘':''}</div><div class="diary-text">${escapeHtml(e.text)}</div></div>`).join('')
+    : '<div class="hint" style="margin-top:8px;">아직 작성한 일기가 없어요. 오늘 하루를 기록해보세요!</div>';
 }
 
 /* ===================== ACHIEVEMENT DEX ===================== */
