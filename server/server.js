@@ -314,7 +314,11 @@ app.get('/api/diary', auth, wrap(async (req, res) => {
 app.put('/api/diary', auth, wrap(async (req, res) => {
   const entries = sanitizeDiary(req.body.entries);
   if (!entries) return bad(res, '잘못된 일기 데이터');
-  await users.updateOne({ _id: req.uid }, { $set: { diary: entries } });
+  // 메모는 친구가 서버에만 남기므로(기기는 알 수 없음), 기기가 밀어올린 내용으로 덮어쓸 때도 기존 메모는 그대로 들고 간다
+  const existing = await users.findOne({ _id: req.uid }, { projection: { diary: 1 } });
+  const notesByDate = Object.fromEntries(((existing && existing.diary) || []).map((d) => [d.date, d.notes || []]));
+  const merged = entries.map((e) => ({ ...e, notes: notesByDate[e.date] || [] }));
+  await users.updateOne({ _id: req.uid }, { $set: { diary: merged } });
   res.json({ ok: true });
 }));
 app.get('/api/diary/:nick', auth, wrap(async (req, res) => {
@@ -322,8 +326,30 @@ app.get('/api/diary/:nick', auth, wrap(async (req, res) => {
   const target = await users.findOne({ _id: f.t._id }, { projection: { diary: 1, friendGroups: 1 } });
   const myGroupIds = ((target && target.friendGroups) || []).filter((g) => g.members.some((m) => m.equals(req.uid))).map((g) => g.id);
   const visible = new Set(['public', ...myGroupIds]);
-  const entries = ((target && target.diary) || []).filter((d) => d.groupId && visible.has(d.groupId)).map((d) => ({ date: d.date, text: d.text }));
+  const entries = ((target && target.diary) || []).filter((d) => d.groupId && visible.has(d.groupId))
+    .map((d) => ({ date: d.date, text: d.text, notes: (d.notes || []).map((n) => ({ from: n.from, text: n.text, at: n.at })) }));
   res.json({ nick: f.t.nick, entries });
+}));
+
+// ---- 일기 메모 (공개된 글을 볼 수 있는 친구만, 그 글에 짧은 메모를 남길 수 있다) ----
+function sanitizeNoteText(t) { return String(t || '').trim().slice(0, 200); }
+app.post('/api/diary/:nick/note', auth, wrap(async (req, res) => {
+  const text = sanitizeNoteText(req.body.text);
+  if (!text) return bad(res, '메모 내용을 입력하세요');
+  const date = String(req.body.date || '');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return bad(res, '잘못된 날짜');
+  if (!limit('note:' + req.uid, 30, 60e3)) return bad(res, '너무 빨라요. 잠시 후 다시', 429);
+  const f = await friendOf(req, res, req.params.nick); if (!f) return;
+  const target = await users.findOne({ _id: f.t._id }, { projection: { diary: 1, friendGroups: 1 } });
+  const entry = ((target && target.diary) || []).find((d) => d.date === date);
+  if (!entry) return bad(res, '그 기록을 찾을 수 없어요', 404);
+  const myGroupIds = ((target.friendGroups) || []).filter((g) => g.members.some((m) => m.equals(req.uid))).map((g) => g.id);
+  const visible = new Set(['public', ...myGroupIds]);
+  if (!entry.groupId || !visible.has(entry.groupId)) return bad(res, '나에게 공개되지 않은 기록이에요', 403);
+  const note = { from: f.me.nick, text, at: Date.now() };
+  await users.updateOne({ _id: f.t._id }, { $push: { 'diary.$[e].notes': { $each: [note], $slice: -50 } } }, { arrayFilters: [{ 'e.date': date }] });
+  notify(f.t._id, { title: '📝 일기에 메모가 달렸어요', body: `${f.me.nick}: ${text.slice(0, 60)}`, tag: 'diarynote' });
+  res.json({ ok: true, note });
 }));
 
 // ---- 푸시 구독 ----

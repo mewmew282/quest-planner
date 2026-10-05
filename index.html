@@ -213,6 +213,42 @@
     background:radial-gradient(ellipse at center, rgba(231,181,73,.05), transparent 70%);
   }
   .diary-empty .diary-empty-ic{font-size:28px;display:block;margin-bottom:8px;opacity:.55;}
+  .diary-edit-btn{
+    margin-top:10px;font-size:11px;padding:5px 10px;border-radius:8px;
+    background:var(--bg-elev);color:var(--text-dim);border:1px solid var(--border);cursor:pointer;
+  }
+  .diary-editing-banner{
+    display:flex;align-items:center;gap:8px;font-size:11px;color:var(--gold);
+    background:var(--card-hi);border:1px solid var(--gold-dim);border-radius:var(--radius-s);
+    padding:8px 12px;margin-bottom:10px;font-weight:700;
+  }
+  .diary-editing-banner a{color:var(--text-dim);text-decoration:underline;cursor:pointer;margin-left:auto;font-weight:400;}
+
+  /* ---- 메모 (공유한 친구가 일기 항목에 남기는 한마디) ---- */
+  .diary-notes{margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);display:flex;flex-direction:column;gap:6px;}
+  .diary-note{font-size:12px;line-height:1.5;color:var(--text-dim);background:var(--bg-elev);border-radius:8px;padding:6px 10px;}
+  .diary-note b{color:var(--gold);font-weight:700;margin-right:4px;}
+  .diary-note-form{display:flex;gap:6px;margin-top:9px;}
+  .diary-note-form input{margin:0!important;flex:1;font-size:12px!important;padding:8px 10px!important;}
+  .diary-note-form button{flex:0 0 auto;padding:0 12px;border-radius:8px;background:var(--gold-dim);color:#fff;border:none;font-size:11px;font-weight:700;}
+
+  /* ---- 공개 그룹 (일기 탭 하단에 늘 펼쳐 보이는 패널) ---- */
+  .diary-group-card{
+    position:relative;overflow:hidden;
+    background:linear-gradient(160deg, var(--card) 0%, var(--bg-elev) 100%);
+    border:1px solid var(--border);border-radius:var(--radius-s);
+    padding:10px 14px 10px 17px;margin-top:8px;display:flex;align-items:center;gap:8px;
+    box-shadow:0 2px 8px rgba(0,0,0,.15);
+  }
+  .diary-group-card::before{
+    content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
+    background:linear-gradient(180deg, var(--bm-purple), var(--gold-dim));
+  }
+  .diary-group-card .diary-group-ic{font-size:15px;}
+  .diary-group-card .nm{font-weight:700;font-size:13px;flex:0 0 auto;}
+  .diary-group-card .sub{font-size:11px;color:var(--text-dim);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .diary-group-card button{padding:5px 9px;border-radius:7px;background:var(--card-hi);color:var(--text);border:1px solid var(--border);font-size:11px;flex:0 0 auto;}
+  .diary-group-form h4{font-family:var(--font-display);font-size:12px;color:var(--gold);margin:14px 0 8px;letter-spacing:.3px;}
   .quest-date-pill{background:var(--bg-elev);color:var(--text-dim);}
   .quest-date-pill.overdue{background:rgba(224,102,92,0.15);color:var(--danger);border-color:var(--danger);}
   .class-grid{
@@ -1714,12 +1750,16 @@
       </div>
 
       <div class="diary-write-card">
-        <div class="diary-write-head"><span class="diary-quill">🖋️</span>오늘의 기록을 남겨보세요</div>
+        <div id="diary-editing-banner"></div>
+        <div class="diary-write-head" id="diary-write-head"><span class="diary-quill">🖋️</span>오늘의 기록을 남겨보세요</div>
         <textarea id="diary-input" maxlength="1000" placeholder="오늘 하루, 어떤 모험이 있었나요..."></textarea>
         <div class="diary-visibility-row" id="diary-visibility-row"></div>
         <button class="btn btn-gold btn-block diary-save-btn" onclick="saveDiaryEntry()">📖 기록 저장</button>
       </div>
       <div id="diary-list"></div>
+
+      <div class="section-head"><h2>👪 공개 그룹</h2></div>
+      <div id="diary-groups-panel"></div>
     </div>
 
     <!-- SHOP -->
@@ -5298,18 +5338,35 @@ function renderCharacterScreen(){
 /* ===================== DIARY SCREEN (하단 네비게이션 '일기' 탭. 내부 tab key는 과거 이름인 'growth') ===================== */
 let diaryVisibility = null; // 지금 쓰는 중인 글의 공개 범위: null=비공개, 'public'=친구 전체, 그 외=친구그룹 id
 let diaryGroupsCache = []; // [{id,name}] -- renderDiaryVisibilityPicker가 채움(이름 조회용 캐시)
+let diaryEditingDate = null; // null이면 "오늘" 글을 쓰는 중, 아니면 그 날짜의 과거 글을 수정하는 중
 function renderGrowth(){
   const diaryInput = document.getElementById('diary-input');
+  const editingToday = !diaryEditingDate || diaryEditingDate===todayStr();
   if(diaryInput && document.activeElement!==diaryInput){ // 입력 중일 땐 건드리지 않음(다른 화면 갱신으로 renderGrowth가 재호출돼도 커서/내용 유지)
-    const todays = (state.diary||[]).find(d=>d.date===todayStr());
-    diaryInput.value = todays ? todays.text : '';
-    if(todays) diaryVisibility = todays.groupId||null; // 오늘 글이 있으면 그 공개 범위를 따라가고, 없으면 마지막 선택을 유지
+    const target = (state.diary||[]).find(d=>d.date===(diaryEditingDate||todayStr()));
+    diaryInput.value = target ? target.text : '';
+    if(target) diaryVisibility = target.groupId||null; // 그 날짜의 글이 있으면 그 공개 범위를 따라가고, 없으면 마지막 선택을 유지
   }
+  const head = document.getElementById('diary-write-head');
+  if(head) head.innerHTML = `<span class="diary-quill">🖋️</span>${editingToday ? '오늘의 기록을 남겨보세요' : formatDiaryDate(diaryEditingDate)+'의 기록 수정'}`;
+  const banner = document.getElementById('diary-editing-banner');
+  if(banner) banner.innerHTML = editingToday ? '' : `<div class="diary-editing-banner">✏️ 지난 기록을 고치는 중이에요<a onclick="cancelDiaryEdit()">오늘로 돌아가기</a></div>`;
   const streak = diaryStreak();
   const meta = document.getElementById('diary-streak-meta');
   if(meta) meta.innerHTML = streak>0 ? `<span class="diary-streak-pill">🔥 ${streak}일째 기록 중</span>` : '';
   renderDiaryVisibilityPicker();
   renderDiaryList();
+  if(typeof socRenderGroupsPanel==='function') socRenderGroupsPanel('diary-groups-panel');
+}
+function editDiaryEntry(date){
+  diaryEditingDate = date;
+  renderGrowth();
+  const card = document.querySelector('.diary-write-card');
+  if(card) card.scrollIntoView({behavior:'smooth', block:'start'});
+}
+function cancelDiaryEdit(){
+  diaryEditingDate = null;
+  renderGrowth();
 }
 function diaryStreak(){
   const dates = new Set((state.diary||[]).map(d=>d.date));
@@ -5348,7 +5405,7 @@ function saveDiaryEntry(){
   const ta = document.getElementById('diary-input');
   const text = ta.value.trim();
   if(!text){ toast('기록할 내용을 입력해주세요'); return; }
-  const t = todayStr();
+  const t = diaryEditingDate || todayStr();
   state.diary = state.diary || [];
   const existing = state.diary.find(d=>d.date===t);
   if(existing){ existing.text = text; existing.groupId = diaryVisibility; existing.updatedAt = Date.now(); }
@@ -5356,8 +5413,9 @@ function saveDiaryEntry(){
   state.diary.sort((a,b)=> b.date<a.date?-1:1);
   saveState();
   if(typeof queueDiarySync==='function') queueDiarySync();
+  diaryEditingDate = null; // 저장하면 오늘 글 작성 화면으로 돌아간다
   renderGrowth();
-  toast('📜 모험 일지에 기록했어요');
+  toast(t===todayStr() ? '📜 모험 일지에 기록했어요' : '📜 지난 기록을 고쳤어요');
 }
 function formatDiaryDate(d){
   const [y,m,day] = d.split('-').map(Number);
@@ -5376,7 +5434,9 @@ function renderDiaryList(){
   wrap.innerHTML = entries.length
     ? entries.map(e=>{
         const seal = diarySeal(e.groupId);
-        return `<div class="diary-entry"><span class="diary-seal" title="${escapeHtml(seal.title)}">${seal.ic}</span><div class="diary-date">${formatDiaryDate(e.date)}${e.date===todayStr()?'<span class="diary-today-badge">오늘</span>':''}</div><div class="diary-text">${escapeHtml(e.text)}</div></div>`;
+        const notes = (e.notes||[]).length
+          ? `<div class="diary-notes">${e.notes.map(n=>`<div class="diary-note"><b>${escapeHtml(n.from)}</b> ${escapeHtml(n.text)}</div>`).join('')}</div>` : '';
+        return `<div class="diary-entry"><span class="diary-seal" title="${escapeHtml(seal.title)}">${seal.ic}</span><div class="diary-date">${formatDiaryDate(e.date)}${e.date===todayStr()?'<span class="diary-today-badge">오늘</span>':''}</div><div class="diary-text">${escapeHtml(e.text)}</div>${notes}<button type="button" class="diary-edit-btn" onclick="editDiaryEntry('${e.date}')">✏️ 수정</button></div>`;
       }).join('')
     : '<div class="diary-empty"><span class="diary-empty-ic">📜</span>아직 적힌 모험 기록이 없어요.<br>오늘의 이야기를 남겨보세요!</div>';
 }

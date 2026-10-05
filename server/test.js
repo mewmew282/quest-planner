@@ -142,6 +142,18 @@ const call = async (path, { method = 'GET', body, tok } = {}) => {
   assert.deepEqual(carolView, ['전체 공개 일기'], '그룹에 없는 친구는 공개 글만 봄');
   assert.equal((await call('/diary/Alice', { tok: d })).status, 403, '친구가 아니면 일기 접근 거부');
 
+  // 일기 메모 (공개 범위를 볼 수 있는 친구만 남길 수 있고, 다시 동기화해도 지워지지 않아야 함)
+  assert.equal((await call('/diary/Alice/note', { method: 'POST', tok: b, body: { date: '2026-01-03', text: '' } })).status, 400, '빈 메모 거부');
+  assert.equal((await call('/diary/Alice/note', { method: 'POST', tok: c, body: { date: '2026-01-03', text: '나도 볼래' } })).status, 403, '그룹에 없는 친구는 메모도 못 남김');
+  assert.equal((await call('/diary/Alice/note', { method: 'POST', tok: d, body: { date: '2026-01-03', text: '친구 아닌데' } })).status, 403, '친구 아니면 메모 거부');
+  assert.equal((await call('/diary/Alice/note', { method: 'POST', tok: b, body: { date: '2026-01-03', text: '멋진 하루였겠다!' } })).status, 200, '그룹 멤버는 메모 남김');
+  const bobViewAfterNote = (await call('/diary/Alice', { tok: b })).data.entries.find((e) => e.text === '그룹 공개 일기');
+  assert.deepEqual(bobViewAfterNote.notes.map((n) => [n.from, n.text]), [['Bob', '멋진 하루였겠다!']], '메모가 반영됨');
+  // 기기가 전체 목록을 다시 PUT해도(메모 필드 없이 보냄) 서버에 쌓인 메모는 사라지지 않아야 함
+  await call('/diary', { method: 'PUT', tok: a, body: { entries: diaryPayload } });
+  const ownAfterResync = (await call('/diary', { tok: a })).data.entries.find((e) => e.date === '2026-01-03');
+  assert.deepEqual(ownAfterResync.notes.map((n) => n.text), ['멋진 하루였겠다!'], '다시 동기화해도 친구 메모는 유지됨');
+
   await call('/friend-groups/delete', { method: 'POST', tok: a, body: { id: grpRes.id } });
   assert.equal((await call('/friend-groups', { tok: a })).data.groups.length, 0, '그룹 삭제됨');
   const afterDelete = (await call('/diary', { tok: a })).data.entries.find((e) => e.date === '2026-01-03');
