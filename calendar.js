@@ -316,8 +316,21 @@ function dayCell(d, today){
   const icons = dated.slice(0,2).map(q=> isBoss(q) ? '👑' : rIcon(q)).join('');
   const more = dated.length>2 ? `+${dated.length-2}` : '';
   const rep = qs.length-dated.length>0 ? '·' : '';
+  const diaryMark = hasDiary(ds) ? '📖' : '';
   const cls = `${ds===today?' today':''}${ds===sel?' sel':''}${c.clearDays[ds]?' clr':''}`;
-  return `<button class="cal-day${cls}" onclick="calSelect('${ds}')"><span class="n"><span>${d}</span><span>${c.clearDays[ds]?'🏆':''}${c.restDays[ds]?'🏨':''}</span></span><span class="ic">${icons}${more}${rep}</span></button>`;
+  return `<button class="cal-day${cls}" onclick="calSelect('${ds}')"><span class="n"><span>${d}</span><span>${c.clearDays[ds]?'🏆':''}${c.restDays[ds]?'🏨':''}</span></span><span class="ic">${icons}${more}${rep}${diaryMark}</span></button>`;
+}
+function hasDiary(ds){
+  return (state.diary||[]).some(d=>d.date===ds);
+}
+function dayDiaryBlock(ds){
+  const entry = (state.diary||[]).find(d=>d.date===ds);
+  const label = entry ? `📖 ${escapeHtml(entry.title||formatDiaryDate(ds))}` : '📖 이 날의 일기 쓰기';
+  return `<button type="button" class="cal-diary-cta${entry?' has':''}" onclick="goToDiaryDate('${ds}')">${label}<span class="arrow">›</span></button>`;
+}
+function goToDiaryDate(ds){
+  switchTab('growth');
+  editDiaryEntry(ds);
 }
 
 // ---- 일정 아이템 규칙 ----
@@ -390,7 +403,8 @@ function dayPanel(){
   const c = S(), qs = questsOn(sel), today = todayStr();
   const done = qs.filter(q=>isDone(q, sel)).length;
   const head = sel===today ? `📋 오늘의 퀘스트 ${done}/${qs.length}` : `📅 ${sel} 일정 ${qs.length}개`;
-  if(qs.length===0) return `<div class="cal-panel"><h3>${head}</h3><div style="color:var(--text-dim);font-size:12.5px">이 날의 퀘스트가 없습니다.</div></div>`;
+  const diaryBlock = dayDiaryBlock(sel);
+  if(qs.length===0) return `<div class="cal-panel"><h3>${head}</h3><div style="color:var(--text-dim);font-size:12.5px">이 날의 퀘스트가 없습니다.</div>${diaryBlock}</div>`;
   const rows = qs.map(q=>{
     let btn = '';
     if(q.type==='dated' && q.status!=='done'){
@@ -404,7 +418,7 @@ function dayPanel(){
     const tag = q.type==='dated' ? (isBoss(q)?'👑 보스':(q.dueDate<today&&q.status!=='done'?'놓친 퀘스트':'마감 퀘스트')) : '반복 퀘스트';
     return `<div class="cal-row"><span>${isBoss(q)?'👑':rIcon(q)}</span><span class="t">${escapeHtml(q.title)}<div class="s">${rIcon(q)} ${rName(q)} · ${tag} · +${q.xp}XP${q.gold>0?` · +${q.gold}G`:''}${c.moved[q.id]?' · 일정 변경됨':''}${inv&&!inv.used?` · 💰투자 ${inv.tier}단계`:''}</div></span>${btn}<span>${isDone(q, sel)?'✅':''}</span>${actBox(q)}</div>`;
   }).join('');
-  return `<div class="cal-panel"><h3>${head}</h3>${rows}<div style="color:var(--text-faint);font-size:11px;margin-top:6px">완료 체크는 홈 또는 전체 퀘스트에서 합니다. 변경권·보존권·시간 연장권은 주 ${WEEKLY_TICKET_CAP}회, 같은 일정 1회, 보스 일정 불가.</div></div>`;
+  return `<div class="cal-panel"><h3>${head}</h3>${rows}<div style="color:var(--text-faint);font-size:11px;margin-top:6px">완료 체크는 홈 또는 전체 퀘스트에서 합니다. 변경권·보존권·시간 연장권은 주 ${WEEKLY_TICKET_CAP}회, 같은 일정 1회, 보스 일정 불가.</div>${diaryBlock}</div>`;
 }
 
 // ---- 상점 (장비 상점과 같은 카드·탭 디자인) ----
@@ -570,6 +584,7 @@ function applySkins(){
 window.calRender = render;
 window.calMove = (dm)=>{ const d = new Date(ym.y, ym.m+dm, 1); ym = {y:d.getFullYear(), m:d.getMonth()}; render(); };
 window.calSelect = (ds)=>{ sel = ds; act = null; render(); };
+window.goToDiaryDate = goToDiaryDate;
 window.calTogglePanel = (k)=>{ panel = panel===k ? null : k; render(); };
 window.calShopTab = (k)=>{ shopTab = k; render(); };
 // ---- 캘린더 상점: 상점 탭의 '캘린더' 대분류에 그린다 ----

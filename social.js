@@ -109,7 +109,11 @@ async function openProfile(nick){
 /* ---------- 친구의 일기 보기 (그 친구가 나를 포함한 공개 범위로 올린 글만) + 메모 남기기 ---------- */
 function diaryEntryHtml(e, nick){
   const notes = (e.notes||[]).map((n)=>`<div class="diary-note"><b>${esc(n.from)}</b> ${esc(n.text)}</div>`).join('');
-  return `<div class="diary-entry"><div class="diary-date">${esc(e.date)}</div><div class="diary-text">${esc(e.text)}</div>`
+  const mood = (typeof DIARY_MOODS!=='undefined' ? DIARY_MOODS : []).find((m)=>m.id===e.mood);
+  const tags = (e.tags||[]).length ? `<div class="diary-entry-tags">${e.tags.map((t)=>`<span class="diary-tag-pill">#${esc(t)}</span>`).join('')}</div>` : '';
+  return `<div class="diary-entry"><div class="diary-date">${mood ? mood.ic+' ' : ''}${esc(e.date)}</div>`
+    + (e.title ? `<div class="diary-entry-title">${esc(e.title)}</div>` : '')
+    + `<div class="diary-text">${esc(e.text)}</div>${tags}`
     + (notes ? `<div class="diary-notes">${notes}</div>` : '')
     + `<div class="diary-note-form"><input type="text" maxlength="200" placeholder="메모를 남겨보세요" data-note-input="${esc(e.date)}"><button data-note-send="${esc(e.date)}" data-note-nick="${esc(nick)}">남기기</button></div></div>`;
 }

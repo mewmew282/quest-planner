@@ -293,14 +293,19 @@ app.post('/api/friend-groups/delete', auth, wrap(async (req, res) => {
 
 // ---- 일기 (날짜당 1개. groupId: null=비공개, 'public'=친구 전체 공개, 그 외=친구그룹 id) ----
 // ponytail: 퀘스트 동기화와 같은 신뢰 수준 -- 필드는 다듬지만 깊이 검증하진 않는다.
+const DIARY_MOODS = new Set(['good', 'ok', 'normal', 'hard', 'angry']);
 function sanitizeDiary(arr) {
   if (!Array.isArray(arr) || arr.length > 366) return null;
   const out = [];
   for (const d of arr) {
     if (!d || typeof d !== 'object' || !/^\d{4}-\d{2}-\d{2}$/.test(String(d.date))) continue;
+    const tags = Array.isArray(d.tags) ? d.tags.map((t) => String(t).trim().slice(0, 20)).filter(Boolean).slice(0, 7) : [];
     out.push({
       date: String(d.date),
+      title: String(d.title || '').slice(0, 60),
       text: String(d.text || '').slice(0, 1000),
+      mood: DIARY_MOODS.has(d.mood) ? d.mood : null,
+      tags,
       groupId: d.groupId ? String(d.groupId).slice(0, 40) : null,
       updatedAt: Number(d.updatedAt) || Date.now(),
     });
@@ -327,7 +332,7 @@ app.get('/api/diary/:nick', auth, wrap(async (req, res) => {
   const myGroupIds = ((target && target.friendGroups) || []).filter((g) => g.members.some((m) => m.equals(req.uid))).map((g) => g.id);
   const visible = new Set(['public', ...myGroupIds]);
   const entries = ((target && target.diary) || []).filter((d) => d.groupId && visible.has(d.groupId))
-    .map((d) => ({ date: d.date, text: d.text, notes: (d.notes || []).map((n) => ({ from: n.from, text: n.text, at: n.at })) }));
+    .map((d) => ({ date: d.date, title: d.title, mood: d.mood, tags: d.tags || [], text: d.text, notes: (d.notes || []).map((n) => ({ from: n.from, text: n.text, at: n.at })) }));
   res.json({ nick: f.t.nick, entries });
 }));
 

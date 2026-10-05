@@ -129,15 +129,27 @@ const call = async (path, { method = 'GET', body, tok } = {}) => {
   assert.equal(grpBad, 400, '이름 없는 그룹 거부');
 
   const diaryPayload = [
-    { date: '2026-01-01', text: '비공개 일기', groupId: null, updatedAt: 1 },
-    { date: '2026-01-02', text: '전체 공개 일기', groupId: 'public', updatedAt: 2 },
-    { date: '2026-01-03', text: '그룹 공개 일기', groupId: grpRes.id, updatedAt: 3 },
+    { date: '2026-01-01', title: '비공개', text: '비공개 일기', mood: 'bogus', tags: Array.from({ length: 10 }, (_, i) => 't' + i), groupId: null, updatedAt: 1 },
+    { date: '2026-01-02', title: '좋은 하루', text: '전체 공개 일기', mood: 'good', tags: ['성장', '휴식'], groupId: 'public', updatedAt: 2 },
+    { date: '2026-01-03', title: '그룹 글', text: '그룹 공개 일기', mood: 'hard', tags: ['업무'], groupId: grpRes.id, updatedAt: 3 },
   ];
   assert.equal((await call('/diary', { method: 'PUT', tok: a, body: { entries: diaryPayload } })).status, 200, 'save diary');
-  assert.equal((await call('/diary', { tok: a })).data.entries.length, 3, '내 일기는 비공개 포함 전부 보임');
+  const ownEntries = (await call('/diary', { tok: a })).data.entries;
+  assert.equal(ownEntries.length, 3, '내 일기는 비공개 포함 전부 보임');
+  const privateEntry = ownEntries.find((e) => e.date === '2026-01-01');
+  assert.equal(privateEntry.mood, null, '알 수 없는 mood 값은 null로 정제됨');
+  assert.equal(privateEntry.tags.length, 7, 'tags는 최대 7개로 잘림');
+  const groupEntrySaved = ownEntries.find((e) => e.date === '2026-01-03');
+  assert.equal(groupEntrySaved.title, '그룹 글', 'title 저장됨');
+  assert.equal(groupEntrySaved.mood, 'hard', 'mood 저장됨');
+  assert.deepEqual(groupEntrySaved.tags, ['업무'], 'tags 저장됨');
 
   const bobView = (await call('/diary/Alice', { tok: b })).data.entries.map((e) => e.text).sort();
   assert.deepEqual(bobView, ['그룹 공개 일기', '전체 공개 일기'], '그룹 멤버는 공개+그룹 글을 봄');
+  const bobGroupEntry = (await call('/diary/Alice', { tok: b })).data.entries.find((e) => e.text === '그룹 공개 일기');
+  assert.equal(bobGroupEntry.title, '그룹 글', '친구 뷰에도 title이 보임');
+  assert.equal(bobGroupEntry.mood, 'hard', '친구 뷰에도 mood가 보임');
+  assert.deepEqual(bobGroupEntry.tags, ['업무'], '친구 뷰에도 tags가 보임');
   const carolView = (await call('/diary/Alice', { tok: c })).data.entries.map((e) => e.text);
   assert.deepEqual(carolView, ['전체 공개 일기'], '그룹에 없는 친구는 공개 글만 봄');
   assert.equal((await call('/diary/Alice', { tok: d })).status, 403, '친구가 아니면 일기 접근 거부');
