@@ -137,12 +137,38 @@
     resize:vertical;min-height:84px;line-height:1.5;
   }
   textarea:focus{outline:none;border-color:var(--gold-dim);}
-  .diary-entry{
-    background:var(--card);border:1px solid var(--border);border-radius:var(--radius-s);
-    padding:10px 12px;margin-top:8px;
+  .diary-write-card{
+    position:relative;background:linear-gradient(155deg, var(--card-hi) 0%, var(--card) 65%);
+    border:1px solid var(--gold-dim);border-radius:var(--radius-m);padding:14px;margin-top:4px;
+    box-shadow:0 0 0 1px rgba(231,181,73,0.08) inset, 0 6px 18px rgba(0,0,0,0.25);
   }
-  .diary-entry .diary-date{font-size:11px;color:var(--text-dim);margin-bottom:4px;font-weight:700;}
-  .diary-entry .diary-text{font-size:13px;line-height:1.5;white-space:pre-wrap;word-break:break-word;}
+  .diary-write-head{
+    display:flex;align-items:center;gap:7px;font-family:var(--font-display);font-weight:700;
+    font-size:13px;color:var(--gold);margin-bottom:10px;letter-spacing:.2px;
+  }
+  .diary-quill{font-size:16px;filter:drop-shadow(0 0 4px rgba(231,181,73,.4));}
+  .diary-write-card textarea{background:var(--bg);border-color:var(--gold-dim);}
+  .diary-save-btn{margin-top:10px;}
+  .diary-entry{
+    position:relative;background:linear-gradient(155deg, var(--card) 0%, var(--bg-elev) 100%);
+    border:1px solid var(--border);border-left:3px solid var(--gold-dim);border-radius:var(--radius-s);
+    padding:12px 14px 12px 16px;margin-top:10px;box-shadow:0 2px 8px rgba(0,0,0,.18);
+  }
+  .diary-entry .diary-date{
+    display:flex;align-items:center;gap:6px;font-family:var(--font-display);font-weight:700;
+    font-size:12px;color:var(--gold);margin-bottom:7px;padding-bottom:7px;
+    border-bottom:1px dashed var(--border);
+  }
+  .diary-entry .diary-today-badge{
+    font-family:var(--font-body);font-weight:700;font-size:9px;color:var(--bg);
+    background:var(--gold);border-radius:999px;padding:2px 7px;letter-spacing:.3px;
+  }
+  .diary-entry .diary-text{font-size:13px;line-height:1.65;color:var(--text);white-space:pre-wrap;word-break:break-word;}
+  .diary-empty{
+    text-align:center;padding:34px 16px;color:var(--text-faint);font-size:13px;
+    border:1px dashed var(--border);border-radius:var(--radius-m);margin-top:12px;
+  }
+  .diary-empty .diary-empty-ic{font-size:26px;display:block;margin-bottom:8px;opacity:.6;}
   .quest-date-pill{background:var(--bg-elev);color:var(--text-dim);}
   .quest-date-pill.overdue{background:rgba(224,102,92,0.15);color:var(--danger);border-color:var(--danger);}
   .class-grid{
@@ -1601,36 +1627,47 @@
         <div class="char-sub" id="char-char-sub"></div>
         <div class="char-badges" id="char-equip-badges" style="justify-content:center;"></div>
       </div>
+
+      <div class="chip-row" id="char-main-tabs" style="margin-top:14px;">
+        <button class="chip active" data-char-tab="stats" onclick="setCharTab('stats')">💪 능력치</button>
+        <button class="chip" data-char-tab="growth" onclick="setCharTab('growth')">📈 성장</button>
+      </div>
+
+      <div id="char-stats-wrap">
+        <div id="stat-list"></div>
+      </div>
+
+      <div id="char-growth-wrap" class="hidden">
+        <div class="section-head" style="margin-top:4px;"><h2>성장 단계</h2></div>
+        <div class="evo-timeline" id="evo-timeline"></div>
+
+        <div class="section-head"><h2>이번 주 리포트</h2></div>
+        <div class="stat-grid-2">
+          <div class="metric-card"><div class="num" id="m-cleared">0</div><div class="lbl">완료 퀘스트</div></div>
+          <div class="metric-card"><div class="num" id="m-xp">0</div><div class="lbl">획득 XP</div></div>
+          <div class="metric-card"><div class="num" id="m-rate">0%</div><div class="lbl">완료율</div></div>
+          <div class="metric-card"><div class="num" id="m-streak">0일</div><div class="lbl">연속 출석</div></div>
+        </div>
+
+        <div class="section-head"><h2>오늘의 경제</h2><span class="meta">🪙<span id="m-gold-total">0</span> 보유</span></div>
+        <div class="stat-grid-2">
+          <div class="metric-card"><div class="num gold-earn" id="m-gold-earned">🪙0</div><div class="lbl">오늘 획득</div></div>
+          <div class="metric-card"><div class="num gold-spend" id="m-gold-spent">🪙0</div><div class="lbl">오늘 사용</div></div>
+        </div>
+
+        <div class="section-head"><h2>업적</h2><span class="meta" id="achv-meta"></span></div>
+        <button class="achievement-dex-launch" type="button" onclick="openAchievementDex()"><span><span class="dex-launch-title">📖 업적도감</span><span class="dex-launch-sub" id="achv-dex-summary">발견한 업적을 확인하세요</span></span><span class="dex-launch-arrow">›</span></button>
+      </div>
     </div>
 
-    <!-- GROWTH -->
+    <!-- DIARY (하단 네비게이션의 '일기' 탭. 내부 id/tab key는 과거 이름인 'growth'를 그대로 씀) -->
     <div class="screen hidden" id="screen-growth">
-      <div class="section-head" style="margin-top:4px;"><h2>능력치</h2></div>
-      <div id="stat-list"></div>
-
-      <div class="section-head"><h2>성장 단계</h2></div>
-      <div class="evo-timeline" id="evo-timeline"></div>
-
-      <div class="section-head"><h2>이번 주 리포트</h2></div>
-      <div class="stat-grid-2">
-        <div class="metric-card"><div class="num" id="m-cleared">0</div><div class="lbl">완료 퀘스트</div></div>
-        <div class="metric-card"><div class="num" id="m-xp">0</div><div class="lbl">획득 XP</div></div>
-        <div class="metric-card"><div class="num" id="m-rate">0%</div><div class="lbl">완료율</div></div>
-        <div class="metric-card"><div class="num" id="m-streak">0일</div><div class="lbl">연속 출석</div></div>
+      <div class="section-head" style="margin-top:4px;"><h2>📜 모험 일지</h2><span class="meta" id="diary-streak-meta"></span></div>
+      <div class="diary-write-card">
+        <div class="diary-write-head"><span class="diary-quill">🖋️</span>오늘의 기록을 남겨보세요</div>
+        <textarea id="diary-input" maxlength="1000" placeholder="오늘 하루, 어떤 모험이 있었나요..."></textarea>
+        <button class="btn btn-gold btn-block diary-save-btn" onclick="saveDiaryEntry()">📖 기록 저장</button>
       </div>
-
-      <div class="section-head"><h2>오늘의 경제</h2><span class="meta">🪙<span id="m-gold-total">0</span> 보유</span></div>
-      <div class="stat-grid-2">
-        <div class="metric-card"><div class="num gold-earn" id="m-gold-earned">🪙0</div><div class="lbl">오늘 획득</div></div>
-        <div class="metric-card"><div class="num gold-spend" id="m-gold-spent">🪙0</div><div class="lbl">오늘 사용</div></div>
-      </div>
-
-      <div class="section-head"><h2>업적</h2><span class="meta" id="achv-meta"></span></div>
-      <button class="achievement-dex-launch" type="button" onclick="openAchievementDex()"><span><span class="dex-launch-title">📖 업적도감</span><span class="dex-launch-sub" id="achv-dex-summary">발견한 업적을 확인하세요</span></span><span class="dex-launch-arrow">›</span></button>
-
-      <div class="section-head"><h2>📔 오늘의 일기</h2></div>
-      <textarea id="diary-input" maxlength="1000" placeholder="오늘 하루는 어땠나요?"></textarea>
-      <button class="btn btn-gold btn-block" style="margin-top:10px;" onclick="saveDiaryEntry()">일기 저장</button>
       <div id="diary-list"></div>
     </div>
 
@@ -1843,7 +1880,7 @@
     <div class="fab" onclick="openAddSheet()">+</div>
 
     <div id="bottomnav">
-      <button class="nav-item" data-tab="growth" onclick="switchTab('growth')"><span class="ic">📈</span>성장</button>
+      <button class="nav-item" data-tab="growth" onclick="switchTab('growth')"><span class="ic">📔</span>일기</button>
       <button class="nav-item" data-tab="calendar" onclick="switchTab('calendar')"><span class="ic">📅</span>캘린더</button>
       <button class="nav-item active" data-tab="home" onclick="switchTab('home')"><span class="ic">🏠</span>홈</button>
       <button class="nav-item" data-tab="world" onclick="switchTab('world')"><span class="ic">🗺️</span>월드맵</button>
@@ -5139,6 +5176,13 @@ function renderDmgVault(wrap){
 
 
 /* ===================== CHARACTER SCREEN ===================== */
+let charTab = 'stats';
+function setCharTab(tab){
+  charTab = tab;
+  document.querySelectorAll('#char-main-tabs .chip').forEach(c=>c.classList.toggle('active', c.dataset.charTab===tab));
+  document.getElementById('char-stats-wrap').classList.toggle('hidden', tab!=='stats');
+  document.getElementById('char-growth-wrap').classList.toggle('hidden', tab!=='growth');
+}
 function renderCharacterScreen(){
   renderCharacterVisual('char');
   const badgeWrap = document.getElementById('char-equip-badges');
@@ -5149,10 +5193,9 @@ function renderCharacterScreen(){
     }).join('');
     badgeWrap.innerHTML = icons;
   }
-}
+  setCharTab(charTab);
 
-/* ===================== GROWTH SCREEN (능력치·성장 단계·주간 리포트·경제·업적·일기) ===================== */
-function renderGrowth(){
+  // 💪 능력치
   const wrap = document.getElementById('stat-list');
   wrap.innerHTML='';
   const max = Math.max(100, ...STAT_ORDER.map(s=>state.stats[s]||0));
@@ -5167,6 +5210,7 @@ function renderGrowth(){
     wrap.appendChild(div);
   });
 
+  // 📈 성장: 성장 단계 · 주간 리포트 · 경제 · 업적
   const level = levelFromXP(state.totalXP);
   const tl = document.getElementById('evo-timeline');
   tl.innerHTML='';
@@ -5198,18 +5242,36 @@ function renderGrowth(){
   document.getElementById('achv-meta').textContent = `${unlockedCount}/${ACHIEVEMENTS.length}`;
   document.getElementById('achv-dex-summary').textContent = `${unlockedCount} / ${ACHIEVEMENTS.length} 발견 · 도감을 펼쳐보세요`;
   if(document.getElementById('achievement-dex-overlay').classList.contains('show')) renderAchievementDex();
+}
 
+/* ===================== DIARY SCREEN (하단 네비게이션 '일기' 탭. 내부 tab key는 과거 이름인 'growth') ===================== */
+function renderGrowth(){
   const diaryInput = document.getElementById('diary-input');
-  if(diaryInput && document.activeElement!==diaryInput){ // 입력 중일 땐 건드리지 않음(퀘스트 완료 등으로 renderGrowth가 재호출돼도 커서/내용 유지)
+  if(diaryInput && document.activeElement!==diaryInput){ // 입력 중일 땐 건드리지 않음(다른 화면 갱신으로 renderGrowth가 재호출돼도 커서/내용 유지)
     const todays = (state.diary||[]).find(d=>d.date===todayStr());
     diaryInput.value = todays ? todays.text : '';
   }
+  const streak = diaryStreak();
+  const meta = document.getElementById('diary-streak-meta');
+  if(meta) meta.textContent = streak>0 ? `🔥 ${streak}일째 기록 중` : '';
   renderDiaryList();
+}
+function diaryStreak(){
+  const dates = new Set((state.diary||[]).map(d=>d.date));
+  let streak = 0;
+  let cursor = todayStr();
+  while(dates.has(cursor)){
+    streak++;
+    const dt = new Date(cursor+'T00:00:00');
+    dt.setDate(dt.getDate()-1);
+    cursor = dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+  }
+  return streak;
 }
 function saveDiaryEntry(){
   const ta = document.getElementById('diary-input');
   const text = ta.value.trim();
-  if(!text){ toast('일기 내용을 입력해주세요'); return; }
+  if(!text){ toast('기록할 내용을 입력해주세요'); return; }
   const t = todayStr();
   state.diary = state.diary || [];
   const existing = state.diary.find(d=>d.date===t);
@@ -5217,8 +5279,8 @@ function saveDiaryEntry(){
   else { state.diary.unshift({date:t, text, updatedAt:Date.now()}); }
   state.diary.sort((a,b)=> b.date<a.date?-1:1);
   saveState();
-  renderDiaryList();
-  toast('📔 일기를 저장했어요');
+  renderGrowth();
+  toast('📜 모험 일지에 기록했어요');
 }
 function formatDiaryDate(d){
   const [y,m,day] = d.split('-').map(Number);
@@ -5229,8 +5291,8 @@ function renderDiaryList(){
   if(!wrap) return;
   const entries = (state.diary||[]).slice(0,30);
   wrap.innerHTML = entries.length
-    ? entries.map(e=>`<div class="diary-entry"><div class="diary-date">${formatDiaryDate(e.date)}${e.date===todayStr()?' · 오늘':''}</div><div class="diary-text">${escapeHtml(e.text)}</div></div>`).join('')
-    : '<div class="hint" style="margin-top:8px;">아직 작성한 일기가 없어요. 오늘 하루를 기록해보세요!</div>';
+    ? entries.map(e=>`<div class="diary-entry"><div class="diary-date">${formatDiaryDate(e.date)}${e.date===todayStr()?'<span class="diary-today-badge">오늘</span>':''}</div><div class="diary-text">${escapeHtml(e.text)}</div></div>`).join('')
+    : '<div class="diary-empty"><span class="diary-empty-ic">📜</span>아직 적힌 모험 기록이 없어요.<br>오늘의 이야기를 남겨보세요!</div>';
 }
 
 /* ===================== ACHIEVEMENT DEX ===================== */
