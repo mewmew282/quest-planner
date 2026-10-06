@@ -155,58 +155,85 @@
 
   .diary-write-card{
     position:relative;overflow:hidden;
-    background:radial-gradient(ellipse at top left, rgba(231,181,73,.12), transparent 55%),
-      linear-gradient(155deg, #2b2246 0%, #221c3b 58%, #1b1730 100%);
-    border:1px solid var(--gold-dim);border-radius:var(--radius-m);padding:16px 14px 14px;margin-top:4px;
-    box-shadow:0 0 0 1px rgba(231,181,73,.08) inset, 0 8px 22px rgba(0,0,0,.3);
+    --paper:#f3e8d0; --paper-edge:#d2bd90; --ink:#3c2c16; --ink-dim:#7a6240; --rule:rgba(120,88,40,.22); --margin:rgba(185,68,60,.42);
+    background:
+      linear-gradient(to right, transparent 29px, var(--margin) 29px, var(--margin) 30px, transparent 31px),
+      repeating-linear-gradient(var(--paper) 0px, var(--paper) 25px, var(--rule) 26px),
+      var(--paper);
+    border:1px solid var(--paper-edge);border-radius:3px 12px 12px 3px;padding:18px 16px 16px 42px;margin-top:4px;
+    box-shadow:0 12px 26px rgba(0,0,0,.4), inset 0 0 0 1px rgba(255,255,255,.3);
   }
-  .diary-write-card::before{
-    content:'❖ ❖ ❖';display:block;text-align:center;color:var(--gold-dim);
-    font-size:10px;letter-spacing:9px;margin-bottom:12px;opacity:.65;
+  .diary-write-card::before{ /* 스프링 제본 구멍 */
+    content:'';position:absolute;left:12px;top:18px;bottom:18px;width:8px;
+    background-image:radial-gradient(circle, var(--bg) 3.2px, transparent 3.4px);
+    background-size:8px 25px;background-repeat:repeat-y;
+  }
+  .diary-write-card::after{ /* 접힌 모서리 */
+    content:'';position:absolute;right:0;bottom:0;width:0;height:0;
+    border-style:solid;border-width:0 0 22px 22px;border-color:transparent transparent var(--paper-edge) transparent;
   }
   .diary-write-head{
     display:flex;align-items:center;gap:7px;font-family:var(--font-display);font-weight:700;
-    font-size:13px;color:var(--gold);margin-bottom:10px;letter-spacing:.2px;
+    font-size:13px;color:var(--ink);margin-bottom:10px;letter-spacing:.2px;
   }
-  .diary-quill{font-size:17px;filter:drop-shadow(0 0 5px rgba(231,181,73,.45));}
-  .diary-write-card textarea{background:rgba(10,8,18,.55);border-color:var(--gold-dim);}
+  .diary-quill{font-size:17px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.2));}
+  .diary-write-card textarea{
+    background:transparent;border:none;color:var(--ink);font-family:var(--font-display);
+    line-height:25px;padding:1px 0 0;box-shadow:none;min-height:150px;
+  }
+  .diary-write-card textarea:focus{outline:none;border:none;}
+  .diary-write-card textarea::placeholder{color:var(--ink-dim);opacity:.65;}
   .diary-save-btn{margin-top:12px;}
 
   .diary-visibility-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:12px 0 2px;}
   .diary-vis-chip{
     font-family:var(--font-body);font-size:11px;padding:6px 11px;border-radius:999px;
-    border:1px solid var(--border);background:var(--bg-elev);color:var(--text-dim);
+    border:1px solid var(--ink-dim);background:rgba(255,255,255,.35);color:var(--ink-dim);
     cursor:pointer;font-weight:700;transition:background .12s,border-color .12s,color .12s;
   }
-  .diary-vis-chip.active{background:linear-gradient(135deg, var(--gold-dim), var(--gold));border-color:var(--gold);color:#1a1424;}
-  .diary-vis-manage{font-size:10.5px;color:var(--text-faint);text-decoration:underline;cursor:pointer;margin-left:auto;align-self:center;white-space:nowrap;}
+  .diary-vis-chip.active{background:var(--ink);border-color:var(--ink);color:var(--paper);}
+  .diary-vis-manage{font-size:10.5px;color:var(--ink-dim);text-decoration:underline;cursor:pointer;margin-left:auto;align-self:center;white-space:nowrap;}
 
   .diary-entry{
     position:relative;overflow:hidden;
-    background:linear-gradient(160deg, var(--card) 0%, var(--bg-elev) 100%);
-    border:1px solid var(--border);border-radius:var(--radius-s);
-    padding:13px 42px 13px 17px;margin-top:12px;box-shadow:0 3px 10px rgba(0,0,0,.2);
+    --paper:#f3e8d0; --paper-edge:#d2bd90; --ink:#3c2c16; --ink-dim:#7a6240; --rule:rgba(120,88,40,.2); --margin:rgba(185,68,60,.4);
+    background:
+      linear-gradient(to right, transparent 24px, var(--margin) 24px, var(--margin) 25px, transparent 26px),
+      repeating-linear-gradient(var(--paper) 0px, var(--paper) 23px, var(--rule) 24px),
+      var(--paper);
+    border:1px solid var(--paper-edge);border-radius:2px 10px 10px 2px;
+    padding:18px 16px 14px 36px;margin-top:20px;box-shadow:0 8px 18px rgba(0,0,0,.35);
+    transform:rotate(var(--tilt, 0deg));
   }
-  .diary-entry::before{ /* 왼쪽 책갈피 리본 */
-    content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
-    background:linear-gradient(180deg, var(--gold), var(--gold-dim));
+  .diary-entry:nth-child(odd){--tilt:-0.5deg;}
+  .diary-entry:nth-child(even){--tilt:0.5deg;}
+  .diary-entry::before{ /* 위쪽 마스킹 테이프 */
+    content:'';position:absolute;top:-7px;left:50%;transform:translateX(-50%) rotate(-2deg);
+    width:50px;height:16px;background:rgba(231,181,73,.4);
+    border:1px solid rgba(231,181,73,.25);box-shadow:0 1px 3px rgba(0,0,0,.25);
+  }
+  .diary-entry::after{ /* 스프링 제본 구멍 */
+    content:'';position:absolute;left:9px;top:16px;bottom:16px;width:7px;
+    background-image:radial-gradient(circle, var(--bg) 2.8px, transparent 3px);
+    background-size:7px 20px;background-repeat:repeat-y;
   }
   .diary-entry .diary-seal{
-    position:absolute;top:10px;right:10px;width:24px;height:24px;border-radius:50%;
+    position:absolute;top:9px;right:10px;width:25px;height:25px;border-radius:50%;
     display:flex;align-items:center;justify-content:center;font-size:12px;
-    background:var(--card-hi);border:1px solid var(--gold-dim);
-    box-shadow:0 0 0 2px var(--card) , 0 2px 5px rgba(0,0,0,.3);
+    background:radial-gradient(circle at 30% 30%, #8a3b2b, #5c2419);
+    border:1px solid rgba(0,0,0,.25);color:#f3e8d0;
+    box-shadow:0 2px 5px rgba(0,0,0,.35), inset 0 1px 1px rgba(255,255,255,.2);
   }
   .diary-entry .diary-date{
     display:flex;align-items:center;gap:6px;font-family:var(--font-display);font-weight:700;
-    font-size:12.5px;color:var(--gold);margin-bottom:8px;padding-bottom:8px;
-    border-bottom:1px dashed var(--border);
+    font-size:12.5px;color:var(--ink);margin-bottom:8px;padding-bottom:8px;
+    border-bottom:1px dashed var(--ink-dim);
   }
   .diary-entry .diary-today-badge{
-    font-family:var(--font-body);font-weight:700;font-size:9px;color:var(--bg);
-    background:var(--gold);border-radius:999px;padding:2px 7px;letter-spacing:.3px;
+    font-family:var(--font-body);font-weight:700;font-size:9px;color:var(--paper);
+    background:var(--ink);border-radius:999px;padding:2px 7px;letter-spacing:.3px;
   }
-  .diary-entry .diary-text{font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap;word-break:break-word;}
+  .diary-entry .diary-text{font-size:13px;line-height:1.8;color:var(--ink);white-space:pre-wrap;word-break:break-word;}
   .diary-empty{
     text-align:center;padding:36px 16px;color:var(--text-faint);font-size:13px;
     border:1px dashed var(--gold-dim);border-radius:var(--radius-m);margin-top:14px;
@@ -214,8 +241,8 @@
   }
   .diary-empty .diary-empty-ic{font-size:28px;display:block;margin-bottom:8px;opacity:.55;}
   .diary-edit-btn{
-    margin-top:10px;font-size:11px;padding:5px 10px;border-radius:8px;
-    background:var(--bg-elev);color:var(--text-dim);border:1px solid var(--border);cursor:pointer;
+    font-size:11px;padding:5px 10px;border-radius:8px;
+    background:rgba(255,255,255,.4);color:var(--ink);border:1px solid var(--ink-dim);cursor:pointer;
   }
   .diary-editing-banner{
     display:flex;align-items:center;gap:8px;font-size:11px;color:var(--gold);
@@ -225,12 +252,12 @@
   .diary-editing-banner a{color:var(--text-dim);text-decoration:underline;cursor:pointer;margin-left:auto;font-weight:400;}
 
   /* ---- 메모 (공유한 친구가 일기 항목에 남기는 한마디) ---- */
-  .diary-notes{margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);display:flex;flex-direction:column;gap:6px;}
-  .diary-note{font-size:12px;line-height:1.5;color:var(--text-dim);background:var(--bg-elev);border-radius:8px;padding:6px 10px;}
-  .diary-note b{color:var(--gold);font-weight:700;margin-right:4px;}
+  .diary-notes{margin-top:10px;padding-top:10px;border-top:1px dashed var(--ink-dim);display:flex;flex-direction:column;gap:6px;}
+  .diary-note{font-size:12px;line-height:1.5;color:var(--ink);background:rgba(255,255,255,.4);border-radius:8px;padding:6px 10px;}
+  .diary-note b{color:#8a3b2b;font-weight:700;margin-right:4px;}
   .diary-note-form{display:flex;gap:6px;margin-top:9px;}
   .diary-note-form input{margin:0!important;flex:1;font-size:12px!important;padding:8px 10px!important;}
-  .diary-note-form button{flex:0 0 auto;padding:0 12px;border-radius:8px;background:var(--gold-dim);color:#fff;border:none;font-size:11px;font-weight:700;}
+  .diary-note-form button{flex:0 0 auto;padding:0 12px;border-radius:8px;background:var(--ink);color:var(--paper);border:none;font-size:11px;font-weight:700;}
 
   /* ---- 공개 그룹 (일기 탭 하단에 늘 펼쳐 보이는 패널) ---- */
   .diary-group-card{
@@ -252,44 +279,45 @@
 
   /* ---- 일기 작성: 제목 / 감정 / 태그 / 퀘스트 연동 ---- */
   .diary-title-input{
-    background:rgba(10,8,18,.55)!important;border-color:var(--gold-dim)!important;
+    background:rgba(255,255,255,.35)!important;border:1px dashed var(--ink-dim)!important;color:var(--ink)!important;
     font-family:var(--font-display)!important;font-size:15px!important;font-weight:700!important;
-    margin-bottom:10px!important;padding:11px 13px!important;
+    margin-bottom:10px!important;padding:9px 12px!important;border-radius:6px!important;
   }
+  .diary-title-input::placeholder{color:var(--ink-dim);opacity:.6;}
   .diary-mood-row{display:flex;gap:6px;margin-bottom:10px;}
   .diary-mood-btn{
-    width:40px;height:40px;border-radius:50%;font-size:19px;background:var(--bg-elev);
-    border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;
-    transition:transform .1s,border-color .1s,background .1s;
+    width:38px;height:38px;border-radius:50%;font-size:18px;background:rgba(255,255,255,.4);
+    border:1px solid var(--ink-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;
+    opacity:.7;transition:transform .1s,border-color .1s,background .1s,opacity .1s;
   }
-  .diary-mood-btn.active{border-color:var(--gold);background:var(--card-hi);transform:scale(1.12);box-shadow:0 0 0 1px var(--gold-dim);}
+  .diary-mood-btn.active{border-color:var(--ink);background:#fff;transform:scale(1.14);opacity:1;box-shadow:0 2px 5px rgba(0,0,0,.2);}
   .diary-more-toggle{
-    display:block;width:100%;text-align:center;background:none;border:none;color:var(--text-faint);
+    display:block;width:100%;text-align:center;background:none;border:none;color:var(--ink-dim);
     font-size:11px;padding:8px 0 2px;cursor:pointer;text-decoration:underline;
   }
   .diary-more-panel{margin-top:6px;}
   .diary-tag-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
   .diary-tag-chip{
-    font-size:11px;padding:5px 10px;border-radius:999px;border:1px solid var(--border);
-    background:var(--bg-elev);color:var(--text-dim);cursor:pointer;font-weight:700;
+    font-size:11px;padding:5px 10px;border-radius:999px;border:1px solid var(--ink-dim);
+    background:rgba(255,255,255,.35);color:var(--ink-dim);cursor:pointer;font-weight:700;
   }
-  .diary-tag-chip.active{background:var(--bm-purple);border-color:var(--bm-purple);color:#fff;}
+  .diary-tag-chip.active{background:var(--ink);border-color:var(--ink);color:var(--paper);}
   .diary-tag-input{
-    background:var(--bg-elev)!important;border:1px solid var(--border)!important;color:var(--text)!important;
+    background:rgba(255,255,255,.4)!important;border:1px dashed var(--ink-dim)!important;color:var(--ink)!important;
     border-radius:999px!important;padding:5px 10px!important;font-size:11px!important;
     width:88px!important;margin:0!important;
   }
-  .diary-linked-head{font-size:11px;color:var(--text-dim);font-weight:700;margin:10px 0 4px;}
-  .diary-linked-quest{font-size:12px;color:var(--text);background:var(--bg-elev);border-radius:8px;padding:6px 9px;margin-top:4px;}
-  .diary-linked-quest .sub{color:var(--gold);font-size:11px;margin-left:4px;}
+  .diary-linked-head{font-size:11px;color:var(--ink-dim);font-weight:700;margin:10px 0 4px;}
+  .diary-linked-quest{font-size:12px;color:var(--ink);background:rgba(255,255,255,.35);border-radius:8px;padding:6px 9px;margin-top:4px;}
+  .diary-linked-quest .sub{color:#8a5a1f;font-size:11px;margin-left:4px;font-weight:700;}
 
   /* ---- 일기 목록 카드의 제목/태그/연동 표시 ---- */
-  .diary-entry-title{font-family:var(--font-display);font-weight:700;font-size:14px;color:var(--text);margin-bottom:6px;}
+  .diary-entry-title{font-family:var(--font-display);font-weight:700;font-size:14px;color:var(--ink);margin-bottom:6px;}
   .diary-entry-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px;}
-  .diary-tag-pill{font-size:10.5px;color:var(--bm-purple);background:rgba(139,95,191,.14);border-radius:999px;padding:3px 8px;}
-  .diary-entry-linked{font-size:11px;color:var(--text-dim);margin-top:7px;}
+  .diary-tag-pill{font-size:10.5px;color:var(--ink);background:rgba(255,255,255,.4);border:1px solid var(--ink-dim);border-radius:999px;padding:3px 8px;}
+  .diary-entry-linked{font-size:11px;color:var(--ink-dim);margin-top:7px;}
   .diary-entry-actions{display:flex;gap:6px;margin-top:11px;}
-  .diary-del-btn{color:var(--danger);border-color:rgba(224,102,92,.35);}
+  .diary-del-btn{color:#8a3b2b;border-color:rgba(138,59,43,.5);}
 
   /* ---- 하단 네비 '일기' 탭: 오늘 미작성 시 작은 점 배지 ---- */
   .nav-item[data-tab="growth"]{position:relative;}
@@ -2902,11 +2930,10 @@ function renderHome(){
   const list = todaysQuests();
   const wrap = document.getElementById('today-quest-list');
   wrap.innerHTML='';
-  const HOME_QUEST_LIMIT = 4;
   if(list.length===0){
     wrap.innerHTML = `<div class="empty-note">아직 등록된 퀘스트가 없습니다.<br>오른쪽 하단 + 버튼으로 첫 퀘스트를 등록해보세요.</div>`;
   } else {
-    list.slice(0, HOME_QUEST_LIMIT).forEach(q=> wrap.appendChild(questCardEl(q, t)) );
+    list.forEach(q=> wrap.appendChild(questCardEl(q, t)) );
   }
   document.getElementById('home-quest-more-btn').classList.toggle('hidden', state.quests.length===0);
   const done = list.filter(q=> q.type==='daily' ? q.lastDoneDate===t : q.status==='done').length;
