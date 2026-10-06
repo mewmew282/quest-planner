@@ -31,7 +31,7 @@ const limit = (key, max, ms) => {
 };
 setInterval(() => hits.clear(), 3600e3).unref();
 
-let users, msgs;
+let users, msgs, diaryRooms, diaryRoomEntries;
 
 const auth = (req, res, next) => {
   try {
@@ -70,7 +70,7 @@ app.post('/api/register', wrap(async (req, res) => {
   const c = await credentials(req, res); if (!c) return;
   if (/[<>"'&`\\\u0000-\u001f]/.test(c.nick)) return bad(res, '닉네임에 쓸 수 없는 문자가 있어요');
   const doc = { nick: c.nick, nk: c.nick.toLowerCase(), hash: await bcrypt.hash(c.pw, 10), xp: 0, cls: '',
-    friends: [], reqIn: [], reqOut: [], push: [], diary: [], friendGroups: [], at: new Date() };
+    friends: [], reqIn: [], reqOut: [], push: [], diary: [], at: new Date() };
   try { doc._id = (await users.insertOne(doc)).insertedId; }
   catch (e) { if (e.code === 11000) return bad(res, '이미 있는 닉네임이에요', 409); throw e; }
   res.json({ token: token(doc), me: pub(doc) });
@@ -252,46 +252,7 @@ app.get('/api/msgs', auth, wrap(async (req, res) => {
   res.json(list.map((m) => ({ id: m._id, mine: m.from.equals(req.uid), text: m.text, at: m.at })));
 }));
 
-// ---- 친구 그룹 (일기 등을 선택한 친구에게만 공개할 때 쓰는 재사용 그룹) ----
-function sanitizeGroupName(n) { const s = String(n || '').trim().slice(0, 20); return s || null; }
-app.get('/api/friend-groups', auth, wrap(async (req, res) => {
-  const me = await users.findOne({ _id: req.uid }, { projection: { friendGroups: 1 } });
-  const groups = (me && me.friendGroups) || [];
-  const ids = [...new Set(groups.flatMap((g) => g.members.map(String)))].map((id) => new ObjectId(id));
-  const members = ids.length ? await users.find({ _id: { $in: ids } }, { projection: { nick: 1 } }).toArray() : [];
-  const nickOf = Object.fromEntries(members.map((u) => [u._id.toString(), u.nick]));
-  res.json({ groups: groups.map((g) => ({ id: g.id, name: g.name, members: g.members.map((id) => ({ id: id.toString(), nick: nickOf[id.toString()] || '?' })) })) });
-}));
-app.put('/api/friend-groups', auth, wrap(async (req, res) => {
-  const name = sanitizeGroupName(req.body.name);
-  if (!name) return bad(res, '그룹 이름을 입력하세요');
-  const nicks = Array.isArray(req.body.memberNicks) ? req.body.memberNicks.slice(0, 100) : [];
-  const me = await users.findOne({ _id: req.uid }, { projection: { friends: 1, friendGroups: 1 } });
-  const friendSet = new Set((me.friends || []).map(String));
-  const resolved = [];
-  for (const n of nicks) {
-    const t = await byNick(n);
-    if (t && friendSet.has(t._id.toString())) resolved.push(t._id);
-  }
-  const groups = me.friendGroups || [];
-  const editingExisting = req.body.id && groups.some((g) => g.id === req.body.id);
-  if (!editingExisting && groups.length >= 30) return bad(res, '그룹은 최대 30개까지 만들 수 있어요');
-  const id = editingExisting ? req.body.id : 'g_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-  const idx = groups.findIndex((g) => g.id === id);
-  const group = { id, name, members: resolved };
-  if (idx >= 0) groups[idx] = group; else groups.push(group);
-  await users.updateOne({ _id: req.uid }, { $set: { friendGroups: groups } });
-  res.json({ ok: true, id });
-}));
-app.post('/api/friend-groups/delete', auth, wrap(async (req, res) => {
-  const id = String(req.body.id || '');
-  await users.updateOne({ _id: req.uid }, { $pull: { friendGroups: { id } } });
-  // 그 그룹을 공개 범위로 쓰던 일기 항목은 비공개로 되돌린다 (존재하지 않는 그룹을 가리키며 남지 않도록)
-  await users.updateOne({ _id: req.uid }, { $set: { 'diary.$[e].groupId': null } }, { arrayFilters: [{ 'e.groupId': id }] });
-  res.json({ ok: true });
-}));
-
-// ---- 일기 (날짜당 1개. groupId: null=비공개, 'public'=친구 전체 공개, 그 외=친구그룹 id) ----
+// ---- 일기 (개인용, 날짜당 1개, 항상 비공개 -- 다른 사람과 나누려면 아래 '일기장(방)'을 쓴다) ----
 // ponytail: 퀘스트 동기화와 같은 신뢰 수준 -- 필드는 다듬지만 깊이 검증하진 않는다.
 const DIARY_MOODS = new Set(['good', 'ok', 'normal', 'hard', 'angry']);
 function sanitizeDiary(arr) {
@@ -306,7 +267,6 @@ function sanitizeDiary(arr) {
       text: String(d.text || '').slice(0, 1000),
       mood: DIARY_MOODS.has(d.mood) ? d.mood : null,
       tags,
-      groupId: d.groupId ? String(d.groupId).slice(0, 40) : null,
       updatedAt: Number(d.updatedAt) || Date.now(),
     });
   }
@@ -319,42 +279,106 @@ app.get('/api/diary', auth, wrap(async (req, res) => {
 app.put('/api/diary', auth, wrap(async (req, res) => {
   const entries = sanitizeDiary(req.body.entries);
   if (!entries) return bad(res, '잘못된 일기 데이터');
-  // 메모는 친구가 서버에만 남기므로(기기는 알 수 없음), 기기가 밀어올린 내용으로 덮어쓸 때도 기존 메모는 그대로 들고 간다
-  const existing = await users.findOne({ _id: req.uid }, { projection: { diary: 1 } });
-  const notesByDate = Object.fromEntries(((existing && existing.diary) || []).map((d) => [d.date, d.notes || []]));
-  const merged = entries.map((e) => ({ ...e, notes: notesByDate[e.date] || [] }));
-  await users.updateOne({ _id: req.uid }, { $set: { diary: merged } });
+  await users.updateOne({ _id: req.uid }, { $set: { diary: entries } });
   res.json({ ok: true });
 }));
-app.get('/api/diary/:nick', auth, wrap(async (req, res) => {
-  const f = await friendOf(req, res, req.params.nick); if (!f) return;
-  const target = await users.findOne({ _id: f.t._id }, { projection: { diary: 1, friendGroups: 1 } });
-  const myGroupIds = ((target && target.friendGroups) || []).filter((g) => g.members.some((m) => m.equals(req.uid))).map((g) => g.id);
-  const visible = new Set(['public', ...myGroupIds]);
-  const entries = ((target && target.diary) || []).filter((d) => d.groupId && visible.has(d.groupId))
-    .map((d) => ({ date: d.date, title: d.title, mood: d.mood, tags: d.tags || [], text: d.text, notes: (d.notes || []).map((n) => ({ from: n.from, text: n.text, at: n.at })) }));
-  res.json({ nick: f.t.nick, entries });
-}));
 
-// ---- 일기 메모 (공개된 글을 볼 수 있는 친구만, 그 글에 짧은 메모를 남길 수 있다) ----
-function sanitizeNoteText(t) { return String(t || '').trim().slice(0, 200); }
-app.post('/api/diary/:nick/note', auth, wrap(async (req, res) => {
-  const text = sanitizeNoteText(req.body.text);
-  if (!text) return bad(res, '메모 내용을 입력하세요');
+// ---- 일기장(방): 코드를 공유해 여러 명이 함께 쓰는 공동 일기 (셋로그 방식) ----
+const ROOM_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // 헷갈리는 0/O, 1/I/L은 뺀다
+function genRoomCode() {
+  let c = '';
+  for (let i = 0; i < 6; i++) c += ROOM_CODE_CHARS[Math.floor(Math.random() * ROOM_CODE_CHARS.length)];
+  return c;
+}
+function sanitizeRoomName(n) { const s = String(n || '').trim().slice(0, 30); return s || null; }
+async function roomMemberCheck(req, res, roomId) {
+  let _id;
+  try { _id = new ObjectId(String(roomId)); } catch { bad(res, '잘못된 일기장이에요', 404); return null; }
+  const room = await diaryRooms.findOne({ _id });
+  if (!room || !room.members.some((m) => m.equals(req.uid))) { bad(res, '일기장을 찾을 수 없어요', 404); return null; }
+  return room;
+}
+app.post('/api/diary-rooms', auth, wrap(async (req, res) => {
+  const name = sanitizeRoomName(req.body.name);
+  if (!name) return bad(res, '일기장 이름을 입력하세요');
+  const memberOf = await diaryRooms.countDocuments({ members: req.uid });
+  if (memberOf >= 20) return bad(res, '참여 중인 일기장은 최대 20개까지예요');
+  let code = null;
+  for (let i = 0; i < 8 && !code; i++) {
+    const tryCode = genRoomCode();
+    if (!(await diaryRooms.findOne({ code: tryCode }))) code = tryCode;
+  }
+  if (!code) return bad(res, '코드를 만들지 못했어요. 다시 시도해주세요', 500);
+  const doc = { code, name, ownerId: req.uid, members: [req.uid], createdAt: new Date() };
+  doc._id = (await diaryRooms.insertOne(doc)).insertedId;
+  res.json({ id: doc._id, name, code });
+}));
+app.post('/api/diary-rooms/join', auth, wrap(async (req, res) => {
+  if (!limit('roomjoin:' + req.uid, 15, 60e3)) return bad(res, '너무 빨라요. 잠시 후 다시', 429);
+  const code = String(req.body.code || '').trim().toUpperCase();
+  if (!code) return bad(res, '코드를 입력하세요');
+  const room = await diaryRooms.findOne({ code });
+  if (!room) return bad(res, '그 코드의 일기장을 찾을 수 없어요', 404);
+  if (!room.members.some((m) => m.equals(req.uid))) {
+    if (room.members.length >= 30) return bad(res, '이 일기장은 인원이 가득 찼어요');
+    await diaryRooms.updateOne({ _id: room._id }, { $addToSet: { members: req.uid } });
+  }
+  res.json({ id: room._id, name: room.name, code: room.code });
+}));
+app.get('/api/diary-rooms', auth, wrap(async (req, res) => {
+  const rooms = await diaryRooms.find({ members: req.uid }).sort({ createdAt: -1 }).toArray();
+  res.json({ rooms: rooms.map((r) => ({ id: r._id, name: r.name, code: r.code, memberCount: r.members.length, isOwner: r.ownerId.equals(req.uid) })) });
+}));
+app.get('/api/diary-rooms/:id', auth, wrap(async (req, res) => {
+  const room = await roomMemberCheck(req, res, req.params.id); if (!room) return;
+  const members = await users.find({ _id: { $in: room.members } }, { projection: { nick: 1 } }).toArray();
+  const entries = await diaryRoomEntries.find({ roomId: room._id }).sort({ date: -1, updatedAt: -1 }).limit(500).toArray();
+  res.json({
+    id: room._id, name: room.name, code: room.code, isOwner: room.ownerId.equals(req.uid),
+    members: members.map((m) => ({ nick: m.nick })),
+    entries: entries.map((e) => ({ authorNick: e.authorNick, mine: e.authorId.equals(req.uid), date: e.date, title: e.title, text: e.text, mood: e.mood, tags: e.tags, updatedAt: e.updatedAt })),
+  });
+}));
+app.put('/api/diary-rooms/:id/entry', auth, wrap(async (req, res) => {
+  const room = await roomMemberCheck(req, res, req.params.id); if (!room) return;
   const date = String(req.body.date || '');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return bad(res, '잘못된 날짜');
-  if (!limit('note:' + req.uid, 30, 60e3)) return bad(res, '너무 빨라요. 잠시 후 다시', 429);
-  const f = await friendOf(req, res, req.params.nick); if (!f) return;
-  const target = await users.findOne({ _id: f.t._id }, { projection: { diary: 1, friendGroups: 1 } });
-  const entry = ((target && target.diary) || []).find((d) => d.date === date);
-  if (!entry) return bad(res, '그 기록을 찾을 수 없어요', 404);
-  const myGroupIds = ((target.friendGroups) || []).filter((g) => g.members.some((m) => m.equals(req.uid))).map((g) => g.id);
-  const visible = new Set(['public', ...myGroupIds]);
-  if (!entry.groupId || !visible.has(entry.groupId)) return bad(res, '나에게 공개되지 않은 기록이에요', 403);
-  const note = { from: f.me.nick, text, at: Date.now() };
-  await users.updateOne({ _id: f.t._id }, { $push: { 'diary.$[e].notes': { $each: [note], $slice: -50 } } }, { arrayFilters: [{ 'e.date': date }] });
-  notify(f.t._id, { title: '📝 일기에 메모가 달렸어요', body: `${f.me.nick}: ${text.slice(0, 60)}`, tag: 'diarynote' });
-  res.json({ ok: true, note });
+  const text = String(req.body.text || '').trim().slice(0, 1000);
+  if (!text) return bad(res, '내용을 입력하세요');
+  const title = String(req.body.title || '').slice(0, 60);
+  const mood = DIARY_MOODS.has(req.body.mood) ? req.body.mood : null;
+  const tags = Array.isArray(req.body.tags) ? req.body.tags.map((t) => String(t).trim().slice(0, 20)).filter(Boolean).slice(0, 5) : [];
+  const me = await users.findOne({ _id: req.uid }, { projection: { nick: 1 } });
+  await diaryRoomEntries.updateOne(
+    { roomId: room._id, authorId: req.uid, date },
+    { $set: { title, text, mood, tags, authorNick: me.nick, updatedAt: Date.now() } },
+    { upsert: true }
+  );
+  res.json({ ok: true });
+}));
+app.post('/api/diary-rooms/:id/entry/delete', auth, wrap(async (req, res) => {
+  const room = await roomMemberCheck(req, res, req.params.id); if (!room) return;
+  const date = String(req.body.date || '');
+  await diaryRoomEntries.deleteOne({ roomId: room._id, authorId: req.uid, date });
+  res.json({ ok: true });
+}));
+app.post('/api/diary-rooms/:id/leave', auth, wrap(async (req, res) => {
+  const room = await roomMemberCheck(req, res, req.params.id); if (!room) return;
+  await diaryRooms.updateOne({ _id: room._id }, { $pull: { members: req.uid } });
+  await diaryRoomEntries.deleteMany({ roomId: room._id, authorId: req.uid }); // 내가 쓴 글은 함께 들고 나간다
+  const after = await diaryRooms.findOne({ _id: room._id });
+  if (after && after.members.length === 0) {
+    await diaryRooms.deleteOne({ _id: room._id });
+    await diaryRoomEntries.deleteMany({ roomId: room._id });
+  }
+  res.json({ ok: true });
+}));
+app.post('/api/diary-rooms/:id/delete', auth, wrap(async (req, res) => {
+  const room = await roomMemberCheck(req, res, req.params.id); if (!room) return;
+  if (!room.ownerId.equals(req.uid)) return bad(res, '방장만 삭제할 수 있어요', 403);
+  await diaryRooms.deleteOne({ _id: room._id });
+  await diaryRoomEntries.deleteMany({ roomId: room._id });
+  res.json({ ok: true });
 }));
 
 // ---- 푸시 구독 ----
@@ -378,9 +402,14 @@ app.post('/api/push', auth, wrap(async (req, res) => {
 MongoClient.connect(MONGODB_URI).then(async (client) => {
   const db = client.db(process.env.DB_NAME || 'questplanner');
   users = db.collection('users'); msgs = db.collection('msgs');
+  diaryRooms = db.collection('diaryRooms'); diaryRoomEntries = db.collection('diaryRoomEntries');
   await users.createIndex({ nk: 1 }, { unique: true });
   await users.createIndex({ xp: -1 });
   await msgs.createIndex({ to: 1, read: 1 });
   await msgs.createIndex({ from: 1, to: 1, _id: 1 });
+  await diaryRooms.createIndex({ code: 1 }, { unique: true });
+  await diaryRooms.createIndex({ members: 1 });
+  await diaryRoomEntries.createIndex({ roomId: 1, authorId: 1, date: 1 }, { unique: true });
+  await diaryRoomEntries.createIndex({ roomId: 1, date: -1 });
   app.listen(PORT, () => console.log('quest-planner server on ' + PORT));
 }).catch((e) => { console.error(e); process.exit(1); });

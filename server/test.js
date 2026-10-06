@@ -117,59 +117,58 @@ const call = async (path, { method = 'GET', body, tok } = {}) => {
   await call('/score', { method: 'PUT', tok: a, body: { xp: 2600, cls: 'warrior', profile: null } }); // 공개 끄기
   assert.equal((await call('/profile/Alice', { tok: c })).data.profile, null, '공개를 끄면 프로필 삭제');
 
-  // 친구 그룹 · 일기 공개 범위
+  // 개인 일기 (항상 비공개, 다듬기만 검증)
   await call('/friends/request', { method: 'POST', tok: a, body: { nick: 'Carol' } });
   await call('/friends/respond', { method: 'POST', tok: c, body: { nick: 'Alice', accept: true } });
-  const grpRes = (await call('/friend-groups', { method: 'PUT', tok: a, body: { name: '친한친구', memberNicks: ['Bob'] } })).data;
-  assert(grpRes.id, 'create friend group');
-  const groups = (await call('/friend-groups', { tok: a })).data.groups;
-  assert.equal(groups.length, 1, 'group listed');
-  assert.deepEqual(groups[0].members.map((m) => m.nick), ['Bob'], 'member nick resolved');
-  const grpBad = (await call('/friend-groups', { method: 'PUT', tok: a, body: { name: '' } })).status;
-  assert.equal(grpBad, 400, '이름 없는 그룹 거부');
-
   const diaryPayload = [
-    { date: '2026-01-01', title: '비공개', text: '비공개 일기', mood: 'bogus', tags: Array.from({ length: 10 }, (_, i) => 't' + i), groupId: null, updatedAt: 1 },
-    { date: '2026-01-02', title: '좋은 하루', text: '전체 공개 일기', mood: 'good', tags: ['성장', '휴식'], groupId: 'public', updatedAt: 2 },
-    { date: '2026-01-03', title: '그룹 글', text: '그룹 공개 일기', mood: 'hard', tags: ['업무'], groupId: grpRes.id, updatedAt: 3 },
+    { date: '2026-01-01', title: '제목', text: '비공개 일기', mood: 'bogus', tags: Array.from({ length: 10 }, (_, i) => 't' + i), updatedAt: 1 },
   ];
   assert.equal((await call('/diary', { method: 'PUT', tok: a, body: { entries: diaryPayload } })).status, 200, 'save diary');
   const ownEntries = (await call('/diary', { tok: a })).data.entries;
-  assert.equal(ownEntries.length, 3, '내 일기는 비공개 포함 전부 보임');
-  const privateEntry = ownEntries.find((e) => e.date === '2026-01-01');
-  assert.equal(privateEntry.mood, null, '알 수 없는 mood 값은 null로 정제됨');
-  assert.equal(privateEntry.tags.length, 7, 'tags는 최대 7개로 잘림');
-  const groupEntrySaved = ownEntries.find((e) => e.date === '2026-01-03');
-  assert.equal(groupEntrySaved.title, '그룹 글', 'title 저장됨');
-  assert.equal(groupEntrySaved.mood, 'hard', 'mood 저장됨');
-  assert.deepEqual(groupEntrySaved.tags, ['업무'], 'tags 저장됨');
+  assert.equal(ownEntries.length, 1, '개인 일기 저장됨');
+  assert.equal(ownEntries[0].mood, null, '알 수 없는 mood 값은 null로 정제됨');
+  assert.equal(ownEntries[0].tags.length, 7, 'tags는 최대 7개로 잘림');
 
-  const bobView = (await call('/diary/Alice', { tok: b })).data.entries.map((e) => e.text).sort();
-  assert.deepEqual(bobView, ['그룹 공개 일기', '전체 공개 일기'], '그룹 멤버는 공개+그룹 글을 봄');
-  const bobGroupEntry = (await call('/diary/Alice', { tok: b })).data.entries.find((e) => e.text === '그룹 공개 일기');
-  assert.equal(bobGroupEntry.title, '그룹 글', '친구 뷰에도 title이 보임');
-  assert.equal(bobGroupEntry.mood, 'hard', '친구 뷰에도 mood가 보임');
-  assert.deepEqual(bobGroupEntry.tags, ['업무'], '친구 뷰에도 tags가 보임');
-  const carolView = (await call('/diary/Alice', { tok: c })).data.entries.map((e) => e.text);
-  assert.deepEqual(carolView, ['전체 공개 일기'], '그룹에 없는 친구는 공개 글만 봄');
-  assert.equal((await call('/diary/Alice', { tok: d })).status, 403, '친구가 아니면 일기 접근 거부');
+  // 일기장(방): 코드를 공유해 함께 쓰는 공동 일기
+  const roomRes = (await call('/diary-rooms', { method: 'POST', tok: a, body: { name: '우리들의 기록' } })).data;
+  assert(roomRes.id && /^[A-Z0-9]{6}$/.test(roomRes.code), 'create room with a 6-char code');
+  assert.equal((await call('/diary-rooms', { method: 'POST', tok: a, body: { name: '' } })).status, 400, '이름 없는 방 거부');
+  assert.equal((await call('/diary-rooms/join', { method: 'POST', tok: b, body: { code: 'ZZZZZZ' } })).status, 404, '없는 코드 거부');
+  assert.equal((await call('/diary-rooms/join', { method: 'POST', tok: b, body: { code: roomRes.code } })).status, 200, 'Bob joins by code');
+  const roomListA = (await call('/diary-rooms', { tok: a })).data.rooms;
+  assert.equal(roomListA.length, 1, 'Alice sees the room she created');
+  assert.equal(roomListA[0].isOwner, true, 'Alice is owner');
+  assert.equal((await call('/diary-rooms/' + roomRes.id, { tok: c })).status, 404, '멤버가 아니면 방에 접근 못 함');
 
-  // 일기 메모 (공개 범위를 볼 수 있는 친구만 남길 수 있고, 다시 동기화해도 지워지지 않아야 함)
-  assert.equal((await call('/diary/Alice/note', { method: 'POST', tok: b, body: { date: '2026-01-03', text: '' } })).status, 400, '빈 메모 거부');
-  assert.equal((await call('/diary/Alice/note', { method: 'POST', tok: c, body: { date: '2026-01-03', text: '나도 볼래' } })).status, 403, '그룹에 없는 친구는 메모도 못 남김');
-  assert.equal((await call('/diary/Alice/note', { method: 'POST', tok: d, body: { date: '2026-01-03', text: '친구 아닌데' } })).status, 403, '친구 아니면 메모 거부');
-  assert.equal((await call('/diary/Alice/note', { method: 'POST', tok: b, body: { date: '2026-01-03', text: '멋진 하루였겠다!' } })).status, 200, '그룹 멤버는 메모 남김');
-  const bobViewAfterNote = (await call('/diary/Alice', { tok: b })).data.entries.find((e) => e.text === '그룹 공개 일기');
-  assert.deepEqual(bobViewAfterNote.notes.map((n) => [n.from, n.text]), [['Bob', '멋진 하루였겠다!']], '메모가 반영됨');
-  // 기기가 전체 목록을 다시 PUT해도(메모 필드 없이 보냄) 서버에 쌓인 메모는 사라지지 않아야 함
-  await call('/diary', { method: 'PUT', tok: a, body: { entries: diaryPayload } });
-  const ownAfterResync = (await call('/diary', { tok: a })).data.entries.find((e) => e.date === '2026-01-03');
-  assert.deepEqual(ownAfterResync.notes.map((n) => n.text), ['멋진 하루였겠다!'], '다시 동기화해도 친구 메모는 유지됨');
+  assert.equal((await call('/diary-rooms/' + roomRes.id + '/entry', { method: 'PUT', tok: a, body: { date: '2026-02-01', title: '첫 글', text: 'Alice의 하루', mood: 'good', tags: ['여행'] } })).status, 200, 'Alice writes an entry');
+  assert.equal((await call('/diary-rooms/' + roomRes.id + '/entry', { method: 'PUT', tok: b, body: { date: '2026-02-01', text: 'Bob의 하루' } })).status, 200, 'Bob writes an entry the same day');
+  assert.equal((await call('/diary-rooms/' + roomRes.id + '/entry', { method: 'PUT', tok: c, body: { date: '2026-02-01', text: '나도 쓸래' } })).status, 404, '멤버가 아니면 못 씀');
+  const roomDetail = (await call('/diary-rooms/' + roomRes.id, { tok: b })).data;
+  assert.equal(roomDetail.members.length, 2, '방 멤버 2명');
+  assert.equal(roomDetail.entries.length, 2, '같은 날 두 멤버의 글이 모두 보임');
+  const bobsOwnEntry = roomDetail.entries.find((e) => e.authorNick === 'Bob');
+  assert.equal(bobsOwnEntry.mine, true, '본인 글은 mine=true');
+  const alicesEntryFromBobView = roomDetail.entries.find((e) => e.authorNick === 'Alice');
+  assert.equal(alicesEntryFromBobView.mine, false, '남의 글은 mine=false');
+  assert.equal(alicesEntryFromBobView.title, '첫 글', '멤버는 다른 사람 글의 제목도 봄');
 
-  await call('/friend-groups/delete', { method: 'POST', tok: a, body: { id: grpRes.id } });
-  assert.equal((await call('/friend-groups', { tok: a })).data.groups.length, 0, '그룹 삭제됨');
-  const afterDelete = (await call('/diary', { tok: a })).data.entries.find((e) => e.date === '2026-01-03');
-  assert.equal(afterDelete.groupId, null, '그룹 삭제 시 그 그룹을 쓰던 일기는 비공개로 되돌아감');
+  // 같은 날 다시 PUT하면 새 글이 아니라 내 글이 덮어써진다 (방+작성자+날짜 유니크)
+  await call('/diary-rooms/' + roomRes.id + '/entry', { method: 'PUT', tok: a, body: { date: '2026-02-01', title: '수정됨', text: '고친 내용' } });
+  const afterEdit = (await call('/diary-rooms/' + roomRes.id, { tok: a })).data.entries;
+  assert.equal(afterEdit.length, 2, '같은 날 재저장은 새 글이 아니라 덮어쓰기');
+  assert.equal(afterEdit.find((e) => e.authorNick === 'Alice').title, '수정됨', '수정 내용 반영');
+
+  await call('/diary-rooms/' + roomRes.id + '/entry/delete', { method: 'POST', tok: b, body: { date: '2026-02-01' } });
+  const afterBobDelete = (await call('/diary-rooms/' + roomRes.id, { tok: a })).data.entries;
+  assert.equal(afterBobDelete.length, 1, 'Bob이 자기 글을 지우면 1개만 남음');
+
+  assert.equal((await call('/diary-rooms/' + roomRes.id + '/delete', { method: 'POST', tok: b })).status, 403, '방장만 방을 삭제할 수 있음');
+  await call('/diary-rooms/' + roomRes.id + '/leave', { method: 'POST', tok: b });
+  const roomListBAfterLeave = (await call('/diary-rooms', { tok: b })).data.rooms;
+  assert.equal(roomListBAfterLeave.length, 0, '나간 뒤에는 목록에서 사라짐');
+  assert.equal((await call('/diary-rooms/' + roomRes.id, { tok: b })).status, 404, '나간 방에는 더 이상 접근 못 함');
+  await call('/diary-rooms/' + roomRes.id + '/delete', { method: 'POST', tok: a });
+  assert.equal((await call('/diary-rooms/' + roomRes.id, { tok: a })).status, 404, '방장이 삭제하면 방 자체가 사라짐');
 
   // 삭제
   await call('/friends/remove', { method: 'POST', tok: a, body: { nick: 'Bob' } });
