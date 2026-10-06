@@ -314,7 +314,7 @@ function renderGroupManager(card, groups, friends, editingId, opts){
       </div>
     </div>`;
   if(opts.modal){ card.querySelector('[data-x]').onclick = ()=>$('soc-groups').remove(); }
-  const afterChange = ()=>{ opts.refresh(); if(typeof renderDiaryVisibilityPicker==='function') renderDiaryVisibilityPicker(); };
+  const afterChange = ()=>{ opts.refresh(); diaryGroupsCache = []; if(typeof renderDiaryVisibilityPill==='function') renderDiaryVisibilityPill(); };
   const cancelBtn = card.querySelector('[data-grp-cancel]');
   if(cancelBtn) cancelBtn.onclick = ()=>renderGroupManager(card, groups, friends, null, opts);
   card.querySelectorAll('[data-edit-grp]').forEach((b)=>b.onclick = ()=>renderGroupManager(card, groups, friends, b.dataset.editGrp, opts));
