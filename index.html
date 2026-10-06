@@ -431,6 +431,80 @@
   }
   .cal-diary-cta.has{border-style:solid;border-color:var(--gold-dim);color:var(--text);}
   .cal-diary-cta .arrow{margin-left:auto;color:var(--text-faint);}
+  .cal-diary-summary{font-size:11px;color:var(--text-dim);margin-top:10px;line-height:1.6;}
+
+  /* ---- 일기: 사진 첨부 ---- */
+  .diary-photo-grid{display:grid;grid-template-columns:1fr;gap:6px;margin:10px 0;}
+  .diary-photo-grid.two-col{grid-template-columns:1fr 1fr;}
+  .diary-photo-thumb{position:relative;border-radius:10px;overflow:hidden;aspect-ratio:4/3;background:rgba(0,0,0,.08);}
+  .diary-photo-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .diary-photo-del{
+    position:absolute;top:5px;right:5px;width:28px;height:28px;min-width:28px;border-radius:50%;
+    background:rgba(10,8,18,.65);color:#fff;border:none;font-size:13px;cursor:pointer;
+  }
+  .diary-photo-add-btn{
+    display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:44px;margin-top:4px;
+    background:rgba(255,255,255,.3);border:1.5px dashed var(--ink-dim);border-radius:12px;color:var(--ink-dim);
+    font-size:12.5px;font-weight:700;cursor:pointer;
+  }
+  .diary-entry-photos{display:grid;grid-template-columns:1fr;gap:6px;margin-top:10px;}
+  .diary-entry-photos.two-col{grid-template-columns:1fr 1fr;}
+  .diary-entry-photos img{width:100%;height:100%;object-fit:cover;display:block;max-height:260px;border-radius:10px;}
+
+  /* ---- 일기: 검색 / 필터 ---- */
+  .diary-list-head{display:flex;align-items:center;justify-content:space-between;margin:18px 0 4px;}
+  .diary-list-head .diary-list-title{font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--text);margin:0;}
+  .diary-search-btn{width:40px;height:40px;min-width:40px;border-radius:50%;background:var(--card-hi);border:1px solid var(--border);color:var(--text);font-size:15px;cursor:pointer;}
+  #diary-active-filters{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px;}
+  .diary-filter-chip{font-size:11px;padding:6px 10px;border-radius:999px;background:var(--card-hi);border:1px solid var(--gold-dim);color:var(--gold);cursor:pointer;}
+  .diary-filter-clear-all{font-size:11px;color:var(--text-faint);text-decoration:underline;background:none;border:none;cursor:pointer;padding:6px 4px;}
+  .diary-search-input{margin-bottom:14px!important;}
+  .diary-filter-group-label{font-size:11px;font-weight:700;color:var(--text-dim);margin:12px 0 6px;}
+  .diary-filter-row{display:flex;flex-wrap:wrap;gap:6px;}
+  .diary-filter-opt{font-size:11.5px;padding:7px 11px;min-height:34px;border-radius:999px;background:var(--bg-elev);border:1px solid var(--border);color:var(--text-dim);cursor:pointer;font-weight:700;}
+  .diary-filter-opt.active{background:var(--gold);border-color:var(--gold);color:#1a1424;}
+  .diary-filter-check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);padding:10px 2px;min-height:40px;}
+
+  /* ---- 일기: 카드 클릭 → 상세 보기 ---- */
+  .diary-entry{cursor:pointer;}
+  .diary-entry:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+
+  /* ---- 일기: 상세 보기 (모바일 전체화면, 데스크탑 오른쪽 고정 패널) ---- */
+  .diary-grid{display:block;}
+  .diary-detail-placeholder{
+    display:none;align-items:center;justify-content:center;text-align:center;color:var(--text-faint);
+    font-size:13px;line-height:1.7;min-height:300px;border:1px dashed var(--border);border-radius:var(--radius-m);padding:40px 20px;
+  }
+  .diary-detail-view{
+    position:fixed;inset:0;z-index:90;overflow-y:auto;background:var(--bg);
+    padding:18px 16px calc(100px + env(safe-area-inset-bottom));
+  }
+  .diary-detail-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+  .diary-detail-back{background:none;border:none;color:var(--gold);font-weight:700;font-size:13px;cursor:pointer;padding:10px 2px;min-height:40px;}
+  .diary-detail-actions{display:flex;gap:6px;margin-left:auto;}
+  .diary-detail-body{
+    --paper:#f3e8d0; --paper-edge:#d2bd90; --ink:#3c2c16; --ink-dim:#7a6240;
+    background:var(--paper);border:1px solid var(--paper-edge);border-radius:var(--radius-m);padding:20px 18px;
+    box-shadow:0 12px 26px rgba(0,0,0,.4);
+  }
+  .diary-detail-body .diary-date{color:var(--ink);border:none;padding:0;margin-bottom:2px;}
+  .diary-detail-body .diary-entry-title{font-size:21px;margin-top:6px;}
+  .diary-detail-body .diary-text{font-size:15.5px;line-height:1.85;color:var(--ink);white-space:pre-wrap;word-break:break-word;margin-top:10px;}
+  .diary-detail-nav{display:flex;gap:8px;margin-top:16px;}
+  .diary-detail-nav-btn{
+    flex:1;min-height:44px;border-radius:10px;background:var(--bg-elev);border:1px solid var(--border);
+    color:var(--text);font-size:12.5px;font-weight:700;cursor:pointer;
+  }
+  .diary-detail-nav-btn:disabled{opacity:.35;cursor:default;}
+  @media(min-width:1024px){
+    /* #app는 평소 모바일 폭(480px)으로 가운데 고정되는데, 일기 탭의 2단 레이아웃만은 그보다 넓은 폭이 필요하다 */
+    #app:has(#screen-growth:not(.hidden)){max-width:1100px;}
+    .diary-grid{display:grid;grid-template-columns:420px 1fr;gap:24px;align-items:start;}
+    .diary-main-col{grid-column:1;max-height:calc(100vh - 40px);overflow-y:auto;padding-right:6px;padding-bottom:40px;}
+    .diary-detail-placeholder{grid-column:2;display:flex;position:sticky;top:20px;}
+    .diary-detail-view{grid-column:2;position:sticky;top:20px;inset:auto;z-index:auto;padding:0;background:none;max-height:calc(100vh - 40px);overflow-y:auto;}
+    .diary-detail-back{display:none;}
+  }
   .quest-date-pill{background:var(--bg-elev);color:var(--text-dim);}
   .quest-date-pill.overdue{background:rgba(224,102,92,0.15);color:var(--danger);border-color:var(--danger);}
   .class-grid{
@@ -1924,6 +1998,8 @@
 
     <!-- DIARY (하단 네비게이션의 '일기' 탭. 내부 id/tab key는 과거 이름인 'growth'를 그대로 씀) -->
     <div class="screen hidden" id="screen-growth">
+     <div class="diary-grid" id="diary-grid">
+      <div class="diary-main-col">
       <div class="diary-banner">
         <div class="diary-flourish">❦ ❦ ❦</div>
         <div class="diary-banner-title">📖 모험 일지</div>
@@ -1941,6 +2017,10 @@
         <label for="diary-input" class="sr-only">오늘의 기록 본문</label>
         <textarea id="diary-input" maxlength="1000" placeholder="오늘 하루, 어떤 모험이 있었나요..." aria-label="오늘의 기록 본문" oninput="onDiaryInputChange()"></textarea>
         <div id="diary-quest-card-wrap"></div>
+        <div class="diary-photo-grid" id="diary-photo-grid"></div>
+        <label for="diary-photo-input" class="sr-only">사진 추가</label>
+        <input type="file" id="diary-photo-input" accept="image/*" multiple class="sr-only" onchange="onDiaryPhotoPicked(event)">
+        <button type="button" class="diary-photo-add-btn" id="diary-photo-add-btn" onclick="document.getElementById('diary-photo-input').click()">📷 모험의 순간 추가</button>
         <button type="button" class="diary-more-toggle" onclick="toggleDiaryMore()" id="diary-more-toggle-btn">+ 태그 추가</button>
         <div class="diary-more-panel hidden" id="diary-more-panel">
           <div class="diary-tag-row" id="diary-tag-row" role="group" aria-label="태그 선택"></div>
@@ -1951,10 +2031,20 @@
           <span class="label">📖 기록 저장</span><span class="xp-preview" id="diary-save-xp-preview"></span>
         </button>
       </div>
+
+      <div class="diary-list-head">
+        <h2 class="diary-list-title">나의 기록</h2>
+        <button type="button" class="diary-search-btn" onclick="openDiarySearchSheet()" aria-label="일기 검색">🔍</button>
+      </div>
+      <div id="diary-active-filters"></div>
       <div id="diary-list"></div>
 
       <div class="section-head"><h2>👪 공개 그룹</h2></div>
       <div id="diary-groups-panel"></div>
+      </div>
+      <div class="diary-detail-placeholder" id="diary-detail-placeholder"><span>📖<br>왼쪽에서 기록을 선택하면<br>여기에서 볼 수 있어요.</span></div>
+      <div id="diary-detail-view" class="diary-detail-view hidden" ontouchstart="diaryDetailTouchStart(event)" ontouchend="diaryDetailTouchEnd(event)"></div>
+     </div>
     </div>
 
     <!-- SHOP -->
@@ -5561,7 +5651,12 @@ let diaryGroupsCache = []; // [{id,name}] -- renderDiaryVisibilityPill이 채움
 let diaryEditingDate = null; // null이면 "오늘" 글을 쓰는 중, 아니면 그 날짜의 과거 글을 수정하는 중
 let diaryMood = null; // 지금 쓰는 중인 글의 기분(DIARY_MOODS id) 또는 null
 let diaryTags = []; // 지금 쓰는 중인 글의 태그 목록
+let diaryImages = []; // 지금 쓰는 중인 글의 첨부 사진(압축된 data URL) 목록 -- 기기 로컬에만 저장, 서버 동기화 안 함
 let diaryAutosaveTimer = null;
+let diaryDetailDate = null; // 상세 보기(바텀시트 아님, 전용 화면)에서 지금 보고 있는 글의 날짜
+let diarySearchQuery = '';
+let diarySearchFilters = { period:'all', mood:null, tag:null, hasPhoto:false, hasQuest:false }; // period: all|week|month
+let diaryVisibleDates = []; // renderDiaryList가 (검색 필터를 거쳐) 채움 -- 상세 보기의 이전/다음 기록 이동에 씀
 function questsCompletedOn(date){
   return (state.quests||[]).filter(q=> q.type==='daily' ? q.lastDoneDate===date : (q.status==='done' && q.completedDate===date));
 }
@@ -5578,6 +5673,7 @@ function renderGrowth(){
     if(titleInput) titleInput.value = src && src.title ? src.title : '';
     diaryMood = src ? (src.mood||null) : null;
     diaryTags = src ? (src.tags||[]).slice() : [];
+    diaryImages = src ? (src.images||[]).slice() : [];
     if(src) diaryVisibility = src.groupId||null; // 그 날짜의 글(또는 임시저장본)이 있으면 그 공개 범위를 따라가고, 없으면 마지막 선택을 유지
   }
   const head = document.getElementById('diary-write-head');
@@ -5591,11 +5687,13 @@ function renderGrowth(){
   renderDiaryMoodRow();
   renderDiaryTagRow();
   renderDiaryQuestCard(diaryEditingDate || todayStr());
+  renderDiaryPhotoGrid();
   renderDiaryVisibilityPill();
   renderDiaryAutosaveIndicator();
   updateDiarySaveXpPreview();
   renderDiaryList();
   updateDiaryNavBadge();
+  if(diaryDetailDate) renderDiaryDetail();
   if(typeof socRenderGroupsPanel==='function') socRenderGroupsPanel('diary-groups-panel');
 }
 function diaryTitleFor(count){
@@ -5763,7 +5861,7 @@ function autosaveDiaryDraft(){
   if(!text.trim() && !title.trim()) return; // 빈 글은 임시저장하지 않음
   const t = diaryEditingDate || todayStr();
   state.diaryDrafts = state.diaryDrafts || {};
-  state.diaryDrafts[t] = {title, text, mood:diaryMood, tags:diaryTags.slice(), groupId:diaryVisibility, savedAt:Date.now()};
+  state.diaryDrafts[t] = {title, text, mood:diaryMood, tags:diaryTags.slice(), images:diaryImages.slice(), groupId:diaryVisibility, savedAt:Date.now()};
   saveState();
   renderDiaryAutosaveIndicator();
 }
@@ -5843,7 +5941,7 @@ async function saveDiaryEntry(){
   let gainedXp = 0, milestoneMsg = '';
   if(existing){
     existing.text = text; existing.title = title; existing.mood = diaryMood; existing.tags = diaryTags.slice();
-    existing.groupId = diaryVisibility; existing.updatedAt = Date.now();
+    existing.images = diaryImages.slice(); existing.groupId = diaryVisibility; existing.updatedAt = Date.now();
   } else {
     const streakAfter = t===todayStr() ? diaryStreakWouldBe() : 0;
     state.diaryMilestones = state.diaryMilestones || {};
@@ -5854,7 +5952,7 @@ async function saveDiaryEntry(){
     const beforeLevel = levelFromXP(state.totalXP);
     gainedXp = applyXpBonus(baseXp);
     state.totalXP += gainedXp;
-    state.diary.unshift({date:t, title, text, mood:diaryMood, tags:diaryTags.slice(), groupId:diaryVisibility, updatedAt:Date.now(), rewardClaimed:true});
+    state.diary.unshift({date:t, title, text, mood:diaryMood, tags:diaryTags.slice(), images:diaryImages.slice(), groupId:diaryVisibility, updatedAt:Date.now(), rewardClaimed:true});
     await maybeShowLevelUp(beforeLevel);
   }
   state.diary.sort((a,b)=> b.date<a.date?-1:1);
@@ -5888,10 +5986,97 @@ function diarySeal(groupId){
   const g = diaryGroupsCache.find(x=>x.id===groupId);
   return {ic:'👪', title: g ? g.name+'에게 공개' : '친구 그룹에 공개'};
 }
+function diaryMatchesFilters(e){
+  if(diarySearchQuery){
+    const hay = [(e.title||''), e.text||'', (e.tags||[]).join(' ')].join(' ').toLowerCase();
+    if(!hay.includes(diarySearchQuery.toLowerCase())) return false;
+  }
+  if(diarySearchFilters.mood && e.mood!==diarySearchFilters.mood) return false;
+  if(diarySearchFilters.tag && !(e.tags||[]).includes(diarySearchFilters.tag)) return false;
+  if(diarySearchFilters.hasPhoto && !(e.images||[]).length) return false;
+  if(diarySearchFilters.hasQuest && !questsCompletedOn(e.date).length) return false;
+  if(diarySearchFilters.period!=='all'){
+    const days = diarySearchFilters.period==='week' ? 7 : 30;
+    const dt = new Date(); dt.setDate(dt.getDate()-days);
+    const cutoff = dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+    if(e.date < cutoff) return false;
+  }
+  return true;
+}
+function diaryHasActiveFilters(){
+  return !!(diarySearchQuery || diarySearchFilters.mood || diarySearchFilters.tag || diarySearchFilters.hasPhoto || diarySearchFilters.hasQuest || diarySearchFilters.period!=='all');
+}
+function clearDiaryFilters(){
+  diarySearchQuery = '';
+  diarySearchFilters = { period:'all', mood:null, tag:null, hasPhoto:false, hasQuest:false };
+  renderDiaryList();
+}
+function renderDiaryActiveFilters(){
+  const wrap = document.getElementById('diary-active-filters');
+  if(!wrap) return;
+  if(!diaryHasActiveFilters()){ wrap.innerHTML = ''; return; }
+  const chips = [];
+  if(diarySearchQuery) chips.push({label:`"${diarySearchQuery}"`, clear:()=>{diarySearchQuery='';}});
+  if(diarySearchFilters.period!=='all') chips.push({label: diarySearchFilters.period==='week'?'📅 최근 7일':'📅 최근 30일', clear:()=>{diarySearchFilters.period='all';}});
+  if(diarySearchFilters.mood){ const m=DIARY_MOODS.find(x=>x.id===diarySearchFilters.mood); chips.push({label:(m?m.ic+' '+m.label:'감정'), clear:()=>{diarySearchFilters.mood=null;}}); }
+  if(diarySearchFilters.tag) chips.push({label:'🏷 #'+diarySearchFilters.tag, clear:()=>{diarySearchFilters.tag=null;}});
+  if(diarySearchFilters.hasPhoto) chips.push({label:'📷 사진 있음', clear:()=>{diarySearchFilters.hasPhoto=false;}});
+  if(diarySearchFilters.hasQuest) chips.push({label:'⚔ 퀘스트 연결', clear:()=>{diarySearchFilters.hasQuest=false;}});
+  wrap.innerHTML = chips.map((c,i)=>`<button type="button" class="diary-filter-chip" data-i="${i}">${escapeHtml(c.label)} ✕</button>`).join('')
+    + '<button type="button" class="diary-filter-clear-all" onclick="clearDiaryFilters()">모두 지우기</button>';
+  wrap.querySelectorAll('.diary-filter-chip').forEach((b,i)=>b.onclick=()=>{ chips[i].clear(); renderDiaryList(); });
+}
+function openDiarySearchSheet(){
+  const distinctTags = [...new Set((state.diary||[]).flatMap(e=>e.tags||[]))];
+  openBottomSheet(`
+    <div class="bottom-sheet-handle"></div>
+    <div class="bottom-sheet-title">🔍 일기 검색<button type="button" class="bottom-sheet-close" aria-label="닫기" onclick="closeBottomSheet()">✕</button></div>
+    <label class="sr-only" for="diary-search-input">검색어</label>
+    <input type="text" id="diary-search-input" class="diary-search-input" placeholder="제목, 본문, 태그 검색" value="${escapeHtml(diarySearchQuery)}" aria-label="검색어">
+    <div class="diary-filter-group-label"><span aria-hidden="true">📅</span> 기간</div>
+    <div class="diary-filter-row" id="diary-filter-period" role="group" aria-label="기간">
+      ${[['all','전체'],['week','최근 7일'],['month','최근 30일']].map(([id,l])=>`<button type="button" class="diary-filter-opt${diarySearchFilters.period===id?' active':''}" data-period="${id}">${l}</button>`).join('')}
+    </div>
+    <div class="diary-filter-group-label"><span aria-hidden="true">😊</span> 감정</div>
+    <div class="diary-filter-row" id="diary-filter-mood" role="group" aria-label="감정">
+      ${DIARY_MOODS.map(m=>`<button type="button" class="diary-filter-opt${diarySearchFilters.mood===m.id?' active':''}" data-mood="${m.id}">${m.ic} ${escapeHtml(m.label)}</button>`).join('')}
+    </div>
+    ${distinctTags.length ? `<div class="diary-filter-group-label"><span aria-hidden="true">🏷</span> 태그</div>
+    <div class="diary-filter-row" id="diary-filter-tag" role="group" aria-label="태그">
+      ${distinctTags.map(t=>`<button type="button" class="diary-filter-opt${diarySearchFilters.tag===t?' active':''}" data-tag="${escapeHtml(t)}">#${escapeHtml(t)}</button>`).join('')}
+    </div>` : ''}
+    <label class="diary-filter-check"><input type="checkbox" id="diary-filter-photo" ${diarySearchFilters.hasPhoto?'checked':''}> <span aria-hidden="true">📷</span> 사진 있음</label>
+    <label class="diary-filter-check"><input type="checkbox" id="diary-filter-quest" ${diarySearchFilters.hasQuest?'checked':''}> <span aria-hidden="true">⚔</span> 퀘스트 연결</label>
+    <button type="button" class="btn btn-gold btn-block" style="margin-top:14px;" onclick="applyDiarySearch()">검색</button>
+  `);
+  document.getElementById('diary-filter-period').querySelectorAll('.diary-filter-opt').forEach(b=>b.onclick=()=>{
+    diarySearchFilters.period = b.dataset.period;
+    document.querySelectorAll('#diary-filter-period .diary-filter-opt').forEach(x=>x.classList.toggle('active', x===b));
+  });
+  document.getElementById('diary-filter-mood').querySelectorAll('.diary-filter-opt').forEach(b=>b.onclick=()=>{
+    diarySearchFilters.mood = diarySearchFilters.mood===b.dataset.mood ? null : b.dataset.mood;
+    document.querySelectorAll('#diary-filter-mood .diary-filter-opt').forEach(x=>x.classList.toggle('active', x.dataset.mood===diarySearchFilters.mood));
+  });
+  const tagRow = document.getElementById('diary-filter-tag');
+  if(tagRow) tagRow.querySelectorAll('.diary-filter-opt').forEach(b=>b.onclick=()=>{
+    diarySearchFilters.tag = diarySearchFilters.tag===b.dataset.tag ? null : b.dataset.tag;
+    tagRow.querySelectorAll('.diary-filter-opt').forEach(x=>x.classList.toggle('active', x.dataset.tag===diarySearchFilters.tag));
+  });
+}
+function applyDiarySearch(){
+  diarySearchQuery = (document.getElementById('diary-search-input')?.value||'').trim();
+  diarySearchFilters.hasPhoto = !!document.getElementById('diary-filter-photo')?.checked;
+  diarySearchFilters.hasQuest = !!document.getElementById('diary-filter-quest')?.checked;
+  closeBottomSheet();
+  renderDiaryList();
+}
 function renderDiaryList(){
   const wrap = document.getElementById('diary-list');
   if(!wrap) return;
-  const entries = (state.diary||[]).slice(0,30);
+  const all = (state.diary||[]).slice(0,200);
+  const entries = all.filter(diaryMatchesFilters);
+  diaryVisibleDates = entries.map(e=>e.date);
+  renderDiaryActiveFilters();
   wrap.innerHTML = entries.length
     ? entries.map(e=>{
         const seal = diarySeal(e.groupId);
@@ -5900,11 +6085,136 @@ function renderDiaryList(){
         const notes = (e.notes||[]).length
           ? `<div class="diary-notes">${e.notes.map(n=>`<div class="diary-note"><b>${escapeHtml(n.from)}</b> ${escapeHtml(n.text)}</div>`).join('')}</div>` : '';
         const tags = (e.tags||[]).length ? `<div class="diary-entry-tags">${e.tags.map(t=>`<span class="diary-tag-pill">#${escapeHtml(t)}</span>`).join('')}</div>` : '';
+        const photos = (e.images||[]).length ? `<div class="diary-entry-photos${e.images.length>1?' two-col':''}">${e.images.map((src,i)=>`<img src="${src}" alt="첨부한 사진 ${i+1}">`).join('')}</div>` : '';
         const linked = questsCompletedOn(e.date);
         const linkedHtml = linked.length ? `<div class="diary-entry-linked"><span aria-hidden="true">⚔️</span> 완료 퀘스트 ${linked.length}개</div>` : '';
-        return `<div class="diary-entry"><span class="diary-seal" title="${escapeHtml(seal.title)}" aria-hidden="true">${seal.ic}</span><div class="diary-date">${mood?`<span aria-hidden="true">${mood.ic}</span> `:''}${formatDiaryDate(e.date)}${e.date===todayStr()?'<span class="diary-today-badge">오늘</span>':''}</div>${e.title?`<div class="diary-entry-title">${escapeHtml(e.title)}</div>`:''}<div class="diary-text">${escapeHtml(e.text)}</div>${tags}${linkedHtml}${notes}<div class="diary-entry-actions"><button type="button" class="diary-edit-btn" onclick="editDiaryEntry('${e.date}')" aria-label="${escapeHtml(formatDiaryDate(e.date))} 기록 수정">✏️ 수정</button><button type="button" class="diary-edit-btn diary-del-btn" onclick="deleteDiaryEntry('${e.date}')" aria-label="${escapeHtml(formatDiaryDate(e.date))} 기록 삭제">🗑️ 삭제</button></div><div class="diary-entry-privacy"><span aria-hidden="true">${vis.ic}</span> ${escapeHtml(vis.title)}</div></div>`;
+        const dateLabel = escapeHtml(formatDiaryDate(e.date));
+        return `<div class="diary-entry" role="button" tabindex="0" aria-label="${dateLabel} 기록 보기" onclick="openDiaryDetail('${e.date}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDiaryDetail('${e.date}')}"><span class="diary-seal" title="${escapeHtml(seal.title)}" aria-hidden="true">${seal.ic}</span><div class="diary-date">${mood?`<span aria-hidden="true">${mood.ic}</span> `:''}${formatDiaryDate(e.date)}${e.date===todayStr()?'<span class="diary-today-badge">오늘</span>':''}</div>${e.title?`<div class="diary-entry-title">${escapeHtml(e.title)}</div>`:''}<div class="diary-text">${escapeHtml(e.text)}</div>${photos}${tags}${linkedHtml}${notes}<div class="diary-entry-actions"><button type="button" class="diary-edit-btn" onclick="event.stopPropagation();editDiaryEntry('${e.date}')" aria-label="${dateLabel} 기록 수정">✏️ 수정</button><button type="button" class="diary-edit-btn diary-del-btn" onclick="event.stopPropagation();deleteDiaryEntry('${e.date}')" aria-label="${dateLabel} 기록 삭제">🗑️ 삭제</button></div><div class="diary-entry-privacy"><span aria-hidden="true">${vis.ic}</span> ${escapeHtml(vis.title)}</div></div>`;
       }).join('')
-    : `<div class="diary-empty"><span class="diary-empty-ic" aria-hidden="true">📖</span>아직 기록되지 않은 모험입니다.<br>오늘의 첫 페이지를 작성해보세요.<br><button type="button" class="btn btn-gold" style="margin-top:14px;width:auto;padding:10px 20px;" onclick="focusDiaryComposer()">첫 모험 기록하기</button></div>`;
+    : (diaryHasActiveFilters()
+        ? `<div class="diary-empty"><span class="diary-empty-ic" aria-hidden="true">🔍</span>아직 발견하지 못한 모험입니다.<br><button type="button" class="btn btn-ghost" style="margin-top:14px;" onclick="clearDiaryFilters()">검색 조건 초기화</button></div>`
+        : `<div class="diary-empty"><span class="diary-empty-ic" aria-hidden="true">📖</span>아직 기록되지 않은 모험입니다.<br>오늘의 첫 페이지를 작성해보세요.<br><button type="button" class="btn btn-gold" style="margin-top:14px;width:auto;padding:10px 20px;" onclick="focusDiaryComposer()">첫 모험 기록하기</button></div>`);
+}
+/* ---- 일기: 사진 첨부 ---- */
+const DIARY_MAX_IMAGES = 6;
+const DIARY_IMAGE_MAX_DIM = 900;
+const DIARY_IMAGE_QUALITY = 0.6;
+function compressDiaryImageFile(file){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = ()=>{
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = ()=>{
+        let { width, height } = img;
+        const scale = Math.min(1, DIARY_IMAGE_MAX_DIM / Math.max(width, height));
+        width = Math.max(1, Math.round(width*scale)); height = Math.max(1, Math.round(height*scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', DIARY_IMAGE_QUALITY));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+async function onDiaryPhotoPicked(ev){
+  const files = Array.from(ev.target.files||[]);
+  ev.target.value = ''; // 같은 파일을 다시 골라도 change 이벤트가 또 일어나도록 초기화
+  if(!files.length) return;
+  const room = DIARY_MAX_IMAGES - diaryImages.length;
+  if(room<=0){ toast(`사진은 최대 ${DIARY_MAX_IMAGES}장까지 추가할 수 있어요`); return; }
+  if(files.length>room) toast(`사진은 최대 ${DIARY_MAX_IMAGES}장까지 추가할 수 있어요`);
+  for(const f of files.slice(0, room)){
+    if(!f.type || !f.type.startsWith('image/')) continue;
+    try{ diaryImages.push(await compressDiaryImageFile(f)); }catch(e){ /* 압축 실패한 파일은 건너뜀 */ }
+  }
+  renderDiaryPhotoGrid();
+  scheduleDiaryAutosave();
+}
+function removeDiaryImage(idx){
+  diaryImages.splice(idx,1);
+  renderDiaryPhotoGrid();
+  scheduleDiaryAutosave();
+}
+function renderDiaryPhotoGrid(){
+  const grid = document.getElementById('diary-photo-grid');
+  const addBtn = document.getElementById('diary-photo-add-btn');
+  if(!grid) return;
+  grid.className = 'diary-photo-grid' + (diaryImages.length>1 ? ' two-col' : '');
+  grid.innerHTML = diaryImages.map((src,i)=>`<div class="diary-photo-thumb"><img src="${src}" alt="첨부한 사진 ${i+1}"><button type="button" class="diary-photo-del" onclick="removeDiaryImage(${i})" aria-label="사진 ${i+1} 삭제">✕</button></div>`).join('');
+  if(addBtn) addBtn.classList.toggle('hidden', diaryImages.length>=DIARY_MAX_IMAGES);
+}
+/* ---- 일기: 상세 보기 (모바일 전체화면 / 데스크탑 오른쪽 고정 패널) + 좌우 스와이프 이동 ---- */
+function openDiaryDetail(date){
+  diaryDetailDate = date;
+  renderDiaryDetail();
+  document.getElementById('diary-detail-view')?.classList.remove('hidden');
+  document.getElementById('diary-detail-placeholder')?.classList.add('hidden');
+}
+function closeDiaryDetail(){
+  diaryDetailDate = null;
+  document.getElementById('diary-detail-view')?.classList.add('hidden');
+  document.getElementById('diary-detail-placeholder')?.classList.remove('hidden');
+}
+function diaryDetailStep(dir){
+  if(!diaryDetailDate || !diaryVisibleDates.length) return;
+  const idx = diaryVisibleDates.indexOf(diaryDetailDate);
+  if(idx===-1) return;
+  const next = idx + dir;
+  if(next<0 || next>=diaryVisibleDates.length) return;
+  openDiaryDetail(diaryVisibleDates[next]);
+}
+let diaryDetailTouchX = null, diaryDetailTouchY = null;
+function diaryDetailTouchStart(e){
+  const t = e.touches[0];
+  diaryDetailTouchX = t.clientX; diaryDetailTouchY = t.clientY;
+}
+function diaryDetailTouchEnd(e){
+  if(diaryDetailTouchX===null) return;
+  const t = e.changedTouches[0];
+  const dx = t.clientX - diaryDetailTouchX, dy = t.clientY - diaryDetailTouchY;
+  diaryDetailTouchX = null;
+  if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*1.5) diaryDetailStep(dx<0 ? 1 : -1); // 왼쪽으로 스와이프 = 다음 기록
+}
+function renderDiaryDetail(){
+  const view = document.getElementById('diary-detail-view');
+  if(!view || !diaryDetailDate) return;
+  const e = (state.diary||[]).find(d=>d.date===diaryDetailDate);
+  if(!e){ closeDiaryDetail(); return; }
+  const vis = diaryVisLabel(e.groupId);
+  const mood = DIARY_MOODS.find(m=>m.id===e.mood);
+  const tags = (e.tags||[]).length ? `<div class="diary-entry-tags">${e.tags.map(t=>`<span class="diary-tag-pill">#${escapeHtml(t)}</span>`).join('')}</div>` : '';
+  const photos = (e.images||[]).length ? `<div class="diary-entry-photos${e.images.length>1?' two-col':''}">${e.images.map((src,i)=>`<img src="${src}" alt="첨부한 사진 ${i+1}">`).join('')}</div>` : '';
+  const linked = questsCompletedOn(e.date);
+  const linkedHtml = linked.length ? `<div class="diary-quest-card"><div class="qc-head"><span aria-hidden="true">⚔️</span> 완료한 퀘스트</div>${linked.map(q=>`<div class="diary-quest-row"><span class="ck" aria-hidden="true">✓</span>${escapeHtml(q.title)}<span style="margin-left:auto;color:#8a5a1f;font-weight:700;font-size:11.5px;">+${q.xp}XP</span></div>`).join('')}</div>` : '';
+  const idx = diaryVisibleDates.indexOf(e.date);
+  const hasPrev = idx>0, hasNext = idx>=0 && idx<diaryVisibleDates.length-1;
+  view.innerHTML = `
+    <div class="diary-detail-head">
+      <button type="button" class="diary-detail-back" onclick="closeDiaryDetail()">← 모험 일지</button>
+      <div class="diary-detail-actions">
+        <button type="button" class="diary-edit-btn" onclick="closeDiaryDetail();editDiaryEntry('${e.date}')" aria-label="수정">✏️ 수정</button>
+        <button type="button" class="diary-edit-btn diary-del-btn" onclick="deleteDiaryEntry('${e.date}')" aria-label="삭제">🗑️ 삭제</button>
+      </div>
+    </div>
+    <div class="diary-detail-body">
+      ${mood?`<div class="diary-date"><span aria-hidden="true">${mood.ic}</span> ${escapeHtml(mood.label)}</div>`:''}
+      <div class="diary-date">${formatDiaryDate(e.date)}${e.date===todayStr()?'<span class="diary-today-badge">오늘</span>':''}</div>
+      ${e.title?`<div class="diary-entry-title">${escapeHtml(e.title)}</div>`:''}
+      <div class="diary-text">${escapeHtml(e.text)}</div>
+      ${photos}
+      ${linkedHtml}
+      ${tags}
+      <div class="diary-entry-privacy"><span aria-hidden="true">${vis.ic}</span> ${escapeHtml(vis.title)}</div>
+    </div>
+    <div class="diary-detail-nav">
+      <button type="button" class="diary-detail-nav-btn" onclick="diaryDetailStep(-1)" ${hasPrev?'':'disabled'}>← 이전 기록</button>
+      <button type="button" class="diary-detail-nav-btn" onclick="diaryDetailStep(1)" ${hasNext?'':'disabled'}>다음 기록 →</button>
+    </div>
+  `;
 }
 /* ---- 범용 바텀시트 ---- */
 function openBottomSheet(html){

@@ -325,12 +325,21 @@ function hasDiary(ds){
 }
 function dayDiaryBlock(ds){
   const entry = (state.diary||[]).find(d=>d.date===ds);
+  const doneCount = questsOn(ds).filter(q=>isDone(q, ds)).length;
+  const mood = entry && typeof DIARY_MOODS!=='undefined' ? DIARY_MOODS.find(m=>m.id===entry.mood) : null;
+  const summaryParts = [];
+  if(doneCount>0) summaryParts.push(`⚔ 퀘스트 ${doneCount}개 완료`);
+  if(entry) summaryParts.push('📖 일기 작성 완료');
+  if(mood) summaryParts.push(`${mood.ic} 오늘의 감정: ${mood.label}`);
+  const summary = summaryParts.length ? `<div class="cal-diary-summary">${summaryParts.join(' · ')}</div>` : '';
   const label = entry ? `📖 ${escapeHtml(entry.title||formatDiaryDate(ds))}` : '📖 이 날의 일기 쓰기';
-  return `<button type="button" class="cal-diary-cta${entry?' has':''}" onclick="goToDiaryDate('${ds}')">${label}<span class="arrow">›</span></button>`;
+  return `${summary}<button type="button" class="cal-diary-cta${entry?' has':''}" onclick="goToDiaryDate('${ds}')">${label}<span class="arrow">›</span></button>`;
 }
 function goToDiaryDate(ds){
   switchTab('growth');
-  editDiaryEntry(ds);
+  const entry = (state.diary||[]).find(d=>d.date===ds);
+  if(entry && typeof openDiaryDetail==='function') openDiaryDetail(ds);
+  else editDiaryEntry(ds);
 }
 
 // ---- 일정 아이템 규칙 ----

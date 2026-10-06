@@ -224,7 +224,9 @@ function queueDiarySync(){ // index.html의 saveDiaryEntry()가 저장할 때마
 window.queueDiarySync = queueDiarySync;
 function pushDiary(){
   if(!token || !state.character) return Promise.resolve();
-  return api('/diary', {method:'PUT', body:{entries: state.diary||[]}}).catch(()=>{});
+  // 사진은 기기 로컬에만 두는 값이라(용량이 커서 서버 문서 크기 한도를 금방 넘길 수 있음) 동기화 페이로드에서는 뺀다
+  const entries = (state.diary||[]).map((e)=>{ const { images, ...rest } = e; return rest; });
+  return api('/diary', {method:'PUT', body:{entries}}).catch(()=>{});
 }
 async function pullDiaryIfNewer(){ // 로그인 직후 / 앱 시작 시 / 주기적으로: 날짜별로 더 최근에 바뀐 쪽을 남긴다
   if(!token) return;
@@ -236,7 +238,8 @@ async function pullDiaryIfNewer(){ // 로그인 직후 / 앱 시작 시 / 주기
     for(const se of server){
       const le = byDate.get(se.date);
       if(!le || (se.updatedAt||0) > (le.updatedAt||0)){
-        byDate.set(se.date, se); changed = true;
+        // 사진은 서버가 모르는 값이므로, 이 기기에 이미 있던 사진은 그대로 들고 간다
+        byDate.set(se.date, le && le.images ? {...se, images: le.images} : se); changed = true;
       } else if(JSON.stringify(le.notes||[]) !== JSON.stringify(se.notes||[])){
         // 메모는 친구가 서버에만 남기는 값이라, 글 내용은 이 기기가 최신이어도 메모는 항상 서버 것을 따른다
         le.notes = se.notes||[]; changed = true;
