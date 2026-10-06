@@ -286,7 +286,6 @@ async function renderFriends(){
   <div class="soc-send" style="margin-bottom:14px"><input type="text" id="soc-add" maxlength="10" placeholder="친구 닉네임"><button class="btn btn-gold" id="soc-add-btn">신청</button></div>
   <div class="soc-err" id="soc-err"></div>
   <button class="btn btn-ghost btn-block" id="soc-push" style="margin-bottom:12px">🔔 푸시 알림 켜기</button>
-  <button class="btn btn-ghost btn-block" id="soc-groups-btn" style="margin-bottom:12px">👪 일기 공개 그룹 관리</button>
   ${d.requests.length ? `<h3 style="font-size:13px;margin:6px 0">받은 친구 요청</h3>` + d.requests.map(u=>`<div class="soc-row"><span class="nm">${clsIcon(u.cls)} ${esc(u.nick)}</span><button data-acc="${esc(u.nick)}">수락</button><button data-rej="${esc(u.nick)}">거절</button></div>`).join('') : ''}
   <h3 style="font-size:13px;margin:10px 0 6px">친구 ${d.friends.length}명${d.sent?` · 신청 대기 ${d.sent}`:''}</h3>
   ${d.friends.map(u=>`<div class="soc-row"><span class="nm" data-prof="${esc(u.nick)}" style="cursor:pointer">${clsIcon(u.cls)} ${esc(u.nick)}</span><span class="sub">Lv.${u.level}</span>${u.unread?`<span class="soc-badge">${u.unread}</span>`:''}<button data-chat="${esc(u.nick)}">💬</button><button data-del="${esc(u.nick)}">✕</button></div>`).join('') || '<div class="hint">아직 친구가 없어요. 친구의 닉네임으로 신청해 보세요.</div>'}`;
@@ -297,7 +296,6 @@ async function renderFriends(){
   sc.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ if(confirm(b.dataset.del+'님을 친구에서 삭제할까요?')) act('/friends/remove', {nick:b.dataset.del}, '삭제했어요'); });
   sc.querySelectorAll('[data-chat]').forEach(b=>b.onclick=()=>{ chatWith = b.dataset.chat; view = 'chat'; render(); });
   const pb = $('soc-push'); pb.onclick = enablePush; refreshPushButton();
-  $('soc-groups-btn').onclick = openGroupManager;
 }
 
 /* ---------- 대화 ---------- */
