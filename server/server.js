@@ -336,7 +336,11 @@ app.get('/api/diary-rooms/:id', auth, wrap(async (req, res) => {
   res.json({
     id: room._id, name: room.name, code: room.code, isOwner: room.ownerId.equals(req.uid),
     members: members.map((m) => ({ nick: m.nick })),
-    entries: entries.map((e) => ({ authorNick: e.authorNick, mine: e.authorId.equals(req.uid), date: e.date, title: e.title, text: e.text, mood: e.mood, tags: e.tags, updatedAt: e.updatedAt })),
+    entries: entries.map((e) => ({
+      authorNick: e.authorNick, mine: e.authorId.equals(req.uid), date: e.date, title: e.title, text: e.text, mood: e.mood, tags: e.tags, updatedAt: e.updatedAt,
+      notes: (e.notes || []).map((n) => ({ from: n.from, text: n.text, at: n.at })),
+      stickers: (e.stickers || []).map((s) => ({ emoji: s.emoji, from: s.from, at: s.at })),
+    })),
   });
 }));
 app.put('/api/diary-rooms/:id/entry', auth, wrap(async (req, res) => {
@@ -361,6 +365,44 @@ app.post('/api/diary-rooms/:id/entry/delete', auth, wrap(async (req, res) => {
   const date = String(req.body.date || '');
   await diaryRoomEntries.deleteOne({ roomId: room._id, authorId: req.uid, date });
   res.json({ ok: true });
+}));
+// ---- 방 안의 글에 메모/스티커 남기기 (같은 방 멤버끼리만, 자기 글에도 남길 수 있다) ----
+async function roomEntryTarget(req, res, roomId, authorNick, date) {
+  const room = await roomMemberCheck(req, res, roomId); if (!room) return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date))) { bad(res, '잘못된 날짜'); return null; }
+  const target = await byNick(authorNick);
+  if (!target || !room.members.some((m) => m.equals(target._id))) { bad(res, '그 글을 찾을 수 없어요', 404); return null; }
+  return { room, targetId: target._id };
+}
+function sanitizeRoomNoteText(t) { return String(t || '').trim().slice(0, 200); }
+function sanitizeStickerEmoji(s) { const v = String(s || '').trim().slice(0, 16); return v || null; }
+app.post('/api/diary-rooms/:id/entry/note', auth, wrap(async (req, res) => {
+  const text = sanitizeRoomNoteText(req.body.text);
+  if (!text) return bad(res, '메모 내용을 입력하세요');
+  if (!limit('roomnote:' + req.uid, 30, 60e3)) return bad(res, '너무 빨라요. 잠시 후 다시', 429);
+  const ctx = await roomEntryTarget(req, res, req.params.id, req.body.authorNick, req.body.date); if (!ctx) return;
+  const me = await users.findOne({ _id: req.uid }, { projection: { nick: 1 } });
+  const note = { from: me.nick, text, at: Date.now() };
+  const r = await diaryRoomEntries.updateOne(
+    { roomId: ctx.room._id, authorId: ctx.targetId, date: String(req.body.date) },
+    { $push: { notes: { $each: [note], $slice: -50 } } }
+  );
+  if (!r.matchedCount) return bad(res, '그 글을 찾을 수 없어요', 404);
+  res.json({ ok: true, note });
+}));
+app.post('/api/diary-rooms/:id/entry/sticker', auth, wrap(async (req, res) => {
+  const emoji = sanitizeStickerEmoji(req.body.emoji);
+  if (!emoji) return bad(res, '스티커를 선택하세요');
+  if (!limit('roomsticker:' + req.uid, 40, 60e3)) return bad(res, '너무 빨라요. 잠시 후 다시', 429);
+  const ctx = await roomEntryTarget(req, res, req.params.id, req.body.authorNick, req.body.date); if (!ctx) return;
+  const me = await users.findOne({ _id: req.uid }, { projection: { nick: 1 } });
+  const sticker = { emoji, from: me.nick, at: Date.now() };
+  const r = await diaryRoomEntries.updateOne(
+    { roomId: ctx.room._id, authorId: ctx.targetId, date: String(req.body.date) },
+    { $push: { stickers: { $each: [sticker], $slice: -60 } } }
+  );
+  if (!r.matchedCount) return bad(res, '그 글을 찾을 수 없어요', 404);
+  res.json({ ok: true, sticker });
 }));
 app.post('/api/diary-rooms/:id/leave', auth, wrap(async (req, res) => {
   const room = await roomMemberCheck(req, res, req.params.id); if (!room) return;

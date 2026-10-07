@@ -158,6 +158,17 @@ const call = async (path, { method = 'GET', body, tok } = {}) => {
   assert.equal(afterEdit.length, 2, '같은 날 재저장은 새 글이 아니라 덮어쓰기');
   assert.equal(afterEdit.find((e) => e.authorNick === 'Alice').title, '수정됨', '수정 내용 반영');
 
+  // 방 안에서 서로 메모/스티커로 꾸미기
+  assert.equal((await call('/diary-rooms/' + roomRes.id + '/entry/note', { method: 'POST', tok: b, body: { authorNick: 'Alice', date: '2026-02-01', text: '' } })).status, 400, '빈 메모 거부');
+  assert.equal((await call('/diary-rooms/' + roomRes.id + '/entry/note', { method: 'POST', tok: c, body: { authorNick: 'Alice', date: '2026-02-01', text: '나도 볼래' } })).status, 404, '멤버가 아니면 메모 못 남김');
+  assert.equal((await call('/diary-rooms/' + roomRes.id + '/entry/note', { method: 'POST', tok: b, body: { authorNick: 'Alice', date: '2026-02-01', text: '멋진 하루였겠다!' } })).status, 200, '멤버는 서로의 글에 메모 남김');
+  assert.equal((await call('/diary-rooms/' + roomRes.id + '/entry/sticker', { method: 'POST', tok: b, body: { authorNick: 'Alice', date: '2026-02-01', emoji: '' } })).status, 400, '빈 스티커 거부');
+  assert.equal((await call('/diary-rooms/' + roomRes.id + '/entry/sticker', { method: 'POST', tok: b, body: { authorNick: 'Alice', date: '2026-02-01', emoji: '❤️' } })).status, 200, '멤버는 서로의 글에 스티커 남김');
+  assert.equal((await call('/diary-rooms/' + roomRes.id + '/entry/note', { method: 'POST', tok: a, body: { authorNick: 'Alice', date: '2026-01-01', text: '없는 날짜' } })).status, 404, '없는 날짜의 글에는 메모 못 남김');
+  const afterDecorate = (await call('/diary-rooms/' + roomRes.id, { tok: a })).data.entries.find((e) => e.authorNick === 'Alice');
+  assert.deepEqual(afterDecorate.notes.map((n) => [n.from, n.text]), [['Bob', '멋진 하루였겠다!']], '메모가 반영됨');
+  assert.deepEqual(afterDecorate.stickers.map((s) => [s.from, s.emoji]), [['Bob', '❤️']], '스티커가 반영됨');
+
   await call('/diary-rooms/' + roomRes.id + '/entry/delete', { method: 'POST', tok: b, body: { date: '2026-02-01' } });
   const afterBobDelete = (await call('/diary-rooms/' + roomRes.id, { tok: a })).data.entries;
   assert.equal(afterBobDelete.length, 1, 'Bob이 자기 글을 지우면 1개만 남음');

@@ -215,6 +215,8 @@ window.socJoinDiaryRoom = (code)=> api('/diary-rooms/join', {method:'POST', body
 window.socGetDiaryRoom = (id)=> api('/diary-rooms/'+encodeURIComponent(id));
 window.socSaveDiaryRoomEntry = (id, payload)=> api('/diary-rooms/'+encodeURIComponent(id)+'/entry', {method:'PUT', body:payload});
 window.socDeleteDiaryRoomEntry = (id, date)=> api('/diary-rooms/'+encodeURIComponent(id)+'/entry/delete', {method:'POST', body:{date}});
+window.socAddDiaryRoomNote = (id, authorNick, date, text)=> api('/diary-rooms/'+encodeURIComponent(id)+'/entry/note', {method:'POST', body:{authorNick, date, text}});
+window.socAddDiaryRoomSticker = (id, authorNick, date, emoji)=> api('/diary-rooms/'+encodeURIComponent(id)+'/entry/sticker', {method:'POST', body:{authorNick, date, emoji}});
 window.socLeaveDiaryRoom = (id)=> api('/diary-rooms/'+encodeURIComponent(id)+'/leave', {method:'POST'});
 window.socDeleteDiaryRoom = (id)=> api('/diary-rooms/'+encodeURIComponent(id)+'/delete', {method:'POST'});
 
