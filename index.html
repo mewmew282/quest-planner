@@ -153,6 +153,14 @@
     background:var(--card-hi);border:1px solid var(--gold-dim);color:var(--gold);font-size:11px;font-weight:700;
   }
 
+  /* ---- 일기 종류 전환: 모험일지 / 그룹일기 ---- */
+  .diary-mode-tabs{display:flex;gap:8px;margin:14px 0 4px;}
+  .diary-mode-tab{
+    flex:1;min-height:44px;border-radius:12px;background:var(--bg-elev);border:1.5px solid var(--border);
+    color:var(--text-dim);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-display);
+  }
+  .diary-mode-tab.active{background:var(--card-hi);border-color:var(--gold);color:var(--gold);box-shadow:0 0 0 1px var(--gold-dim) inset;}
+
   .diary-write-card{
     position:relative;overflow:hidden;
     --paper:#f3e8d0; --paper-edge:#d2bd90; --ink:#3c2c16; --ink-dim:#7a6240; --rule:rgba(120,88,40,.22); --margin:rgba(185,68,60,.42);
@@ -2026,12 +2034,18 @@
       <div class="diary-main-col">
       <div class="diary-banner">
         <div class="diary-flourish">❦ ❦ ❦</div>
-        <div class="diary-banner-title">📖 모험 일지</div>
-        <div class="diary-banner-sub">그대가 걸어온 하루하루를 이곳에 남기라</div>
+        <div class="diary-banner-title" id="diary-banner-title">📖 모험 일지</div>
+        <div class="diary-banner-sub" id="diary-banner-sub">그대가 걸어온 하루하루를 이곳에 남기라</div>
         <div id="diary-streak-meta"></div>
         <div id="diary-title-badge-wrap"></div>
       </div>
 
+      <div class="diary-mode-tabs" role="tablist" aria-label="일기 종류">
+        <button type="button" class="diary-mode-tab" id="diary-mode-personal-btn" onclick="setDiaryMainMode('personal')" role="tab" aria-selected="true">📖 모험일지</button>
+        <button type="button" class="diary-mode-tab" id="diary-mode-rooms-btn" onclick="setDiaryMainMode('rooms')" role="tab" aria-selected="false">📔 그룹일기</button>
+      </div>
+
+      <div id="diary-personal-section">
       <div class="diary-write-card">
         <div id="diary-editing-banner"></div>
         <div class="diary-write-head" id="diary-write-head"><span class="diary-quill">🖋️</span>오늘의 기록을 남겨보세요</div>
@@ -2049,7 +2063,7 @@
         <div class="diary-more-panel hidden" id="diary-more-panel">
           <div class="diary-tag-row" id="diary-tag-row" role="group" aria-label="태그 선택"></div>
         </div>
-        <div class="diary-visibility-row"><span class="hint" style="margin:0;">🔒 나만 볼 수 있는 개인 기록이에요 · 함께 쓰려면 아래 '일기장'을 이용하세요</span></div>
+        <div class="diary-visibility-row"><span class="hint" style="margin:0;">🔒 나만 볼 수 있는 개인 기록이에요 · 함께 쓰려면 '그룹일기'를 이용하세요</span></div>
         <div class="diary-autosave-indicator" id="diary-autosave-indicator" aria-live="polite"></div>
         <button class="btn btn-gold btn-block diary-save-btn" id="diary-save-btn" onclick="saveDiaryEntry()">
           <span class="label">📖 기록 저장</span><span class="xp-preview" id="diary-save-xp-preview"></span>
@@ -2062,14 +2076,16 @@
       </div>
       <div id="diary-active-filters"></div>
       <div id="diary-list"></div>
-
-      <div class="section-head"><h2>📔 함께 쓰는 일기장</h2></div>
-      <div class="hint" style="margin-top:0;">코드를 공유해 친구들과 함께 쓰는 공동 일기예요. 둘셋이 모여 하루를 같이 기록해보세요.</div>
-      <div class="diary-room-actions">
-        <button type="button" class="btn btn-ghost" onclick="openDiaryRoomCreateSheet()">+ 새 일기장 만들기</button>
-        <button type="button" class="btn btn-ghost" onclick="openDiaryRoomJoinSheet()">코드로 입장하기</button>
       </div>
-      <div id="diary-rooms-panel"></div>
+
+      <div id="diary-rooms-section" class="hidden">
+        <div class="hint" style="margin-top:0;">코드를 공유해 친구들과 함께 쓰는 공동 일기예요. 둘셋이 모여 하루를 같이 기록해보세요.</div>
+        <div class="diary-room-actions">
+          <button type="button" class="btn btn-ghost" onclick="openDiaryRoomCreateSheet()">+ 새 일기장 만들기</button>
+          <button type="button" class="btn btn-ghost" onclick="openDiaryRoomJoinSheet()">코드로 입장하기</button>
+        </div>
+        <div id="diary-rooms-panel"></div>
+      </div>
       </div>
       <div class="diary-detail-placeholder" id="diary-detail-placeholder"><span>📖<br>왼쪽에서 기록을 선택하면<br>여기에서 볼 수 있어요.</span></div>
       <div id="diary-detail-view" class="diary-detail-view hidden" ontouchstart="diaryDetailTouchStart(event)" ontouchend="diaryDetailTouchEnd(event)"></div>
@@ -5685,10 +5701,36 @@ let diaryDetailDate = null; // 상세 보기(바텀시트 아님, 전용 화면)
 let diarySearchQuery = '';
 let diarySearchFilters = { period:'all', mood:null, tag:null, hasPhoto:false, hasQuest:false }; // period: all|week|month
 let diaryVisibleDates = []; // renderDiaryList가 (검색 필터를 거쳐) 채움 -- 상세 보기의 이전/다음 기록 이동에 씀
+let diaryMainMode = 'personal'; // 'personal'=모험일지(개인), 'rooms'=그룹일기(방 목록)
+function setDiaryMainMode(mode){
+  diaryMainMode = mode;
+  renderDiaryMainMode();
+  if(mode==='rooms') renderDiaryRoomsPanel(true);
+}
+function renderDiaryMainMode(){
+  const personalBtn = document.getElementById('diary-mode-personal-btn');
+  const roomsBtn = document.getElementById('diary-mode-rooms-btn');
+  const personalSection = document.getElementById('diary-personal-section');
+  const roomsSection = document.getElementById('diary-rooms-section');
+  const title = document.getElementById('diary-banner-title');
+  const sub = document.getElementById('diary-banner-sub');
+  const streakMeta = document.getElementById('diary-streak-meta');
+  const titleBadge = document.getElementById('diary-title-badge-wrap');
+  const inRooms = diaryMainMode==='rooms';
+  if(personalBtn){ personalBtn.classList.toggle('active', !inRooms); personalBtn.setAttribute('aria-selected', String(!inRooms)); }
+  if(roomsBtn){ roomsBtn.classList.toggle('active', inRooms); roomsBtn.setAttribute('aria-selected', String(inRooms)); }
+  if(personalSection) personalSection.classList.toggle('hidden', inRooms);
+  if(roomsSection) roomsSection.classList.toggle('hidden', !inRooms);
+  if(title) title.textContent = inRooms ? '📔 그룹 일기장' : '📖 모험 일지';
+  if(sub) sub.textContent = inRooms ? '코드를 나눠 친구들과 하루를 함께 적어보라' : '그대가 걸어온 하루하루를 이곳에 남기라';
+  if(streakMeta) streakMeta.classList.toggle('hidden', inRooms);
+  if(titleBadge) titleBadge.classList.toggle('hidden', inRooms);
+}
 function questsCompletedOn(date){
   return (state.quests||[]).filter(q=> q.type==='daily' ? q.lastDoneDate===date : (q.status==='done' && q.completedDate===date));
 }
 function renderGrowth(){
+  renderDiaryMainMode();
   const diaryInput = document.getElementById('diary-input');
   const titleInput = document.getElementById('diary-title-input');
   const editingToday = !diaryEditingDate || diaryEditingDate===todayStr();
@@ -5803,6 +5845,7 @@ function updateDiaryNavBadge(){
 }
 function editDiaryEntry(date){
   diaryEditingDate = date;
+  diaryMainMode = 'personal';
   renderGrowth();
   const card = document.querySelector('.diary-write-card');
   if(card) card.scrollIntoView({behavior:'smooth', block:'start'});
@@ -6117,6 +6160,8 @@ function renderDiaryPhotoGrid(){
 /* ---- 일기: 상세 보기 (모바일 전체화면 / 데스크탑 오른쪽 고정 패널) + 좌우 스와이프 이동 ---- */
 function openDiaryDetail(date){
   diaryDetailDate = date;
+  diaryMainMode = 'personal';
+  renderDiaryMainMode();
   renderDiaryDetail();
   document.getElementById('diary-detail-view')?.classList.remove('hidden');
   document.getElementById('diary-detail-placeholder')?.classList.add('hidden');
