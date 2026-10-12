@@ -756,6 +756,8 @@
     display:inline-block;margin-top:8px;padding:3px 10px;border-radius:999px;
     font-size:11px;font-weight:700;
   }
+  .fx-achv-desc{font-size:13px;color:var(--text-dim);line-height:1.55;max-width:260px;margin:0 auto 14px;}
+  .fx-achv-reward-tag{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(231,181,73,0.16);color:var(--gold);}
 
   /* ---------- explore timeline ---------- */
   .tl-section-label{font-size:12px;font-weight:700;color:var(--text-faint);margin-bottom:6px;}
@@ -2506,6 +2508,17 @@
     </div>
   </div>
 
+  <!-- ACHIEVEMENT UNLOCK FX -->
+  <div class="fx-overlay" id="fx-achv-overlay" onclick="hideAchvFx()">
+    <div class="fx-card">
+      <div class="fx-clear-ic" id="fx-achv-ic">🏆</div>
+      <div class="fx-clear-title">ACHIEVEMENT UNLOCKED</div>
+      <div class="fx-quest-name" id="fx-achv-name"></div>
+      <div class="fx-achv-desc" id="fx-achv-desc"></div>
+      <div class="fx-achv-reward-tag hidden" id="fx-achv-reward"></div>
+    </div>
+  </div>
+
   <!-- DUEL COUNTDOWN & BATTLE FX -->
   <div class="duel-fx-overlay" id="duel-fx-overlay">
     <div class="duel-countdown-num" id="duel-countdown-num"></div>
@@ -3287,7 +3300,7 @@ function triggerHiddenNpc(){
   if(navigator.vibrate) navigator.vibrate(30);
   if(!state.unlockedAchv.includes('hidden_npc')){
     state.unlockedAchv.push('hidden_npc');
-    setTimeout(()=> toast('🏆 업적 달성: 숨은 만남'), 900);
+    setTimeout(()=> showAchvFx('hidden_npc'), 900);
     saveState();
   }
 }
@@ -3307,7 +3320,7 @@ function triggerFakeError(){
   toast('⚠️ 오류: 용사의 의욕을 찾을 수 없습니다');
   if(!state.unlockedAchv.includes('fake_error')){
     state.unlockedAchv.push('fake_error');
-    setTimeout(()=> toast('🏆 업적 달성: 시스템의 균열'), 2000);
+    setTimeout(()=> showAchvFx('fake_error'), 2000);
     saveState();
   }
 }
@@ -3315,9 +3328,8 @@ function triggerFakeError(){
 function unlockEaster(id, message, reward){
   if(!state.unlockedAchv.includes(id)){
     state.unlockedAchv.push(id);
-    playSound('achievement'); cinematicFX('secret');
     if(reward){ state.gold += reward.gold||0; trackGold(reward.gold||0); state.totalXP += reward.xp||0; }
-    toast(message || '🔎 숨겨진 비밀을 발견했습니다.');
+    showAchvFx(id, message, reward);
     logGain('✨','이스터에그 발견', message || id);
     return true;
   }
@@ -3948,6 +3960,24 @@ function toast(msg){
   t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'), 1800);
 }
+
+let _achvFxTimer = null;
+function showAchvFx(id, flavorMsg, reward){
+  const a = ACHIEVEMENTS.find(x=>x.id===id);
+  if(!a){ if(flavorMsg) toast(flavorMsg); return; }
+  const rewardTxt = reward ? `${reward.gold?`🪙 +${reward.gold}`:''}${reward.gold&&reward.xp?' · ':''}${reward.xp?`⚡ +${reward.xp}XP`:''}` : '';
+  document.getElementById('fx-achv-ic').textContent = a.icon;
+  document.getElementById('fx-achv-name').textContent = a.name;
+  document.getElementById('fx-achv-desc').textContent = flavorMsg || a.desc;
+  const tag = document.getElementById('fx-achv-reward');
+  tag.textContent = rewardTxt;
+  tag.classList.toggle('hidden', !rewardTxt);
+  playSound('achievement'); cinematicFX('secret');
+  document.getElementById('fx-achv-overlay').classList.add('show');
+  clearTimeout(_achvFxTimer);
+  _achvFxTimer = setTimeout(hideAchvFx, 2600);
+}
+function hideAchvFx(){ document.getElementById('fx-achv-overlay').classList.remove('show'); clearTimeout(_achvFxTimer); }
 
 function showCoinFx(coin, isNew){
   playSound('gold'); cinematicFX(isNew?'secret':'normal');
@@ -6575,14 +6605,12 @@ function checkAchievements(){
   ACHIEVEMENTS.forEach(a=>{
     if(!state.unlockedAchv.includes(a.id) && a.cond(snapshot)){
       state.unlockedAchv.push(a.id);
-      let rewardTxt = '';
       if(a.reward){
         state.gold += a.reward.gold||0;
         trackGold(a.reward.gold||0);
         state.totalXP += a.reward.xp||0;
-        rewardTxt = ` (🪙+${a.reward.gold||0}${a.reward.xp?` ⚡+${a.reward.xp}XP`:''})`;
       }
-      toast(`🏆 업적 달성: ${a.name}${rewardTxt}`);
+      showAchvFx(a.id, null, a.reward);
     }
   });
 }
