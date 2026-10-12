@@ -2252,6 +2252,21 @@
       </div>
 
       <div class="settings-card">
+        <h3>🎵 배경음악 (BGM)</h3>
+        <div class="hint">원하는 유튜브 영상이나 재생목록 링크를 넣으면 앱을 쓰는 동안 배경음악으로 틀어드려요. 한 번 저장해두면 다음에 앱을 열 때도 이어서 재생됩니다. (브라우저 정책상 처음엔 화면을 한 번 탭해야 소리가 나올 수 있어요)</div>
+        <input type="text" id="bgm-url-input" placeholder="유튜브 링크 (영상 또는 재생목록)">
+        <div class="settings-row" style="margin-top:8px;">
+          <button class="btn btn-gold" onclick="saveBgmLink()">저장하고 재생</button>
+          <button class="btn btn-ghost" onclick="stopBgm()">끄기</button>
+        </div>
+        <div class="settings-row" style="margin-top:10px;align-items:center;">
+          <span style="font-size:12px;color:var(--text-dim);">🔉 음량</span>
+          <input type="range" id="bgm-volume-input" min="0" max="100" value="50" style="flex:1;" oninput="setBgmVolume(this.value)">
+        </div>
+        <div class="hint" id="bgm-status" style="margin-top:8px;">⏸ 꺼짐</div>
+      </div>
+
+      <div class="settings-card">
         <h3>📅 캘린더 연동</h3>
         <div class="hint">일일 퀘스트는 매일 반복 일정으로, 날짜지정 퀘스트는 해당 날짜 일정으로 내보냅니다. 내려받은 .ics 파일을 캘린더 앱에서 "가져오기" 하세요.</div>
         <button class="btn btn-block" onclick="exportToCalendar()">캘린더 파일(.ics) 내보내기</button>
@@ -2581,6 +2596,7 @@
   <div class="fx-flash" id="fx-flash"></div>
   <div class="fx-particles" id="fx-particles"></div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div id="yt-bgm-player" style="position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true"></div>
   <div class="bottom-sheet-overlay" id="bottom-sheet-overlay" onclick="if(event.target===this) closeBottomSheet()">
     <div class="bottom-sheet" id="bottom-sheet-body" role="dialog" aria-modal="true" aria-label="옵션"></div>
   </div>
@@ -3272,8 +3288,98 @@ function cinematicFX(kind='normal'){
   setTimeout(()=>box.innerHTML='',1100);
 }
 function playSound(name){SoundManager.play(name);}
-window.addEventListener('load',()=>{updateSoundButton();updateMiniBlackMarketButton();setInterval(()=>{updateMiniBlackMarketButton(); if(state && state.character && typeof renderBlackMarketHomeCard==='function') renderBlackMarketHomeCard();},30000);});
-document.addEventListener('click',e=>{const b=e.target.closest('button');if(b && !b.id?.includes('sound-toggle')) playSound('click');},{passive:true});
+window.addEventListener('load',()=>{updateSoundButton();updateMiniBlackMarketButton();initBgmUI();setInterval(()=>{updateMiniBlackMarketButton(); if(state && state.character && typeof renderBlackMarketHomeCard==='function') renderBlackMarketHomeCard();},30000);});
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(b && !b.id?.includes('sound-toggle')) playSound('click'); tryResumeBgm();},{passive:true});
+
+/* ===================== BGM (유튜브 링크 기반) ===================== */
+let ytPlayer=null, ytApiReady=false, ytWantsAutoplay=false, ytResumeNeeded=false;
+function parseYouTubeInput(raw){
+  if(!raw) return null;
+  try{
+    const u = new URL(raw.trim());
+    if(!/(^|\.)youtube\.com$/.test(u.hostname) && u.hostname!=='youtu.be') return null;
+    const listId = u.searchParams.get('list');
+    const videoId = u.searchParams.get('v') || (u.hostname==='youtu.be' ? u.pathname.slice(1) : null);
+    if(videoId) return { type:'video', id:videoId };
+    if(listId) return { type:'playlist', id:listId };
+  }catch(e){}
+  return null;
+}
+function loadYouTubeAPI(){
+  if(window.YT && window.YT.Player){ ytApiReady=true; onYouTubeIframeAPIReady(); return; }
+  if(document.getElementById('yt-iframe-api')) return;
+  const tag=document.createElement('script'); tag.id='yt-iframe-api'; tag.src='https://www.youtube.com/iframe_api';
+  document.body.appendChild(tag);
+}
+window.onYouTubeIframeAPIReady=function(){
+  ytApiReady=true;
+  if(ytWantsAutoplay) initBgmPlayer();
+};
+function saveBgmLink(){
+  const input=document.getElementById('bgm-url-input');
+  const parsed=parseYouTubeInput(input.value);
+  if(!parsed){ toast('유튜브 링크 형식을 확인해주세요'); return; }
+  localStorage.setItem('qp_bgm', JSON.stringify(parsed));
+  localStorage.setItem('qp_bgm_enabled','1');
+  toast('BGM을 저장했어요. 재생을 시작합니다');
+  startBgm(parsed);
+}
+function startBgm(parsed){
+  parsed = parsed || JSON.parse(localStorage.getItem('qp_bgm')||'null');
+  if(!parsed) return;
+  ytWantsAutoplay=true;
+  updateBgmStatusUI('연결 중...');
+  if(!ytApiReady){ loadYouTubeAPI(); return; }
+  initBgmPlayer(parsed);
+}
+function initBgmPlayer(parsed){
+  parsed = parsed || JSON.parse(localStorage.getItem('qp_bgm')||'null');
+  if(!parsed) return;
+  const vol = Number(localStorage.getItem('qp_bgm_volume')||'50');
+  const playerVars = { autoplay:1, controls:0 };
+  const opts = { height:'0', width:'0', playerVars, events:{
+    onReady:(e)=>{ e.target.setVolume(vol); e.target.playVideo(); ytResumeNeeded=false; updateBgmStatusUI('🎵 재생 중'); },
+    onStateChange:(e)=>{
+      if(e.data===YT.PlayerState.PAUSED || e.data===-1){ ytResumeNeeded=true; }
+      else if(e.data===YT.PlayerState.PLAYING){ ytResumeNeeded=false; updateBgmStatusUI('🎵 재생 중'); }
+      if(e.data===YT.PlayerState.ENDED && parsed.type==='video'){ e.target.playVideo(); }
+    },
+    onError:()=>{ updateBgmStatusUI('⚠️ 재생할 수 없는 링크예요'); }
+  }};
+  if(parsed.type==='playlist'){ playerVars.listType='playlist'; playerVars.list=parsed.id; }
+  else { opts.videoId=parsed.id; playerVars.playlist=parsed.id; }
+  if(ytPlayer){ try{ ytPlayer.destroy(); }catch(e){} }
+  ytPlayer=new YT.Player('yt-bgm-player', opts);
+}
+function tryResumeBgm(){
+  if(!ytResumeNeeded || !ytPlayer || typeof ytPlayer.playVideo!=='function') return;
+  try{ ytPlayer.playVideo(); }catch(e){}
+}
+function stopBgm(){
+  localStorage.setItem('qp_bgm_enabled','0');
+  ytWantsAutoplay=false; ytResumeNeeded=false;
+  if(ytPlayer){ try{ ytPlayer.stopVideo(); }catch(e){} }
+  updateBgmStatusUI('⏸ 꺼짐');
+  toast('BGM을 껐어요');
+}
+function setBgmVolume(v){
+  localStorage.setItem('qp_bgm_volume', v);
+  if(ytPlayer && typeof ytPlayer.setVolume==='function'){ try{ ytPlayer.setVolume(Number(v)); }catch(e){} }
+}
+function updateBgmStatusUI(text){
+  const el=document.getElementById('bgm-status'); if(el) el.textContent=text;
+}
+function initBgmUI(){
+  const parsed=JSON.parse(localStorage.getItem('qp_bgm')||'null');
+  const enabled=localStorage.getItem('qp_bgm_enabled')==='1';
+  const vol=localStorage.getItem('qp_bgm_volume')||'50';
+  const volInput=document.getElementById('bgm-volume-input'); if(volInput) volInput.value=vol;
+  if(parsed){
+    const urlInput=document.getElementById('bgm-url-input');
+    if(urlInput) urlInput.placeholder = parsed.type==='playlist' ? '저장된 재생목록이 있어요' : '저장된 영상이 있어요';
+  }
+  if(enabled && parsed){ updateBgmStatusUI('🎵 재생 준비 중 (화면을 한 번 탭해주세요)'); startBgm(parsed); }
+}
 
 /* ===================== 이스터에그: 숨은 NPC / 가짜 ERROR ===================== */
 /* 캐릭터 아바타를 길게 누르면(0.8초) 숨어있던 NPC와 조우한다 */
