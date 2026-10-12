@@ -2201,6 +2201,25 @@
       </div>
     </div>
 
+    <!-- CHANGELOG -->
+    <div class="sheet-overlay" id="changelog-overlay" onclick="closeOverlayOnBg(event, closeChangelog)">
+      <div class="sheet" onclick="event.stopPropagation()">
+        <h3>📋 업데이트 내역</h3>
+        <div id="changelog-list"></div>
+        <button class="btn btn-ghost btn-block" style="margin-top:16px;" onclick="closeChangelog()">닫기</button>
+      </div>
+    </div>
+
+    <!-- NOTIFICATION LOG -->
+    <div class="sheet-overlay" id="notif-log-overlay" onclick="closeOverlayOnBg(event, closeNotifLog)">
+      <div class="sheet" onclick="event.stopPropagation()">
+        <h3>🔔 받은 알림 기록</h3>
+        <div class="hint" style="margin-bottom:10px;">이 기기의 이 브라우저에서 받은 알림만 보여요. (최근 50개)</div>
+        <div id="notif-log-list"></div>
+        <button class="btn btn-ghost btn-block" style="margin-top:16px;" onclick="closeNotifLog()">닫기</button>
+      </div>
+    </div>
+
     <!-- SETTINGS -->
     <div class="screen hidden" id="screen-settings">
       <div class="section-head" style="margin-top:4px;"><h2>설정</h2></div>
@@ -2330,6 +2349,17 @@
       </div>
 
       <div class="settings-group-label">앱 관리</div>
+
+      <div class="settings-card">
+        <h3 onclick="toggleSettingsCard(this)">📋 업데이트 &amp; 알림 기록</h3>
+        <div class="settings-card-body">
+          <div class="hint">언제 어떤 기능이 업데이트됐는지, 그동안 어떤 알림을 받았는지 살펴볼 수 있어요.</div>
+          <div class="settings-row">
+            <button class="btn btn-block" onclick="openChangelog()">업데이트 내역</button>
+            <button class="btn btn-ghost btn-block" onclick="openNotifLog()">받은 알림 기록</button>
+          </div>
+        </div>
+      </div>
 
       <div class="settings-card">
         <h3 onclick="toggleSettingsCard(this)">🔄 최신 버전으로 새로고침</h3>
@@ -7036,6 +7066,7 @@ function sendNotification(title, body){
     } else {
       new Notification(title, {body, icon:'icons/icon-192.png', badge:'icons/badge-192.png'});
     }
+    nlogAdd({title, body, tag:'', at:Date.now()});
   }catch(e){ console.error('notify failed', e); }
 }
 function sendTestNotification(){
@@ -7045,6 +7076,73 @@ function sendTestNotification(){
   const remaining = list.filter(q=> q.type==='daily' ? q.lastDoneDate!==t : q.status!=='done').length;
   sendNotification('⚔️ 오늘의 퀘스트', remaining>0 ? `아직 ${remaining}개의 퀘스트가 남아있어요!` : '오늘 퀘스트를 모두 완료했어요! 🎉');
 }
+/* ===================== 알림 기록 (IndexedDB, 서비스워커 push와 공유) ===================== */
+function nlogOpen(){
+  return new Promise((resolve,reject)=>{
+    if(!('indexedDB' in window)){ reject(new Error('no indexedDB')); return; }
+    const req = indexedDB.open('qp-notif-log', 1);
+    req.onupgradeneeded = ()=>{ req.result.createObjectStore('log', {keyPath:'id', autoIncrement:true}); };
+    req.onsuccess = ()=> resolve(req.result);
+    req.onerror = ()=> reject(req.error);
+  });
+}
+async function nlogAdd(entry){
+  try{
+    const db = await nlogOpen();
+    await new Promise((resolve,reject)=>{
+      const tx = db.transaction('log','readwrite');
+      tx.objectStore('log').add(entry);
+      tx.oncomplete = resolve; tx.onerror = ()=> reject(tx.error);
+    });
+    await new Promise((resolve)=>{
+      const tx = db.transaction('log','readwrite');
+      const store = tx.objectStore('log');
+      const keysReq = store.getAllKeys();
+      keysReq.onsuccess = ()=>{
+        const keys = keysReq.result;
+        if(keys.length>50) keys.slice(0, keys.length-50).forEach(k=> store.delete(k));
+        resolve();
+      };
+      keysReq.onerror = ()=> resolve();
+    });
+  }catch(e){}
+}
+async function nlogGetAll(){
+  try{
+    const db = await nlogOpen();
+    return await new Promise((resolve)=>{
+      const tx = db.transaction('log','readonly');
+      const req = tx.objectStore('log').getAll();
+      req.onsuccess = ()=> resolve(req.result||[]);
+      req.onerror = ()=> resolve([]);
+    });
+  }catch(e){ return []; }
+}
+async function renderNotifLog(){
+  const wrap = document.getElementById('notif-log-list');
+  const items = (await nlogGetAll()).sort((a,b)=> b.at-a.at);
+  wrap.innerHTML = items.length
+    ? items.map(n=> `<div class="tl-activity-item"><span class="ts">${fmtTimelineTs(n.at)}</span><b>${escapeHtml(n.title||'')}</b>${n.body?' · '+escapeHtml(n.body):''}</div>`).join('')
+    : '<div class="tl-empty">아직 받은 알림이 없어요.</div>';
+}
+function openNotifLog(){ renderNotifLog(); document.getElementById('notif-log-overlay').classList.add('show'); }
+function closeNotifLog(){ document.getElementById('notif-log-overlay').classList.remove('show'); }
+
+/* ===================== 업데이트 내역 ===================== */
+const APP_CHANGELOG = [
+  { date:'2026-10-12', items:['설정 화면을 접이식 리스트로 정리해 스크롤을 줄임','유튜브 링크로 배경음악(BGM)을 틀 수 있는 기능 추가','업적·이스터에그 달성 알림을 카드형 팝업으로 교체','새 버전이 나오면 업데이트 알림 토스트 표시','그룹 일기에 메모·스티커가 달리면 푸시 알림 전송','앱 아이콘과 알림 뱃지 아이콘을 새 디자인으로 교체'] },
+  { date:'2026-10-11', items:['그룹 일기를 실시간 폴링으로 자동 새로고침','모험일지와 그룹일기를 상단 탭으로 분리','그룹 일기에 메모 남기기·스티커 꾸미기 기능 추가','친구 코드로 참여하는 공유 일기장(그룹 일기) 도입'] },
+];
+function renderChangelog(){
+  const wrap = document.getElementById('changelog-list');
+  wrap.innerHTML = APP_CHANGELOG.map(rel=>
+    `<div class="tl-section-label" style="margin-top:12px;">${escapeHtml(rel.date)}</div>` +
+    rel.items.map(t=> `<div class="tl-activity-item">${escapeHtml(t)}</div>`).join('')
+  ).join('');
+}
+function openChangelog(){ renderChangelog(); document.getElementById('changelog-overlay').classList.add('show'); }
+function closeChangelog(){ document.getElementById('changelog-overlay').classList.remove('show'); }
+
 function checkAndNotifyIfNeeded(){
   if(!state.character) return;
   if(!('Notification' in window) || Notification.permission!=='granted' || !state.notifEnabled) return;

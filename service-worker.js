@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quest-planner-v10';
+const CACHE_NAME = 'quest-planner-v11';
 const ASSETS = [
   './index.html',
   './manifest.json',
@@ -81,11 +81,40 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
+function nlogAdd(entry) {
+  return new Promise((resolve) => {
+    try {
+      const req = indexedDB.open('qp-notif-log', 1);
+      req.onupgradeneeded = () => { req.result.createObjectStore('log', { keyPath: 'id', autoIncrement: true }); };
+      req.onsuccess = () => {
+        const db = req.result;
+        const tx = db.transaction('log', 'readwrite');
+        tx.objectStore('log').add(entry);
+        tx.oncomplete = () => {
+          const tx2 = db.transaction('log', 'readwrite');
+          const store = tx2.objectStore('log');
+          const keysReq = store.getAllKeys();
+          keysReq.onsuccess = () => {
+            const keys = keysReq.result;
+            if (keys.length > 50) keys.slice(0, keys.length - 50).forEach((k) => store.delete(k));
+            resolve();
+          };
+          keysReq.onerror = () => resolve();
+        };
+        tx.onerror = () => resolve();
+      };
+      req.onerror = () => resolve();
+    } catch (e) { resolve(); }
+  });
+}
 self.addEventListener('push', (event) => {
   let d = {};
   try { d = event.data ? event.data.json() : {}; } catch (e) {}
-  event.waitUntil(self.registration.showNotification(d.title || 'Quest Planner', {
-    body: d.body || '', tag: d.tag, renotify: !!d.tag,
-    icon: 'icons/icon-192.png', badge: 'icons/badge-192.png'
-  }));
+  event.waitUntil(Promise.all([
+    self.registration.showNotification(d.title || 'Quest Planner', {
+      body: d.body || '', tag: d.tag, renotify: !!d.tag,
+      icon: 'icons/icon-192.png', badge: 'icons/badge-192.png'
+    }),
+    nlogAdd({ title: d.title || 'Quest Planner', body: d.body || '', tag: d.tag || '', at: Date.now() })
+  ]));
 });
