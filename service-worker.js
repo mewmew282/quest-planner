@@ -1,11 +1,12 @@
-const CACHE_NAME = 'quest-planner-v6';
+const CACHE_NAME = 'quest-planner-v7';
 const ASSETS = [
   './index.html',
   './manifest.json',
   './social.js',
   './calendar.js',
   './icons/icon-192.png',
-  './icons/icon-512.png'
+  './icons/icon-512.png',
+  './icons/badge-192.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -85,6 +86,6 @@ self.addEventListener('push', (event) => {
   try { d = event.data ? event.data.json() : {}; } catch (e) {}
   event.waitUntil(self.registration.showNotification(d.title || 'Quest Planner', {
     body: d.body || '', tag: d.tag, renotify: !!d.tag,
-    icon: 'icons/icon-192.png', badge: 'icons/icon-192.png'
+    icon: 'icons/icon-192.png', badge: 'icons/badge-192.png'
   }));
 });
