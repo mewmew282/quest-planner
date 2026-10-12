@@ -6340,15 +6340,37 @@ async function openDiaryRoom(id){
   try{
     diaryRoomCache = await socGetDiaryRoom(id);
     renderDiaryRoomView();
+    startDiaryRoomPoll();
   }catch(e){
     if(view) view.innerHTML = `<button type="button" class="diary-room-back" onclick="closeDiaryRoom()">← 모험 일지</button><div class="soc-err" style="margin-top:10px;">${escapeHtml(e.message)}</div>`;
   }
 }
 function closeDiaryRoom(){
+  stopDiaryRoomPoll();
   diaryRoomOpenId = null; diaryRoomCache = null;
   const view = document.getElementById('diary-room-view');
   if(view){ view.classList.add('hidden'); view.innerHTML = ''; }
   renderDiaryRoomsPanel(true);
+}
+let diaryRoomPollTimer = null;
+function startDiaryRoomPoll(){
+  stopDiaryRoomPoll();
+  diaryRoomPollTimer = setInterval(async ()=>{
+    if(!diaryRoomOpenId || document.hidden) return;
+    const activeTab = document.querySelector('.nav-item.active')?.dataset.tab;
+    if(activeTab!=='growth') return; // 다른 탭으로 넘어가 있으면 폴링하지 않는다
+    const active = document.activeElement;
+    const typing = active && (active.id==='diary-room-title-input' || active.id==='diary-room-text-input' || active.classList.contains('diary-room-note-input'));
+    if(typing) return; // 작성/메모 입력 중엔 화면을 새로 그려 덮어쓰지 않는다
+    try{
+      diaryRoomCache = await socGetDiaryRoom(diaryRoomOpenId);
+      renderDiaryRoomView();
+    }catch(e){ /* 폴링 실패는 조용히 넘어간다(다음 주기에 다시 시도) */ }
+  }, 4000);
+}
+function stopDiaryRoomPoll(){
+  clearInterval(diaryRoomPollTimer);
+  diaryRoomPollTimer = null;
 }
 function renderDiaryRoomMoodRow(){
   const row = document.getElementById('diary-room-mood-row');
@@ -7563,10 +7585,11 @@ function switchTab(tab){
     stopWatchingPosition();
     stopCompass();
   }
+  if(prevTab==='growth' && tab!=='growth') stopDiaryRoomPoll(); // 일기 탭을 벗어나면 방 폴링을 멈춘다(다시 들어오면 openDiaryRoom이 재시작)
   if(tab==='quest') renderAllQuests();
   if(tab==='calendar'){ if(window.calRender) calRender(); else missingScriptNotice(document.getElementById('cal-wrap')); }
   if(tab==='character') renderCharacterScreen();
-  if(tab==='growth') renderGrowth();
+  if(tab==='growth'){ renderGrowth(); if(diaryRoomOpenId) startDiaryRoomPoll(); } // 방을 열어둔 채 탭을 떠났다 돌아오면 폴링을 되살린다
   if(tab==='shop'){ renderShopScreen(); }
   if(tab==='settings') renderSettings();
   if(tab==='world'){ if(window.worldShow) worldShow(); else missingScriptNotice(document.getElementById('world-wrap')); } // 월드맵/탐험 하위 화면 표시 (calendar.js)
