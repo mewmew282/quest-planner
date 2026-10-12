@@ -1481,6 +1481,12 @@
   }
   .settings-card h3{font-size:14px;margin-bottom:4px;}
   .settings-card .hint{font-size:11.5px;color:var(--text-faint);margin-bottom:12px;}
+  #screen-settings .settings-card{padding:14px 16px;}
+  #screen-settings .settings-card>h3{cursor:pointer;margin:0;display:flex;align-items:center;justify-content:space-between;gap:10px;user-select:none;}
+  #screen-settings .settings-card>h3::after{content:'▾';font-size:11px;color:var(--text-faint);flex:0 0 auto;transition:transform .2s;}
+  #screen-settings .settings-card.open>h3::after{transform:rotate(180deg);}
+  #screen-settings .settings-card-body{display:none;margin-top:10px;}
+  #screen-settings .settings-card.open .settings-card-body{display:block;}
   .settings-card input[type=text]{margin-bottom:12px;}
   .coupon-entry{display:flex;gap:8px;align-items:stretch;}
   .coupon-entry input{min-width:0;flex:1;margin:0 !important;text-transform:uppercase;letter-spacing:.7px;}
@@ -2202,133 +2208,159 @@
       <div class="settings-group-label">캐릭터</div>
 
       <div class="settings-card">
-        <h3>닉네임 변경</h3>
-        <div class="hint">모험가 이름을 새로 정할 수 있습니다.</div>
-        <input type="text" id="set-nickname" maxlength="10" placeholder="닉네임 (최대 10자)">
-        <button class="btn btn-gold btn-block" onclick="changeNickname()">닉네임 저장</button>
+        <h3 onclick="toggleSettingsCard(this)">닉네임 변경</h3>
+        <div class="settings-card-body">
+          <div class="hint">모험가 이름을 새로 정할 수 있습니다.</div>
+          <input type="text" id="set-nickname" maxlength="10" placeholder="닉네임 (최대 10자)">
+          <button class="btn btn-gold btn-block" onclick="changeNickname()">닉네임 저장</button>
+        </div>
       </div>
 
       <div class="settings-card">
-        <h3>프로필 이미지</h3>
-        <div class="hint">캐릭터 화면에 표시될 나만의 사진을 설정할 수 있어요. (최대 3MB)</div>
-        <div class="avatar-edit-row">
-          <div class="avatar-preview" id="avatar-preview-circle"><span id="avatar-preview-emoji">🧍</span></div>
-          <div class="avatar-edit-btns">
-            <input type="file" id="avatar-file-input" accept="image/*" class="hidden" onchange="onAvatarFileSelected(event)">
-            <button class="btn btn-block" onclick="document.getElementById('avatar-file-input').click()">이미지 선택</button>
-            <button class="btn btn-ghost btn-block" id="avatar-reset-btn" onclick="resetAvatarImage()">기본 이미지로 되돌리기</button>
+        <h3 onclick="toggleSettingsCard(this)">프로필 이미지</h3>
+        <div class="settings-card-body">
+          <div class="hint">캐릭터 화면에 표시될 나만의 사진을 설정할 수 있어요. (최대 3MB)</div>
+          <div class="avatar-edit-row">
+            <div class="avatar-preview" id="avatar-preview-circle"><span id="avatar-preview-emoji">🧍</span></div>
+            <div class="avatar-edit-btns">
+              <input type="file" id="avatar-file-input" accept="image/*" class="hidden" onchange="onAvatarFileSelected(event)">
+              <button class="btn btn-block" onclick="document.getElementById('avatar-file-input').click()">이미지 선택</button>
+              <button class="btn btn-ghost btn-block" id="avatar-reset-btn" onclick="resetAvatarImage()">기본 이미지로 되돌리기</button>
+            </div>
           </div>
         </div>
       </div>
 
       <div class="settings-card">
-        <h3>보직 변경</h3>
-        <div class="hint">직업을 변경하면 캐릭터 모습과 성장 단계가 바뀝니다. 레벨과 경험치는 유지됩니다.</div>
-        <div id="set-current-cls-tag"></div>
-        <div class="class-grid compact" id="set-class-grid"></div>
-        <button class="btn btn-gold btn-block" id="set-cls-btn" onclick="changeClass()" disabled>보직 변경하기</button>
+        <h3 onclick="toggleSettingsCard(this)">보직 변경</h3>
+        <div class="settings-card-body">
+          <div class="hint">직업을 변경하면 캐릭터 모습과 성장 단계가 바뀝니다. 레벨과 경험치는 유지됩니다.</div>
+          <div id="set-current-cls-tag"></div>
+          <div class="class-grid compact" id="set-class-grid"></div>
+          <button class="btn btn-gold btn-block" id="set-cls-btn" onclick="changeClass()" disabled>보직 변경하기</button>
+        </div>
       </div>
 
       <div class="settings-group-label">혜택</div>
 
       <div class="settings-card">
-        <h3>🎟️ 쿠폰</h3>
-        <div class="hint">발급받은 쿠폰 번호를 입력해 보상을 받아보세요.</div>
-        <div class="coupon-entry">
-          <input type="text" id="coupon-code-input" maxlength="32" autocomplete="off" spellcheck="false" placeholder="쿠폰 번호 입력">
-          <button class="btn btn-gold" type="button" onclick="redeemCoupon()">사용하기</button>
+        <h3 onclick="toggleSettingsCard(this)">🎟️ 쿠폰</h3>
+        <div class="settings-card-body">
+          <div class="hint">발급받은 쿠폰 번호를 입력해 보상을 받아보세요.</div>
+          <div class="coupon-entry">
+            <input type="text" id="coupon-code-input" maxlength="32" autocomplete="off" spellcheck="false" placeholder="쿠폰 번호 입력">
+            <button class="btn btn-gold" type="button" onclick="redeemCoupon()">사용하기</button>
+          </div>
+          <div class="coupon-status" id="coupon-status">사용 가능한 쿠폰 번호를 입력하세요.</div>
         </div>
-        <div class="coupon-status" id="coupon-status">사용 가능한 쿠폰 번호를 입력하세요.</div>
       </div>
 
       <div class="settings-group-label">탐험</div>
 
       <div class="settings-card">
-        <h3>탐험 목표 초기화 주기</h3>
-        <div class="hint">산책 목표(거리)와 타임라인 기록이 며칠마다 초기화될지 선택하세요. 지도에 그려지는 산책 경로(노란 선)는 이 설정과 관계없이 매일 초기화돼요.</div>
-        <div class="chip-row" id="walk-reset-days-row" style="margin-top:8px;">
-          <button class="chip" data-val="1" onclick="setWalkResetDays(1)">매일</button>
-          <button class="chip" data-val="2" onclick="setWalkResetDays(2)">2일마다</button>
-          <button class="chip" data-val="3" onclick="setWalkResetDays(3)">3일마다</button>
+        <h3 onclick="toggleSettingsCard(this)">탐험 목표 초기화 주기</h3>
+        <div class="settings-card-body">
+          <div class="hint">산책 목표(거리)와 타임라인 기록이 며칠마다 초기화될지 선택하세요. 지도에 그려지는 산책 경로(노란 선)는 이 설정과 관계없이 매일 초기화돼요.</div>
+          <div class="chip-row" id="walk-reset-days-row" style="margin-top:8px;">
+            <button class="chip" data-val="1" onclick="setWalkResetDays(1)">매일</button>
+            <button class="chip" data-val="2" onclick="setWalkResetDays(2)">2일마다</button>
+            <button class="chip" data-val="3" onclick="setWalkResetDays(3)">3일마다</button>
+          </div>
         </div>
       </div>
 
       <div class="settings-group-label">사운드 &amp; 알림</div>
 
       <div class="settings-card">
-        <h3>🔊 효과음</h3>
-        <div class="hint">퀘스트 완료, 레벨업, 업적, 이스터에그 등의 효과음을 켜거나 끌 수 있어요.</div>
-        <button class="btn btn-block" id="sound-toggle" onclick="toggleSound()" aria-label="사운드 켜기/끄기">🔊 효과음 켜짐</button>
+        <h3 onclick="toggleSettingsCard(this)">🔊 효과음</h3>
+        <div class="settings-card-body">
+          <div class="hint">퀘스트 완료, 레벨업, 업적, 이스터에그 등의 효과음을 켜거나 끌 수 있어요.</div>
+          <button class="btn btn-block" id="sound-toggle" onclick="toggleSound()" aria-label="사운드 켜기/끄기">🔊 효과음 켜짐</button>
+        </div>
       </div>
 
       <div class="settings-card">
-        <h3>🎵 배경음악 (BGM)</h3>
-        <div class="hint">원하는 유튜브 영상이나 재생목록 링크를 넣으면 앱을 쓰는 동안 배경음악으로 틀어드려요. 한 번 저장해두면 다음에 앱을 열 때도 이어서 재생됩니다. (브라우저 정책상 처음엔 화면을 한 번 탭해야 소리가 나올 수 있어요)</div>
-        <input type="text" id="bgm-url-input" placeholder="유튜브 링크 (영상 또는 재생목록)">
-        <div class="settings-row" style="margin-top:8px;">
-          <button class="btn btn-gold" onclick="saveBgmLink()">저장하고 재생</button>
-          <button class="btn btn-ghost" onclick="stopBgm()">끄기</button>
+        <h3 onclick="toggleSettingsCard(this)">🎵 배경음악 (BGM)</h3>
+        <div class="settings-card-body">
+          <div class="hint">원하는 유튜브 영상이나 재생목록 링크를 넣으면 앱을 쓰는 동안 배경음악으로 틀어드려요. 한 번 저장해두면 다음에 앱을 열 때도 이어서 재생됩니다. (브라우저 정책상 처음엔 화면을 한 번 탭해야 소리가 나올 수 있어요)</div>
+          <input type="text" id="bgm-url-input" placeholder="유튜브 링크 (영상 또는 재생목록)">
+          <div class="settings-row" style="margin-top:8px;">
+            <button class="btn btn-gold" onclick="saveBgmLink()">저장하고 재생</button>
+            <button class="btn btn-ghost" onclick="stopBgm()">끄기</button>
+          </div>
+          <div class="settings-row" style="margin-top:10px;align-items:center;">
+            <span style="font-size:12px;color:var(--text-dim);">🔉 음량</span>
+            <input type="range" id="bgm-volume-input" min="0" max="100" value="50" style="flex:1;" oninput="setBgmVolume(this.value)">
+          </div>
+          <div class="hint" id="bgm-status" style="margin-top:8px;">⏸ 꺼짐</div>
         </div>
-        <div class="settings-row" style="margin-top:10px;align-items:center;">
-          <span style="font-size:12px;color:var(--text-dim);">🔉 음량</span>
-          <input type="range" id="bgm-volume-input" min="0" max="100" value="50" style="flex:1;" oninput="setBgmVolume(this.value)">
-        </div>
-        <div class="hint" id="bgm-status" style="margin-top:8px;">⏸ 꺼짐</div>
       </div>
 
       <div class="settings-card">
-        <h3>🔔 알림</h3>
-        <div class="hint" id="notif-status-hint">앱이 켜져 있는 동안 미완료 퀘스트를 알려드려요. (기기 브라우저 알림 권한 필요)</div>
-        <div class="settings-row">
-          <button class="btn" id="notif-permission-btn" onclick="toggleNotifications()">알림 켜기</button>
-          <button class="btn btn-ghost" onclick="sendTestNotification()">테스트 알림</button>
+        <h3 onclick="toggleSettingsCard(this)">🔔 알림</h3>
+        <div class="settings-card-body">
+          <div class="hint" id="notif-status-hint">앱이 켜져 있는 동안 미완료 퀘스트를 알려드려요. (기기 브라우저 알림 권한 필요)</div>
+          <div class="settings-row">
+            <button class="btn" id="notif-permission-btn" onclick="toggleNotifications()">알림 켜기</button>
+            <button class="btn btn-ghost" onclick="sendTestNotification()">테스트 알림</button>
+          </div>
         </div>
       </div>
 
       <div class="settings-group-label">연동 &amp; 백업</div>
 
       <div class="settings-card">
-        <h3>📅 캘린더 연동</h3>
-        <div class="hint">일일 퀘스트는 매일 반복 일정으로, 날짜지정 퀘스트는 해당 날짜 일정으로 내보냅니다. 내려받은 .ics 파일을 캘린더 앱에서 "가져오기" 하세요.</div>
-        <button class="btn btn-block" onclick="exportToCalendar()">캘린더 파일(.ics) 내보내기</button>
+        <h3 onclick="toggleSettingsCard(this)">📅 캘린더 연동</h3>
+        <div class="settings-card-body">
+          <div class="hint">일일 퀘스트는 매일 반복 일정으로, 날짜지정 퀘스트는 해당 날짜 일정으로 내보냅니다. 내려받은 .ics 파일을 캘린더 앱에서 "가져오기" 하세요.</div>
+          <button class="btn btn-block" onclick="exportToCalendar()">캘린더 파일(.ics) 내보내기</button>
+        </div>
       </div>
 
       <div class="settings-card">
-        <h3>💾 데이터 백업</h3>
-        <div class="hint">기기를 바꾸거나 브라우저 저장공간이 초기화돼도 진행 데이터를 지킬 수 있도록 JSON 파일로 내보내고 불러올 수 있어요.</div>
-        <div class="settings-row">
-          <button class="btn btn-block" onclick="exportStateBackup()">JSON으로 내보내기</button>
-          <button class="btn btn-ghost btn-block" onclick="triggerBackupImport()">JSON 불러오기</button>
+        <h3 onclick="toggleSettingsCard(this)">💾 데이터 백업</h3>
+        <div class="settings-card-body">
+          <div class="hint">기기를 바꾸거나 브라우저 저장공간이 초기화돼도 진행 데이터를 지킬 수 있도록 JSON 파일로 내보내고 불러올 수 있어요.</div>
+          <div class="settings-row">
+            <button class="btn btn-block" onclick="exportStateBackup()">JSON으로 내보내기</button>
+            <button class="btn btn-ghost btn-block" onclick="triggerBackupImport()">JSON 불러오기</button>
+          </div>
+          <input type="file" id="backup-file-input" accept="application/json" class="hidden" onchange="onBackupFileSelected(event)">
         </div>
-        <input type="file" id="backup-file-input" accept="application/json" class="hidden" onchange="onBackupFileSelected(event)">
       </div>
 
       <div class="settings-group-label">앱 관리</div>
 
       <div class="settings-card">
-        <h3>🔄 최신 버전으로 새로고침</h3>
-        <div class="hint">새 기능이 안 보이거나 화면이 이상할 때 눌러 보세요. 저장된 진행 데이터는 지워지지 않고, 앱 파일 캐시만 새로 받아요.</div>
-        <button class="btn btn-block" onclick="forceRefresh()">최신 버전으로 새로고침</button>
+        <h3 onclick="toggleSettingsCard(this)">🔄 최신 버전으로 새로고침</h3>
+        <div class="settings-card-body">
+          <div class="hint">새 기능이 안 보이거나 화면이 이상할 때 눌러 보세요. 저장된 진행 데이터는 지워지지 않고, 앱 파일 캐시만 새로 받아요.</div>
+          <button class="btn btn-block" onclick="forceRefresh()">최신 버전으로 새로고침</button>
+        </div>
       </div>
 
       <div class="settings-card" id="pwa-install-card">
-        <h3>📱 앱으로 설치</h3>
-        <div class="hint" id="pwa-install-hint">홈 화면에 추가하면 앱처럼 아이콘을 눌러 바로 실행할 수 있어요.</div>
-        <button class="btn btn-gold btn-block" id="pwa-install-btn" onclick="installPWA()" disabled>홈 화면에 추가</button>
-        <div class="pwa-ios-guide hidden" id="pwa-ios-guide">
-          <div class="pwa-ios-step"><span class="n">1</span><span>Safari 하단의 <b>공유 버튼</b> <span class="pwa-share-ic">⬆️</span> 을 탭하세요</span></div>
-          <div class="pwa-ios-step"><span class="n">2</span><span>메뉴에서 <b>"홈 화면에 추가"</b>를 선택하세요</span></div>
-          <div class="pwa-ios-step"><span class="n">3</span><span>오른쪽 위 <b>"추가"</b>를 탭하면 설치 완료!</span></div>
-          <div class="pwa-ios-note">※ iOS Safari는 앱을 자동으로 설치할 수 없어 위 방법으로만 홈 화면에 추가할 수 있어요. 크롬 등 다른 iOS 브라우저에서도 동일하게 동작하지 않을 수 있으니 <b>Safari</b>에서 열어주세요.</div>
+        <h3 onclick="toggleSettingsCard(this)">📱 앱으로 설치</h3>
+        <div class="settings-card-body">
+          <div class="hint" id="pwa-install-hint">홈 화면에 추가하면 앱처럼 아이콘을 눌러 바로 실행할 수 있어요.</div>
+          <button class="btn btn-gold btn-block" id="pwa-install-btn" onclick="installPWA()" disabled>홈 화면에 추가</button>
+          <div class="pwa-ios-guide hidden" id="pwa-ios-guide">
+            <div class="pwa-ios-step"><span class="n">1</span><span>Safari 하단의 <b>공유 버튼</b> <span class="pwa-share-ic">⬆️</span> 을 탭하세요</span></div>
+            <div class="pwa-ios-step"><span class="n">2</span><span>메뉴에서 <b>"홈 화면에 추가"</b>를 선택하세요</span></div>
+            <div class="pwa-ios-step"><span class="n">3</span><span>오른쪽 위 <b>"추가"</b>를 탭하면 설치 완료!</span></div>
+            <div class="pwa-ios-note">※ iOS Safari는 앱을 자동으로 설치할 수 없어 위 방법으로만 홈 화면에 추가할 수 있어요. 크롬 등 다른 iOS 브라우저에서도 동일하게 동작하지 않을 수 있으니 <b>Safari</b>에서 열어주세요.</div>
+          </div>
         </div>
       </div>
 
       <div class="settings-group-label">위험 구역</div>
 
       <div class="settings-card danger-card">
-        <h3>회귀</h3>
-        <div class="hint">캐릭터를 처음부터 다시 시작합니다. 닉네임, 보직, 레벨, 퀘스트, 업적이 모두 초기화되며 되돌릴 수 없습니다.</div>
-        <button class="btn btn-danger btn-block" onclick="openRegressConfirm()">회귀하기</button>
+        <h3 onclick="toggleSettingsCard(this)">회귀</h3>
+        <div class="settings-card-body">
+          <div class="hint">캐릭터를 처음부터 다시 시작합니다. 닉네임, 보직, 레벨, 퀘스트, 업적이 모두 초기화되며 되돌릴 수 없습니다.</div>
+          <button class="btn btn-danger btn-block" onclick="openRegressConfirm()">회귀하기</button>
+        </div>
       </div>
     </div>
 
@@ -3294,6 +3326,7 @@ const SoundManager = (()=>{
   const toggle=()=>{muted=!muted;localStorage.setItem('qp_sound_muted',muted?'1':'0'); updateSoundButton(); if(!muted)play('click');};
   return {play,toggle,isMuted:()=>muted};
 })();
+function toggleSettingsCard(h3){ const card=h3.closest('.settings-card'); if(card) card.classList.toggle('open'); }
 function updateSoundButton(){const b=document.getElementById('sound-toggle');if(b)b.textContent=SoundManager.isMuted()?'🔇 효과음 꺼짐':'🔊 효과음 켜짐';}
 function toggleSound(){SoundManager.toggle();}
 function cinematicFX(kind='normal'){
