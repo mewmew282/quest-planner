@@ -388,6 +388,7 @@ app.post('/api/diary-rooms/:id/entry/note', auth, wrap(async (req, res) => {
     { $push: { notes: { $each: [note], $slice: -50 } } }
   );
   if (!r.matchedCount) return bad(res, '그 글을 찾을 수 없어요', 404);
+  if (!ctx.targetId.equals(req.uid)) notify(ctx.targetId, { title: '📝 그룹 일기에 메모가 달렸어요', body: `${me.nick}: ${text.slice(0, 60)}`, tag: 'roomnote:' + ctx.room._id });
   res.json({ ok: true, note });
 }));
 app.post('/api/diary-rooms/:id/entry/sticker', auth, wrap(async (req, res) => {
@@ -402,6 +403,7 @@ app.post('/api/diary-rooms/:id/entry/sticker', auth, wrap(async (req, res) => {
     { $push: { stickers: { $each: [sticker], $slice: -60 } } }
   );
   if (!r.matchedCount) return bad(res, '그 글을 찾을 수 없어요', 404);
+  if (!ctx.targetId.equals(req.uid)) notify(ctx.targetId, { title: '✨ 그룹 일기에 스티커가 붙었어요', body: `${me.nick}님이 ${emoji} 스티커를 남겼어요`, tag: 'roomsticker:' + ctx.room._id });
   res.json({ ok: true, sticker });
 }));
 app.post('/api/diary-rooms/:id/leave', auth, wrap(async (req, res) => {
