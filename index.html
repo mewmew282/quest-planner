@@ -7094,7 +7094,19 @@ if('serviceWorker' in navigator){
     reloadedForSw = true; location.reload();
   });
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('service-worker.js').catch(()=>{ /* not hosted yet, ignore */ });
+    navigator.serviceWorker.register('service-worker.js').then(reg=>{
+      // 이미 떠 있던 탭에서 새 버전을 발견하면(첫 설치는 제외) 곧 자동 새로고침되기 전에 알려준다
+      reg.addEventListener('updatefound', ()=>{
+        const nw = reg.installing;
+        if(!nw || !navigator.serviceWorker.controller) return;
+        nw.addEventListener('statechange', ()=>{
+          if(nw.state==='installed') toast('🆕 새 버전으로 업데이트하는 중이에요');
+        });
+      });
+      // 앱을 오래 켜두는 경우를 위해, 다시 화면을 볼 때마다 새 버전이 있는지 확인
+      document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) reg.update().catch(()=>{}); });
+      setInterval(()=> reg.update().catch(()=>{}), 60*60*1000);
+    }).catch(()=>{ /* not hosted yet, ignore */ });
   });
 }
 
