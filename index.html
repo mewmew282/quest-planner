@@ -5,30 +5,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>QUEST PLANNER</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#14101F">
+<meta name="theme-color" content="#20241F">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Quest Planner">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
   :root{
-    --bg:#14101F;
-    --bg-elev:#1B1730;
-    --card:#221C3B;
-    --card-hi:#2C2450;
-    --border:#372C55;
+    --bg:#20241F;
+    --bg-elev:#2A3028;
+    --card:#2A3028;
+    --card-hi:#30372D;
+    --border:#4A5045;
     --text:#F4EFEA;
     --text-dim:#A196C0;
     --text-faint:#6E6390;
-    --gold:#E7B549;
+    --gold:#D5C39A;
     --gold-dim:#8A6E2E;
     --danger:#E0665C;
     --success:#5FB88A;
-    --bm-purple:#8B5FBF;
-    --bm-purple-dim:#3A2A52;
+    --bm-purple:#7A3B2E;
+    --bm-purple-dim:#3A2622;
     --warrior:#D9503F;
     --mage:#5B8DEF;
     --archer:#4FAE7A;
@@ -53,7 +55,7 @@
     max-width:480px;
     min-height:100vh;
     background:
-      radial-gradient(ellipse 600px 300px at 50% -10%, rgba(231,181,73,0.10), transparent 60%),
+      radial-gradient(ellipse 600px 300px at 50% -10%, rgba(213,195,154,0.10), transparent 60%),
       var(--bg);
     position:relative;
     display:flex;
@@ -75,7 +77,7 @@
   }
   .btn:active{transform:scale(0.97);}
   .btn-gold{
-    background:linear-gradient(180deg,#F0C463,#D9A438);
+    background:linear-gradient(180deg,#D5C39A,#80613A);
     color:#1B1300;
     border:none;
   }
@@ -145,7 +147,7 @@
   }
   .diary-banner .diary-banner-title{
     font-family:var(--font-display);font-weight:700;font-size:19px;color:var(--gold);
-    letter-spacing:.4px;text-shadow:0 0 14px rgba(231,181,73,.25);
+    letter-spacing:.4px;text-shadow:0 0 14px rgba(213,195,154,.25);
   }
   .diary-banner .diary-banner-sub{font-size:11px;color:var(--text-faint);margin-top:3px;font-style:italic;}
   .diary-streak-pill{
@@ -281,8 +283,8 @@
   .diary-entry:nth-child(even){--tilt:0.5deg;}
   .diary-entry::before{ /* 위쪽 마스킹 테이프 */
     content:'';position:absolute;top:-7px;left:50%;transform:translateX(-50%) rotate(-2deg);
-    width:50px;height:16px;background:rgba(231,181,73,.4);
-    border:1px solid rgba(231,181,73,.25);box-shadow:0 1px 3px rgba(0,0,0,.25);
+    width:50px;height:16px;background:rgba(213,195,154,.4);
+    border:1px solid rgba(213,195,154,.25);box-shadow:0 1px 3px rgba(0,0,0,.25);
   }
   .diary-entry::after{ /* 스프링 제본 구멍 */
     content:'';position:absolute;left:9px;top:16px;bottom:16px;width:7px;
@@ -309,7 +311,7 @@
   .diary-empty{
     text-align:center;padding:36px 16px;color:var(--text-faint);font-size:13px;
     border:1px dashed var(--gold-dim);border-radius:var(--radius-m);margin-top:14px;
-    background:radial-gradient(ellipse at center, rgba(231,181,73,.05), transparent 70%);
+    background:radial-gradient(ellipse at center, rgba(213,195,154,.05), transparent 70%);
   }
   .diary-empty .diary-empty-ic{font-size:28px;display:block;margin-bottom:8px;opacity:.55;}
   .diary-edit-btn{
@@ -425,7 +427,7 @@
   /* ---- 범용 바텀시트 ---- */
   .bottom-sheet-overlay{
     position:fixed;inset:0;z-index:95;display:flex;align-items:flex-end;justify-content:center;
-    background:rgba(10,8,18,0.72);opacity:0;pointer-events:none;transition:opacity .2s;
+    background:rgba(12,14,11,0.72);opacity:0;pointer-events:none;transition:opacity .2s;
   }
   .bottom-sheet-overlay.show{opacity:1;pointer-events:auto;}
   .bottom-sheet{
@@ -472,7 +474,7 @@
   .diary-photo-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
   .diary-photo-del{
     position:absolute;top:5px;right:5px;width:28px;height:28px;min-width:28px;border-radius:50%;
-    background:rgba(10,8,18,.65);color:#fff;border:none;font-size:13px;cursor:pointer;
+    background:rgba(12,14,11,.65);color:#fff;border:none;font-size:13px;cursor:pointer;
   }
   .diary-photo-add-btn{
     display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:44px;margin-top:4px;
@@ -558,7 +560,7 @@
   /* ---------- top bar ---------- */
   #topbar{
     position:sticky;top:0;z-index:20;
-    background:rgba(20,16,31,0.92);backdrop-filter:blur(6px);
+    background:rgba(32,36,31,0.92);backdrop-filter:blur(6px);
     padding:14px 18px 12px;
     border-bottom:1px solid var(--border);
   }
@@ -574,7 +576,7 @@
     background:var(--gold);color:#1B1300;border-radius:8px;padding:3px 8px;flex-shrink:0;
   }
   .xp-bar-track{flex:1;height:8px;background:var(--bg-elev);border-radius:5px;overflow:hidden;border:1px solid var(--border);}
-  .xp-bar-fill{height:100%;background:linear-gradient(90deg,#D9A438,#F0C463);border-radius:5px;transition:width .5s ease;}
+  .xp-bar-fill{height:100%;background:linear-gradient(90deg,#80613A,#D5C39A);border-radius:5px;transition:width .5s ease;}
   .xp-num{font-size:10px;color:var(--text-faint);white-space:nowrap;}
 
   /* ---------- home ---------- */
@@ -587,7 +589,7 @@
     display:flex;align-items:center;justify-content:center;
     background:radial-gradient(circle at 50% 40%, var(--card-hi), var(--card) 70%);
     border:2px solid var(--class-color,var(--gold));
-    box-shadow:0 0 0 6px rgba(231,181,73,0.06), 0 0 30px -8px var(--class-color,var(--gold));
+    box-shadow:0 0 0 6px rgba(213,195,154,0.06), 0 0 30px -8px var(--class-color,var(--gold));
     font-size:64px;
     position:relative;
   }
@@ -620,7 +622,7 @@
   .quest-card.done .quest-title{text-decoration:line-through;color:var(--text-faint);}
   .quest-meta{font-size:11px;color:var(--text-faint);margin-top:2px;display:flex;gap:6px;align-items:center;}
   .quest-reward{font-size:11px;color:var(--gold);font-weight:700;white-space:nowrap;display:flex;flex-direction:column;align-items:flex-end;gap:1px;line-height:1.3;}
-  .quest-reward .g{color:#F0C463;font-size:10px;}
+  .quest-reward .g{color:#D5C39A;font-size:10px;}
   .quest-del{color:var(--text-faint);font-size:16px;padding:4px 6px;background:none;}
   .quest-edit{color:var(--text-faint);font-size:15px;padding:4px 6px;background:none;flex-shrink:0;}
 
@@ -647,7 +649,7 @@
     position:fixed;bottom:88px;
     right:calc(max(0px, (100vw - 480px)/2) + 18px);
     width:52px;height:52px;border-radius:50%;
-    background:linear-gradient(180deg,#F0C463,#D9A438);
+    background:linear-gradient(180deg,#D5C39A,#80613A);
     color:#1B1300;font-size:26px;font-weight:700;
     display:flex;align-items:center;justify-content:center;
     box-shadow:0 6px 18px -4px rgba(0,0,0,0.5);
@@ -722,14 +724,14 @@
   .achv-desc{font-size:11.5px;color:var(--text-faint);margin-top:2px;}
 
   /* ---------- achievement dex ---------- */
-  .achievement-dex-launch{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px;background:linear-gradient(135deg,rgba(231,181,73,.15),rgba(52,43,76,.5));border:1px solid var(--gold-dim);border-radius:var(--radius-m);color:var(--text);text-align:left;}
+  .achievement-dex-launch{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px;background:linear-gradient(135deg,rgba(213,195,154,.15),rgba(52,43,76,.5));border:1px solid var(--gold-dim);border-radius:var(--radius-m);color:var(--text);text-align:left;}
   .achievement-dex-launch:active{transform:scale(.985)}
   .dex-launch-title{display:block;font-size:15px;font-weight:800}.dex-launch-sub{display:block;font-size:12px;color:var(--text-dim);margin-top:4px}.dex-launch-arrow{font-size:24px;color:var(--gold)}
   .achievement-dex-sheet{max-width:760px;max-height:88vh;overflow:hidden;padding:18px 16px 20px}
   .dex-topline{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.dex-topline h3{margin:0;color:var(--gold);font-family:var(--font-display);letter-spacing:1px}.dex-close{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:18px}
-  .dex-progress{text-align:center;color:var(--text-dim);font-size:12px;margin-bottom:13px}.dex-progress b{color:var(--gold);font-size:15px}.dex-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.dex-tab{min-height:40px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text-dim);font-weight:700}.dex-tab.active.general{border-color:var(--gold-dim);color:var(--gold);background:rgba(231,181,73,.12)}.dex-tab.active.secret{border-color:#9673d7;color:#cebaff;background:rgba(112,75,160,.18)}
+  .dex-progress{text-align:center;color:var(--text-dim);font-size:12px;margin-bottom:13px}.dex-progress b{color:var(--gold);font-size:15px}.dex-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.dex-tab{min-height:40px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text-dim);font-weight:700}.dex-tab.active.general{border-color:var(--gold-dim);color:var(--gold);background:rgba(213,195,154,.12)}.dex-tab.active.secret{border-color:#B9A6D0;color:#CDBDE0;background:rgba(112,75,160,.18)}
   .dex-book{position:relative;min-height:330px;padding:15px;border:1px solid var(--border);border-radius:16px;background:linear-gradient(135deg,rgba(37,30,55,.92),rgba(25,21,38,.95));overflow:hidden;touch-action:pan-y}.dex-book.secret-book{background:linear-gradient(135deg,rgba(35,25,58,.95),rgba(17,15,31,.98));border-color:rgba(150,115,215,.55)}.dex-book.turn-next{animation:dexNext .24s ease}.dex-book.turn-prev{animation:dexPrev .24s ease}@keyframes dexNext{from{opacity:.35;transform:translateX(16px) rotateY(-3deg)}to{opacity:1;transform:none}}@keyframes dexPrev{from{opacity:.35;transform:translateX(-16px) rotateY(3deg)}to{opacity:1;transform:none}}
-  .dex-page-label{text-align:center;font-family:var(--font-display);letter-spacing:2px;color:var(--gold);font-size:11px;margin:0 0 12px}.secret-book .dex-page-label{color:#cebaff}.dex-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.dex-card{min-height:116px;padding:10px 8px;border-radius:12px;border:1px solid var(--border);background:linear-gradient(145deg,rgba(59,49,80,.95),rgba(35,29,51,.95));color:var(--text);text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;box-shadow:inset 0 1px rgba(255,255,255,.05)}.dex-card.unlocked{border-color:var(--gold-dim)}.secret-book .dex-card.unlocked{border-color:#9673d7;background:linear-gradient(145deg,rgba(75,54,111,.92),rgba(37,29,59,.97))}.dex-card.locked{opacity:.58;filter:saturate(.45);border-style:dashed}.dex-card-icon{font-size:28px;line-height:1}.dex-card-name{font-size:12px;font-weight:800;line-height:1.25;word-break:keep-all}.dex-card-state{font-size:10px;color:var(--text-faint)}.dex-card.unlocked .dex-card-state{color:var(--gold)}.secret-book .dex-card.unlocked .dex-card-state{color:#cebaff}
+  .dex-page-label{text-align:center;font-family:var(--font-display);letter-spacing:2px;color:var(--gold);font-size:11px;margin:0 0 12px}.secret-book .dex-page-label{color:#CDBDE0}.dex-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.dex-card{min-height:116px;padding:10px 8px;border-radius:12px;border:1px solid var(--border);background:linear-gradient(145deg,rgba(59,49,80,.95),rgba(35,29,51,.95));color:var(--text);text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;box-shadow:inset 0 1px rgba(255,255,255,.05)}.dex-card.unlocked{border-color:var(--gold-dim)}.secret-book .dex-card.unlocked{border-color:#B9A6D0;background:linear-gradient(145deg,rgba(75,54,111,.92),rgba(37,29,59,.97))}.dex-card.locked{opacity:.58;filter:saturate(.45);border-style:dashed}.dex-card-icon{font-size:28px;line-height:1}.dex-card-name{font-size:12px;font-weight:800;line-height:1.25;word-break:keep-all}.dex-card-state{font-size:10px;color:var(--text-faint)}.dex-card.unlocked .dex-card-state{color:var(--gold)}.secret-book .dex-card.unlocked .dex-card-state{color:#CDBDE0}
   .dex-nav{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:10px;margin-top:13px}.dex-nav button{height:40px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--gold);font-size:24px}.dex-nav button:disabled{opacity:.3}.dex-nav-status{text-align:center;font-family:var(--font-display);font-size:11px;letter-spacing:1px;color:var(--text-dim)}.achv-detail-card{border-color:var(--gold-dim);max-width:360px}.achv-detail-icon{font-size:42px;margin-bottom:8px}.achv-detail-reward{margin:15px 0;padding:10px;border-radius:10px;background:var(--card);font-size:13px;color:var(--gold)}
   @media(min-width:600px){.dex-card-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.dex-card{min-height:106px}.dex-book{min-height:300px}}
 
@@ -759,7 +761,7 @@
     font-size:11px;font-weight:700;
   }
   .fx-achv-desc{font-size:13px;color:var(--text-dim);line-height:1.55;max-width:260px;margin:0 auto 14px;}
-  .fx-achv-reward-tag{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(231,181,73,0.16);color:var(--gold);}
+  .fx-achv-reward-tag{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(213,195,154,0.16);color:var(--gold);}
 
   /* ---------- explore timeline ---------- */
   .tl-section-label{font-size:12px;font-weight:700;color:var(--text-faint);margin-bottom:6px;}
@@ -791,7 +793,7 @@
   .equip-card .equip-status{
     display:inline-block;margin-top:8px;padding:3px 9px;border-radius:999px;font-size:9.5px;font-weight:700;
   }
-  .equip-card .equip-status.on{background:rgba(231,181,73,0.18);color:var(--gold);}
+  .equip-card .equip-status.on{background:rgba(213,195,154,0.18);color:var(--gold);}
   .equip-card .equip-status.empty{background:rgba(110,99,144,0.2);color:var(--text-faint);}
   .equip-card .equip-status.none{background:rgba(110,99,144,0.14);color:var(--text-faint);}
 
@@ -807,12 +809,12 @@
   .equip-pick-row .nm-wrap{flex:1;min-width:0;}
   .equip-pick-row .nm-wrap .nm{font-size:13px;font-weight:700;}
   .equip-pick-row .nm-wrap .eff{font-size:10.5px;color:var(--gold);margin-top:2px;line-height:1.4;}
-  .equip-pick-row .equip-status{flex:0 0 auto;padding:3px 9px;border-radius:999px;font-size:9.5px;font-weight:700;background:rgba(231,181,73,0.18);color:var(--gold);}
+  .equip-pick-row .equip-status{flex:0 0 auto;padding:3px 9px;border-radius:999px;font-size:9.5px;font-weight:700;background:rgba(213,195,154,0.18);color:var(--gold);}
 
   /* ---------- shop UI ---------- */
   .shop-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
   .shop-banner{
-    background:linear-gradient(135deg, rgba(231,181,73,0.18), rgba(91,141,239,0.10));
+    background:linear-gradient(135deg, rgba(213,195,154,0.18), rgba(91,141,239,0.10));
     border:1px solid var(--border);border-radius:var(--radius-m);padding:14px 16px;text-align:center;margin-bottom:12px;
   }
   .shop-banner-title{font-family:var(--font-display);font-size:15px;font-weight:700;letter-spacing:0.04em;color:var(--gold);}
@@ -831,7 +833,7 @@
     display:flex;flex-direction:column;align-items:stretch;gap:5px;background:var(--card);border:1.5px solid var(--border);
     border-radius:12px;padding:9px;min-width:0;margin:0;
   }
-  .shop-item.owned{border-color:rgba(231,181,73,0.4);}
+  .shop-item.owned{border-color:rgba(213,195,154,0.4);}
   .shop-item .ic{font-size:28px;width:auto;text-align:center;flex-shrink:0;height:34px;line-height:34px;}
   .shop-item .info{flex:1;min-width:0;text-align:center;}
   .shop-item .info .nm{font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px;line-height:1.25;}
@@ -840,7 +842,7 @@
   .shop-item button{font-size:10.5px;padding:7px 8px;width:100%;flex-shrink:0;}
   .shop-item button:disabled{opacity:0.5;}
   .shop-badge{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:999px;}
-  .shop-badge.equipped{color:var(--gold);background:rgba(231,181,73,0.18);}
+  .shop-badge.equipped{color:var(--gold);background:rgba(213,195,154,0.18);}
   .shop-badge.owned{color:var(--text-faint);background:rgba(110,99,144,0.18);}
 
   /* ---------- black market: compact profile button ---------- */
@@ -848,30 +850,30 @@
   .bm-mini-wrap{position:relative;flex-shrink:0;}
   .bm-mini-btn{
     width:32px;height:32px;padding:0;display:flex;align-items:center;justify-content:center;
-    border:1px solid rgba(139,95,191,.55);border-radius:10px;
-    background:rgba(139,95,191,.14);color:var(--text);font-size:16px;
+    border:1px solid rgba(122,59,46,.55);border-radius:10px;
+    background:rgba(122,59,46,.14);color:var(--text);font-size:16px;
     transition:transform .18s ease, background .18s ease, border-color .18s ease, filter .18s ease;
   }
-  .bm-mini-btn.live{border-color:rgba(231,181,73,.7);background:rgba(139,95,191,.25);box-shadow:0 0 10px rgba(139,95,191,.22);}
+  .bm-mini-btn.live{border-color:rgba(213,195,154,.7);background:rgba(122,59,46,.25);box-shadow:0 0 10px rgba(122,59,46,.22);}
   .bm-mini-btn.closed-shake{animation:bmMiniShake .42s ease-out; background:rgba(210,65,65,.28);border-color:var(--danger);box-shadow:0 0 12px rgba(224,102,92,.18);}
   @keyframes bmMiniShake{0%,100%{transform:translateX(0)}18%{transform:translateX(-4px)}36%{transform:translateX(4px)}54%{transform:translateX(-3px)}72%{transform:translateX(3px)}88%{transform:translateX(-1px)}}
   .bm-whisper{
     position:fixed;right:auto;top:auto;z-index:99999;width:min(236px,calc(100vw - 28px));
-    padding:9px 11px;border:1px solid rgba(139,95,191,.5);border-radius:12px;
+    padding:9px 11px;border:1px solid rgba(122,59,46,.5);border-radius:12px;
     background:rgba(24,19,34,.98);color:var(--text-dim);font-size:11px;line-height:1.45;
     box-shadow:0 10px 24px rgba(0,0,0,.34);opacity:0;
     transform:translateY(-5px) scale(.97);pointer-events:none;
     transition:opacity .18s ease,transform .18s ease;overflow-wrap:break-word;word-break:keep-all;
   }
   .bm-whisper.show{opacity:1;transform:translateY(0) scale(1);}
-  .bm-whisper.open{border-color:rgba(231,181,73,.45);}
+  .bm-whisper.open{border-color:rgba(213,195,154,.45);}
   .bm-whisper[data-side=below]::before,.bm-whisper[data-side=above]::before{
     content:"";position:absolute;width:8px;height:8px;background:rgba(24,19,34,.98);
-    border-left:1px solid rgba(139,95,191,.5);border-top:1px solid rgba(139,95,191,.5);
+    border-left:1px solid rgba(122,59,46,.5);border-top:1px solid rgba(122,59,46,.5);
   }
   .bm-whisper[data-side=below]::before{left:var(--tail-left,50%);top:-5px;transform:translateX(-50%) rotate(45deg);}
   .bm-whisper[data-side=above]::before{left:var(--tail-left,50%);bottom:-5px;transform:translateX(-50%) rotate(225deg);}
-  .bm-home-alert{display:flex;align-items:center;gap:9px;margin:10px 0 12px;padding:10px 12px;border:1px solid rgba(139,95,191,.38);border-radius:12px;background:rgba(139,95,191,.10);font-size:11.5px;line-height:1.45;color:var(--text-dim);animation:bmAlertIn .35s ease-out;}
+  .bm-home-alert{display:flex;align-items:center;gap:9px;margin:10px 0 12px;padding:10px 12px;border:1px solid rgba(122,59,46,.38);border-radius:12px;background:rgba(122,59,46,.10);font-size:11.5px;line-height:1.45;color:var(--text-dim);animation:bmAlertIn .35s ease-out;}
   .bm-home-alert .ic{font-size:18px;flex-shrink:0;}
   .bm-home-alert b{color:var(--gold);}
   @keyframes bmAlertIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
@@ -895,7 +897,7 @@
   /* ---------- black market: sheet ---------- */
   .bm-sheet{border-color:var(--bm-purple) !important;}
   .bm-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
-  .bm-gold-pill{background:rgba(139,95,191,0.18);border-color:var(--bm-purple);color:var(--gold);}
+  .bm-gold-pill{background:rgba(122,59,46,0.18);border-color:var(--bm-purple);color:var(--gold);}
   .bm-tabs{display:flex;gap:6px;margin-bottom:14px;}
   .bm-tab{
     flex:1;padding:9px 6px;border-radius:999px;border:1px solid var(--bm-purple);
@@ -903,7 +905,7 @@
   }
   .bm-tab.active{background:var(--bm-purple);color:#fff;}
   .bm-shelf-note{font-size:11px;color:var(--text-faint);margin-bottom:10px;line-height:1.5;}
-  .shop-item.bm{border-color:rgba(139,95,191,0.5);}
+  .shop-item.bm{border-color:rgba(122,59,46,0.5);}
   .shop-item.bm.owned{border-color:var(--gold);}
 
   /* ---------- black market: duel ---------- */
@@ -922,12 +924,12 @@
     flex:1;padding:10px 6px;border-radius:var(--radius-s);border:1.5px solid var(--border);
     background:var(--card);color:var(--text);font-size:13px;font-weight:700;cursor:pointer;
   }
-  .duel-bet-btn.selected{border-color:var(--gold);background:rgba(231,181,73,0.14);color:var(--gold);}
+  .duel-bet-btn.selected{border-color:var(--gold);background:rgba(213,195,154,0.14);color:var(--gold);}
   .duel-bet-btn:disabled{opacity:0.4;}
   .duel-result-card{
     text-align:center;border-radius:var(--radius-m);padding:16px;margin-bottom:14px;border:1.5px solid;
   }
-  .duel-result-card.win{border-color:var(--gold);background:rgba(231,181,73,0.1);}
+  .duel-result-card.win{border-color:var(--gold);background:rgba(213,195,154,0.1);}
   .duel-result-card.lose{border-color:var(--danger);background:rgba(224,102,92,0.1);}
   .duel-result-card .dr-ic{font-size:34px;}
   .duel-result-card .dr-title{font-size:14.5px;font-weight:700;margin-top:6px;}
@@ -961,7 +963,7 @@
     background:var(--card);color:var(--text);font-size:12.5px;font-weight:700;cursor:pointer;text-align:center;
   }
   .mg-diff-btn .r{display:block;font-size:10.5px;color:var(--gold);font-weight:600;margin-top:2px;}
-  .mg-diff-btn.selected{border-color:var(--gold);background:rgba(231,181,73,0.14);color:var(--gold);}
+  .mg-diff-btn.selected{border-color:var(--gold);background:rgba(213,195,154,0.14);color:var(--gold);}
   .mg-diff-btn:disabled{opacity:0.4;}
 
   .mg-timer-track{height:7px;border-radius:6px;background:rgba(255,255,255,0.08);border:1px solid var(--border);margin:10px 0;overflow:hidden;}
@@ -984,14 +986,14 @@
     font-size:18px;border-radius:10px;backface-visibility:hidden;border:1.5px solid var(--border);background:var(--card);
   }
   .mg-card-front{transform:rotateY(180deg);}
-  .mg-card-cell.matched .mg-card-front{border-color:var(--gold);background:rgba(231,181,73,0.16);animation:mgGoldFlash .3s ease-out;}
+  .mg-card-cell.matched .mg-card-front{border-color:var(--gold);background:rgba(213,195,154,0.16);animation:mgGoldFlash .3s ease-out;}
   .mg-card-cell.selected .mg-card-inner{transform:rotateY(180deg) scale(1.06);}
   @keyframes mgCardWrong{ 0%,100%{ transform:rotateY(180deg) translateX(0);} 25%{ transform:rotateY(180deg) translateX(-3px);} 75%{ transform:rotateY(180deg) translateX(3px);} }
-  @keyframes mgGoldFlash{ 0%{ box-shadow:0 0 0 rgba(231,181,73,0);} 50%{ box-shadow:0 0 14px rgba(231,181,73,.6);} 100%{ box-shadow:0 0 0 rgba(231,181,73,0);} }
+  @keyframes mgGoldFlash{ 0%{ box-shadow:0 0 0 rgba(213,195,154,0);} 50%{ box-shadow:0 0 14px rgba(213,195,154,.6);} 100%{ box-shadow:0 0 0 rgba(213,195,154,0);} }
 
   .mg-eo-stage{display:flex;flex-direction:column;align-items:center;padding:16px 0;}
   .mg-coin{
-    width:76px;height:76px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#3a2f57,#14101F);
+    width:76px;height:76px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#3a2f57,#20241F);
     border:2px solid var(--gold-dim);display:flex;align-items:center;justify-content:center;
     font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--gold);
   }
@@ -1002,18 +1004,18 @@
     flex:1;padding:14px 6px;border-radius:var(--radius-m);border:1.5px solid var(--border);
     background:var(--card);color:var(--text);font-size:14px;font-weight:700;cursor:pointer;text-align:center;
   }
-  .mg-eo-choice.selected{border-color:var(--gold);background:rgba(231,181,73,0.14);color:var(--gold);transform:scale(1.03);}
+  .mg-eo-choice.selected{border-color:var(--gold);background:rgba(213,195,154,0.14);color:var(--gold);transform:scale(1.03);}
 
   .mg-bet-row{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap;}
   .mg-bet-btn{
     flex:1;min-width:56px;padding:10px 6px;border-radius:var(--radius-s);border:1.5px solid var(--border);
     background:var(--card);color:var(--text);font-size:13px;font-weight:700;cursor:pointer;
   }
-  .mg-bet-btn.selected{border-color:var(--gold);background:rgba(231,181,73,0.14);color:var(--gold);}
+  .mg-bet-btn.selected{border-color:var(--gold);background:rgba(213,195,154,0.14);color:var(--gold);}
   .mg-bet-btn.insufficient{opacity:0.4;}
   .mg-bet-btn.shake{animation:bmShake .25s ease-in-out;}
 
-  @keyframes mgJackpotRing{ 0%{ box-shadow:0 0 0 rgba(231,181,73,.6);} 100%{ box-shadow:0 0 26px rgba(231,181,73,0);} }
+  @keyframes mgJackpotRing{ 0%{ box-shadow:0 0 0 rgba(213,195,154,.6);} 100%{ box-shadow:0 0 26px rgba(213,195,154,0);} }
 
   .mg-vault-pattern{
     text-align:center;padding:22px 0;font-family:var(--font-display);font-size:32px;font-weight:700;
@@ -1034,10 +1036,10 @@
 
   /* 암시장 게임 결과: 게임 화면 위 오버레이 + 3버튼 UX */
   .mg-result-overlay{position:fixed;inset:0;z-index:6500;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(7,5,12,.72);backdrop-filter:blur(5px);animation:mgResultOverlayIn .22s ease-out;}
-  .mg-result-sheet{width:min(390px,100%);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:20px 16px 16px;background:linear-gradient(155deg,#1b1730,#100d19);box-shadow:0 24px 80px rgba(0,0,0,.58);}
+  .mg-result-sheet{width:min(390px,100%);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:20px 16px 16px;background:linear-gradient(155deg,#2A3028,#100d19);box-shadow:0 24px 80px rgba(0,0,0,.58);}
   @keyframes mgResultOverlayIn{from{opacity:0}to{opacity:1}}
   .mg-result-card{text-align:center;border-radius:16px;padding:16px 12px;margin:0 0 14px;border:1.5px solid;opacity:0;transform:translateY(14px) scale(.97);animation:mgResultEnter .45s cubic-bezier(.22,1,.36,1) forwards;}
-  .mg-result-card.win{border-color:var(--gold);background:rgba(231,181,73,0.1);}
+  .mg-result-card.win{border-color:var(--gold);background:rgba(213,195,154,0.1);}
   .mg-result-card.lose{border-color:var(--danger);background:rgba(224,102,92,0.1);}
   @keyframes mgResultEnter{to{opacity:1;transform:translateY(0) scale(1)}}
   .mg-result-card .mg-r-ic{font-size:32px}.mg-result-card .mg-r-title{font-size:17px;font-weight:800;margin-top:6px;font-family:var(--font-display)}
@@ -1053,27 +1055,27 @@
   .tb-settings-btn:active{transform:rotate(18deg) scale(.94);background:var(--card-hi);}
 
   /* ---------- immersive shop ---------- */
-  .shopkeeper-card{position:relative;overflow:hidden;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:linear-gradient(135deg,rgba(231,181,73,.16),rgba(76,60,112,.22));border:1px solid var(--gold-dim);border-radius:18px;padding:14px;margin-bottom:10px;}
-  .shopkeeper-card:after{content:'✦';position:absolute;right:72px;top:8px;color:rgba(231,181,73,.25);font-size:34px;transform:rotate(15deg);}
+  .shopkeeper-card{position:relative;overflow:hidden;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:linear-gradient(135deg,rgba(213,195,154,.16),rgba(76,60,112,.22));border:1px solid var(--gold-dim);border-radius:18px;padding:14px;margin-bottom:10px;}
+  .shopkeeper-card:after{content:'✦';position:absolute;right:72px;top:8px;color:rgba(213,195,154,.25);font-size:34px;transform:rotate(15deg);}
   .shop-npc-ic{font-size:38px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.35));}
   .shop-npc-name{font-family:var(--font-display);font-size:14px;font-weight:800;color:var(--gold);}
   .shop-npc-role{font-size:10px;color:var(--text-faint);margin-top:2px;}
   .shop-npc-line{font-size:11.5px;line-height:1.45;margin-top:6px;color:var(--text-dim);}
-  .shop-npc-badge{font-size:9px;padding:4px 7px;border-radius:999px;background:rgba(231,181,73,.12);color:var(--gold);border:1px solid var(--gold-dim);white-space:nowrap;}
+  .shop-npc-badge{font-size:9px;padding:4px 7px;border-radius:999px;background:rgba(213,195,154,.12);color:var(--gold);border:1px solid var(--gold-dim);white-space:nowrap;}
   .shop-story{padding:11px 13px;margin-bottom:12px;border-left:3px solid var(--gold);background:rgba(255,255,255,.025);border-radius:0 12px 12px 0;font-size:11px;line-height:1.55;color:var(--text-faint);}
   .shop-counter{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0 12px;padding:10px 12px;border:1px solid var(--border);border-radius:13px;background:var(--card);}
   .shop-counter .left{min-width:0}.shop-counter .title{font-size:12px;font-weight:800}.shop-counter .sub{font-size:10px;color:var(--text-faint);margin-top:2px;}
   .coin-stock-controls{display:flex;align-items:center;gap:5px;flex-shrink:0}.coin-stock-controls button{width:29px;height:29px;border-radius:9px;border:1px solid var(--border);background:var(--card-hi);color:var(--text);font-weight:800}.coin-stock-controls input{width:48px;height:29px;text-align:center;border:1px solid var(--gold-dim);background:var(--bg);color:var(--gold);border-radius:8px;font-weight:800;}
-  .shop-coin-card{display:flex;align-items:center;gap:11px;padding:12px;border:1px solid var(--gold-dim);border-radius:15px;background:linear-gradient(100deg,rgba(231,181,73,.10),rgba(231,181,73,.03));margin-bottom:12px;}
+  .shop-coin-card{display:flex;align-items:center;gap:11px;padding:12px;border:1px solid var(--gold-dim);border-radius:15px;background:linear-gradient(100deg,rgba(213,195,154,.10),rgba(213,195,154,.03));margin-bottom:12px;}
   .shop-coin-icon{font-size:28px}.shop-coin-info{flex:1;min-width:0}.shop-coin-name{font-weight:800;font-size:13px}.shop-coin-sub{font-size:10.5px;color:var(--text-faint);line-height:1.4;margin-top:2px}.shop-coin-price{color:var(--gold);font-weight:800;font-size:12px;margin-top:4px;}
   .shop-npc-chat{display:flex;gap:7px;margin:7px 0 12px;align-items:flex-start}.shop-npc-chat .mini{font-size:20px}.shop-npc-chat .bubble-wrap{display:flex;gap:7px;align-items:center;flex:1;min-width:0}.shop-npc-chat .bubble{position:relative;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px 10px;font-size:10.5px;color:var(--text-dim);line-height:1.45;flex:1;min-width:0;}
   .shop-npc-chat .bubble:before{content:'';position:absolute;left:-5px;top:9px;width:9px;height:9px;background:var(--card);border-left:1px solid var(--border);border-bottom:1px solid var(--border);transform:rotate(45deg);}
-  .shop-gift-btn{width:42px;height:42px;flex:0 0 42px;border:1px solid var(--gold);border-radius:13px;background:linear-gradient(145deg,rgba(231,181,73,.22),rgba(231,181,73,.07));box-shadow:0 0 14px rgba(231,181,73,.08);font-size:21px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s ease,opacity .15s ease;}
+  .shop-gift-btn{width:42px;height:42px;flex:0 0 42px;border:1px solid var(--gold);border-radius:13px;background:linear-gradient(145deg,rgba(213,195,154,.22),rgba(213,195,154,.07));box-shadow:0 0 14px rgba(213,195,154,.08);font-size:21px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s ease,opacity .15s ease;}
   .shop-gift-btn:active{transform:scale(.92)}.shop-gift-btn:disabled{opacity:.42;cursor:default;filter:grayscale(.35);}
   .shop-rack{display:flex;gap:7px;overflow:auto;padding:3px 1px 8px;margin-bottom:5px}.shop-rack span{flex:0 0 auto;padding:6px 9px;border-radius:9px;background:rgba(255,255,255,.035);border:1px solid var(--border);font-size:10px;color:var(--text-faint);}
   /* ---------- dedicated shop tab ---------- */
   .shop-screen-banner{
-    background:linear-gradient(135deg,rgba(231,181,73,.18),rgba(91,141,239,.10));
+    background:linear-gradient(135deg,rgba(213,195,154,.18),rgba(91,141,239,.10));
     border:1px solid var(--border);border-radius:var(--radius-m);padding:16px;margin-bottom:14px;
   }
   .shop-screen-banner .title{font-family:var(--font-display);font-size:16px;font-weight:800;color:var(--gold);}
@@ -1097,7 +1099,7 @@
   .dmg-home-card{
     border-radius:var(--radius-m);padding:14px 16px;margin:14px 0;
     border:1px solid var(--gold-dim);
-    background:linear-gradient(135deg, rgba(231,181,73,0.14), rgba(30,26,20,0.3));
+    background:linear-gradient(135deg, rgba(213,195,154,0.14), rgba(30,26,20,0.3));
   }
   .dmg-home-card .dmg-home-title{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:6px;}
   .dmg-home-card .dmg-home-sub{font-size:11.5px;color:var(--text-dim);margin-top:4px;line-height:1.5;}
@@ -1106,7 +1108,7 @@
   .dmg-home-btns button.done{opacity:0.65;}
   .dmg-sheet{border-color:var(--gold-dim) !important;}
   .mg-countdown-wrap{display:flex;align-items:center;justify-content:center;padding:70px 0;}
-  .mg-countdown-num{font-size:64px;font-weight:800;color:var(--gold);text-shadow:0 0 24px rgba(231,181,73,.5);animation:mgCountdownPop .9s cubic-bezier(.22,1,.36,1);}
+  .mg-countdown-num{font-size:64px;font-weight:800;color:var(--gold);text-shadow:0 0 24px rgba(213,195,154,.5);animation:mgCountdownPop .9s cubic-bezier(.22,1,.36,1);}
   @keyframes mgCountdownPop{ 0%{ transform:scale(1.6); opacity:0;} 30%{ transform:scale(1); opacity:1;} 80%{ transform:scale(1); opacity:1;} 100%{ transform:scale(.92); opacity:.4;} }
 
   /* ---------- 슬롯머신 (3릴) ---------- */
@@ -1118,16 +1120,16 @@
   .mg-slot-stage.win .mg-slot-reels{animation:mgSlotWinScale .4s cubic-bezier(.22,1,.36,1);}
   .mg-slot-stage.big-win{animation:bmShake .3s ease-in-out 2;}
   .mg-slot-stage.jackpot{animation:mgJackpotRing .5s ease-out 3, mgJackpotColor 1.05s ease-in-out 3;}
-  .mg-slot-stage.jackpot .mg-slot-reel{border-color:var(--gold);box-shadow:0 0 22px rgba(231,181,73,.55);background:linear-gradient(145deg,rgba(231,181,73,.20),rgba(255,255,255,.06));}
+  .mg-slot-stage.jackpot .mg-slot-reel{border-color:var(--gold);box-shadow:0 0 22px rgba(213,195,154,.55);background:linear-gradient(145deg,rgba(213,195,154,.20),rgba(255,255,255,.06));}
   .mg-slot-stage.jackpot .mg-slot-reel.jackpot-reel{animation:mgJackpotReel .7s cubic-bezier(.22,1,.36,1) infinite;}
   @keyframes mgSlotWinScale{ 0%{ transform:scale(.85);} 60%{ transform:scale(1.05);} 100%{ transform:scale(1);} }
-  @keyframes mgJackpotColor{0%,100%{filter:none;box-shadow:inset 0 0 34px rgba(0,0,0,.65)}50%{filter:saturate(1.8) brightness(1.28);box-shadow:inset 0 0 80px rgba(231,181,73,.35),0 0 34px rgba(231,181,73,.35)}}
+  @keyframes mgJackpotColor{0%,100%{filter:none;box-shadow:inset 0 0 34px rgba(0,0,0,.65)}50%{filter:saturate(1.8) brightness(1.28);box-shadow:inset 0 0 80px rgba(213,195,154,.35),0 0 34px rgba(213,195,154,.35)}}
   @keyframes mgJackpotReel{0%,100%{transform:scale(1)}45%{transform:scale(1.12) rotate(-2deg)}65%{transform:scale(1.06) rotate(2deg)}}
-  .mg-jackpot-overlay{position:fixed;inset:0;z-index:9990;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at center,rgba(231,181,73,.28),rgba(7,5,12,.88) 58%,rgba(7,5,12,.96));backdrop-filter:blur(4px);pointer-events:none;animation:mgJackpotOverlayIn .35s ease-out forwards;}
-  .mg-jackpot-banner{position:relative;width:min(520px,94vw);padding:30px 20px 24px;text-align:center;border:2px solid var(--gold);border-radius:24px;background:linear-gradient(145deg,rgba(42,31,14,.97),rgba(15,11,23,.98));box-shadow:0 0 0 1px rgba(255,255,255,.06) inset,0 0 60px rgba(231,181,73,.38),0 25px 100px rgba(0,0,0,.72);animation:mgJackpotBanner .7s cubic-bezier(.22,1,.36,1) forwards;}
+  .mg-jackpot-overlay{position:fixed;inset:0;z-index:9990;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at center,rgba(213,195,154,.28),rgba(7,5,12,.88) 58%,rgba(7,5,12,.96));backdrop-filter:blur(4px);pointer-events:none;animation:mgJackpotOverlayIn .35s ease-out forwards;}
+  .mg-jackpot-banner{position:relative;width:min(520px,94vw);padding:30px 20px 24px;text-align:center;border:2px solid var(--gold);border-radius:24px;background:linear-gradient(145deg,rgba(42,31,14,.97),rgba(15,11,23,.98));box-shadow:0 0 0 1px rgba(255,255,255,.06) inset,0 0 60px rgba(213,195,154,.38),0 25px 100px rgba(0,0,0,.72);animation:mgJackpotBanner .7s cubic-bezier(.22,1,.36,1) forwards;}
   .mg-jackpot-crown{font-size:46px;line-height:1;margin-bottom:8px;animation:mgJackpotCrown .75s ease-out infinite;}
-  .mg-jackpot-777{font-size:clamp(48px,13vw,82px);font-weight:1000;letter-spacing:7px;line-height:1;color:var(--gold);text-shadow:0 0 12px rgba(255,255,255,.7),0 0 30px rgba(231,181,73,.8),0 0 60px rgba(231,181,73,.55);animation:mgJackpot777 .75s cubic-bezier(.22,1,.36,1) infinite;}
-  .mg-jackpot-title{margin-top:12px;font-size:clamp(25px,7vw,42px);font-weight:1000;color:#fff;letter-spacing:2px;text-shadow:0 0 18px rgba(231,181,73,.8);}
+  .mg-jackpot-777{font-size:clamp(48px,13vw,82px);font-weight:1000;letter-spacing:7px;line-height:1;color:var(--gold);text-shadow:0 0 12px rgba(255,255,255,.7),0 0 30px rgba(213,195,154,.8),0 0 60px rgba(213,195,154,.55);animation:mgJackpot777 .75s cubic-bezier(.22,1,.36,1) infinite;}
+  .mg-jackpot-title{margin-top:12px;font-size:clamp(25px,7vw,42px);font-weight:1000;color:#fff;letter-spacing:2px;text-shadow:0 0 18px rgba(213,195,154,.8);}
   .mg-jackpot-sub{margin-top:8px;font-size:14px;font-weight:800;color:var(--text-dim);}
   .mg-jackpot-win{margin-top:14px;font-size:24px;font-weight:1000;color:var(--gold);}
   .mg-jackpot-particle{position:absolute;font-size:22px;animation:mgJackpotParticle 1.5s ease-out forwards;opacity:0;}
@@ -1171,7 +1173,7 @@
      ================================================================ */
 
   /* 3. 암시장 OPEN 연출 -- 카드 전체에 은은한 보라색 glow pulse */
-  @keyframes bmMarketGlow{ 0%,100%{ box-shadow:0 0 0 rgba(139,95,191,0); } 50%{ box-shadow:0 0 22px rgba(139,95,191,.38); } }
+  @keyframes bmMarketGlow{ 0%,100%{ box-shadow:0 0 0 rgba(122,59,46,0); } 50%{ box-shadow:0 0 22px rgba(122,59,46,.38); } }
   .bm-home-card.live{ animation:bmMarketGlow 2.4s ease-in-out infinite; }
   .bm-home-card.card-enter{ animation:bmCardFadeIn .35s cubic-bezier(.22,1,.36,1); }
   @keyframes bmCardFadeIn{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:translateY(0);} }
@@ -1211,10 +1213,10 @@
   .shop-item.bm:active{ transform:scale(.98); transition:transform .1s ease; }
 
   /* 8. 희귀(전설) 장비 shimmer -- 최상급 3종에만 적용 */
-  .shop-item.bm.legendary{ border-color:rgba(231,181,73,0.55); overflow:hidden; }
+  .shop-item.bm.legendary{ border-color:rgba(213,195,154,0.55); overflow:hidden; }
   .shop-item.bm.legendary::after{
     content:''; position:absolute; inset:0; pointer-events:none;
-    background:linear-gradient(100deg, transparent 40%, rgba(231,181,73,0.28) 50%, transparent 60%);
+    background:linear-gradient(100deg, transparent 40%, rgba(213,195,154,0.28) 50%, transparent 60%);
     background-size:220% 220%; animation:bmShimmer 2.2s ease-in-out infinite;
   }
   @keyframes bmShimmer{ 0%{ background-position:150% 0; } 45%,100%{ background-position:-60% 0; } }
@@ -1222,9 +1224,9 @@
   /* 10~12. 구매 버튼 / 골드 변화 / 구매 성공 연출 */
   .shop-item.bm.purchased{ animation:bmPurchaseGlow .6s ease-out; }
   @keyframes bmPurchaseGlow{
-    0%{ box-shadow:0 0 0 rgba(231,181,73,0); }
-    35%{ box-shadow:0 0 0 2px rgba(231,181,73,.6), 0 0 20px rgba(231,181,73,.35); }
-    100%{ box-shadow:0 0 0 rgba(231,181,73,0); }
+    0%{ box-shadow:0 0 0 rgba(213,195,154,0); }
+    35%{ box-shadow:0 0 0 2px rgba(213,195,154,.6), 0 0 20px rgba(213,195,154,.35); }
+    100%{ box-shadow:0 0 0 rgba(213,195,154,0); }
   }
   .shop-item.bm.purchased .ic{ animation:bmIconPop .5s ease-out; }
   @keyframes bmIconPop{ 0%{ transform:scale(1);} 40%{ transform:scale(1.35);} 100%{ transform:scale(1);} }
@@ -1379,7 +1381,7 @@
   @keyframes bmRewardPop{ 0%{ opacity:0; transform:translateY(6px);} 100%{ opacity:1; transform:translateY(0);} }
 
   .bm-loss-npc-overlay{position:fixed;inset:0;z-index:6800;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(5,4,9,.78);backdrop-filter:blur(6px);animation:bmLossNpcIn .28s ease-out;}
-  .bm-loss-npc-card{width:min(380px,100%);padding:24px 18px 17px;border-radius:20px;border:1px solid rgba(231,181,73,.35);background:linear-gradient(155deg,#201a2d,#100d18);box-shadow:0 24px 90px rgba(0,0,0,.65);text-align:center;}
+  .bm-loss-npc-card{width:min(380px,100%);padding:24px 18px 17px;border-radius:20px;border:1px solid rgba(213,195,154,.35);background:linear-gradient(155deg,#201a2d,#100d18);box-shadow:0 24px 90px rgba(0,0,0,.65);text-align:center;}
   .bm-loss-npc-ic{font-size:44px}.bm-loss-npc-name{font-family:var(--font-display);font-weight:800;font-size:14px;color:var(--gold);margin-top:6px}.bm-loss-npc-lines{margin:14px 0 16px;padding:13px;border:1px solid var(--border);border-radius:14px;background:rgba(255,255,255,.035)}
   .bm-loss-line{font-size:12.5px;line-height:1.7;color:var(--text-dim);opacity:0;animation:bmLossLineIn .3s ease-out forwards}.bm-loss-npc-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.bm-loss-npc-actions .btn{min-height:44px;font-weight:800}
   @keyframes bmLossNpcIn{from{opacity:0}to{opacity:1}}@keyframes bmLossLineIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
@@ -1411,7 +1413,7 @@
   #bottomnav{
     position:fixed;bottom:0;left:50%;transform:translateX(-50%);
     width:100%;max-width:480px;
-    background:rgba(27,23,48,0.95);backdrop-filter:blur(8px);
+    background:rgba(42,48,40,0.95);backdrop-filter:blur(8px);
     border-top:1px solid var(--border);
     display:flex;z-index:30;
     padding:6px 4px calc(6px + env(safe-area-inset-bottom));
@@ -1435,7 +1437,7 @@
   .fx-overlay{
     position:fixed;inset:0;z-index:60;
     display:flex;align-items:center;justify-content:center;
-    background:rgba(10,8,18,0.7);
+    background:rgba(12,14,11,0.7);
     opacity:0;pointer-events:none;transition:opacity .2s;
   }
   .fx-overlay.show{opacity:1;pointer-events:auto;}
@@ -1445,13 +1447,13 @@
     transform:scale(0.8);transition:transform .3s cubic-bezier(.34,1.56,.64,1);
   }
   .fx-overlay.show .fx-card{transform:scale(1);}
-  .fx-overlay.evolution .fx-card{border-color:var(--gold);box-shadow:0 0 32px rgba(231,181,73,0.35);}
+  .fx-overlay.evolution .fx-card{border-color:var(--gold);box-shadow:0 0 32px rgba(213,195,154,0.35);}
   .fx-clear-ic{font-size:40px;}
   .fx-clear-title{font-family:var(--font-display);font-size:12px;letter-spacing:3px;color:var(--gold);margin:10px 0 6px;}
   .fx-quest-name{font-size:17px;font-weight:700;margin-bottom:16px;}
   .fx-reward-row{display:flex;justify-content:center;gap:18px;font-size:14px;font-weight:700;}
   .fx-reward-row .xp{color:var(--gold);}
-  .fx-reward-row .gold{color:#F0C463;}
+  .fx-reward-row .gold{color:#D5C39A;}
   .fx-stat-row{display:flex;justify-content:center;gap:12px;font-size:12px;font-weight:700;color:var(--success);margin-top:8px;flex-wrap:wrap;}
 
   .lu-arrow{font-size:20px;color:var(--text-faint);margin:2px 0;}
@@ -1617,7 +1619,7 @@
   .confirm-overlay{
     position:fixed;inset:0;z-index:80;
     display:flex;align-items:center;justify-content:center;
-    background:rgba(10,8,18,0.72);padding:24px;
+    background:rgba(12,14,11,0.72);padding:24px;
     opacity:0;pointer-events:none;transition:opacity .2s;
   }
   .confirm-overlay.show{opacity:1;pointer-events:auto;}
@@ -1635,7 +1637,7 @@
   .confirm-btn-row{display:flex;gap:10px;}
   .confirm-btn-row .btn{flex:1;}
 
-  .daily-coin-reward-card{border-color:var(--gold);box-shadow:0 0 18px rgba(231,181,73,.06);}
+  .daily-coin-reward-card{border-color:var(--gold);box-shadow:0 0 18px rgba(213,195,154,.06);}
   .coin-exchange-qty{display:flex;align-items:center;gap:4px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;max-width:190px;}
   .coin-exchange-qty button:not(.btn){width:28px;height:28px;border:1px solid var(--border);background:var(--card-hi);color:var(--text);border-radius:8px;font-weight:800;}
   .coin-exchange-qty input{width:42px;height:28px;text-align:center;background:var(--bg);color:var(--gold);border:1px solid var(--gold-dim);border-radius:8px;}
@@ -1666,7 +1668,7 @@
   #coin-exchange-overlay .sheet{max-width:520px;padding:20px 18px 24px;}
   .coin-exchange-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
   .coin-exchange-head h3{margin:0;}
-  .coin-exchange-balance{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;margin:0 0 12px;border:1px solid var(--gold-dim);border-radius:13px;background:linear-gradient(135deg,rgba(231,181,73,.11),rgba(255,255,255,.025));}
+  .coin-exchange-balance{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;margin:0 0 12px;border:1px solid var(--gold-dim);border-radius:13px;background:linear-gradient(135deg,rgba(213,195,154,.11),rgba(255,255,255,.025));}
   .coin-exchange-balance .label{font-size:10.5px;color:var(--text-faint);}
   .coin-exchange-balance .value{font-size:16px;font-weight:800;color:var(--gold);white-space:nowrap;}
   .coin-exchange-guide{font-size:10.5px;line-height:1.5;color:var(--text-faint);padding:9px 11px;margin-bottom:12px;border-radius:11px;background:rgba(255,255,255,.025);border:1px solid var(--border);}
@@ -1881,7 +1883,657 @@
 .bm-closed-game{text-align:center;padding:34px 18px;border:1px dashed rgba(255,105,95,.5);border-radius:20px;background:rgba(120,30,30,.08)}.bm-closed-stamp{display:inline-block;color:#ff756d;border:2px solid #ff756d;border-radius:7px;padding:5px 12px;font-weight:1000;letter-spacing:2px;transform:rotate(-3deg);margin-bottom:12px}.bm-closed-icon{font-size:44px}.bm-closed-game h3{margin:8px 0}.bm-closed-game p{color:var(--muted);line-height:1.6}.bm-closed-profit{font-weight:900;color:#ffd66d;margin-top:10px}
 .jail-ticket-actions{display:grid;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}.jail-visit-count,.jail-fine-paid{margin:10px 0;padding:9px;border-radius:10px;background:rgba(255,255,255,.05);font-size:13px}.jail-fine-paid{color:#ffd66d}
 .shop-item.ticket-item{border-color:rgba(255,193,72,.35);background:linear-gradient(135deg,rgba(255,193,72,.08),rgba(255,255,255,.02))}
-.mg-game-card.mg-game-closed{opacity:.68;filter:saturate(.55);cursor:not-allowed;border-color:rgba(255,100,90,.35);background:rgba(100,30,30,.08)}.mg-game-closed .nm{color:#ff8b83}.mg-game-closed .arrow{color:#ff756d;font-weight:1000}</style>
+.mg-game-card.mg-game-closed{opacity:.68;filter:saturate(.55);cursor:not-allowed;border-color:rgba(255,100,90,.35);background:rgba(100,30,30,.08)}.mg-game-closed .nm{color:#ff8b83}.mg-game-closed .arrow{color:#ff756d;font-weight:1000}
+  /* ================================================================
+     GUILD ARCHIVE — 1단계: 디자인 토큰 + 공통 컴포넌트
+     (명세서 3장 디자인 시스템 / 7장 접근성 기준)
+     - 마크업·JS·저장 구조는 건드리지 않고, 기존 토큰을 재정의한다
+     - 화면별 개편(홈/퀘스트/상점/일기 등)은 다음 단계에서 진행
+     ================================================================ */
+  :root{
+    /* 명세서 3.1 색상 토큰 */
+    --bg-primary:#20241F;
+    --bg-panel:#2A3028;
+    --bg-raised:#30372D;
+    --bg-paper:#E6D9BC;
+    --text-primary:#F0E5D0;
+    --text-secondary:#B4B8A8;
+    --text-muted:#979D8D;      /* 명세 외 보조값: 패널 위 대비 4.5:1 이상 */
+    --text-dark:#30342E;
+    --accent-bronze:#80613A;
+    --accent-bronze-light:#D5C39A;
+    --accent-forest:#343D32;
+    --border-subtle:#4A5045;
+    --warning:#D3AD69;
+    --cta-text:#F6EEDC;        /* 브론즈 버튼 위 글자 (대비 4.9:1) */
+
+    /* 기존 토큰 → 길드 아카이브 토큰으로 연결 (기존 CSS 전체에 일괄 반영) */
+    --bg:var(--bg-primary);
+    --bg-elev:var(--bg-panel);
+    --card:var(--bg-panel);
+    --card-hi:var(--bg-raised);
+    --border:var(--border-subtle);
+    --text:var(--text-primary);
+    --text-dim:var(--text-secondary);
+    --text-faint:var(--text-muted);
+    --gold:var(--accent-bronze-light);
+    --gold-dim:var(--accent-bronze);
+    --success:#9EAF8C;
+    --danger:#D08476;          /* 명세값 #B96C60은 글자 대비 3.5:1 → 접근성 우선 조정 */
+
+    /* 3.4 모서리 */
+    --radius-s:8px;
+    --radius-m:10px;
+    --radius-l:12px;
+
+    /* 3.3 타이포그래피: 장식 서체는 제목에만 */
+    --font-display:'Noto Serif KR',Georgia,'AppleMyungjo','Batang',serif;
+    --font-body:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+
+    --dur-fast:150ms;
+    --dur-sheet:220ms;
+    --focus-ring:0 0 0 2px var(--bg-primary),0 0 0 4px var(--accent-bronze-light);
+  }
+
+  /* 외부 폰트·이미지 실패에 대비한 단색 배경 (그라데이션 제거) */
+  #app{background:var(--bg-primary);}
+  html,body{background:var(--bg-primary);}
+  body{font-size:15px;line-height:1.5;}
+
+  /* ---------- Typography ---------- */
+  h1,h2,h3{font-family:var(--font-display);font-weight:700;letter-spacing:-.01em;color:var(--text-primary);}
+  .section-head h2{font-size:17px;}
+  .section-head .meta{font-size:12px;color:var(--text-secondary);}
+
+  /* ---------- Focus (키보드 포커스 표시 유지) ---------- */
+  :is(button,a,input,textarea,select,[role=button],[tabindex]):focus-visible{
+    outline:2px solid var(--accent-bronze-light);outline-offset:2px;
+  }
+
+  /* ---------- Button ---------- */
+  .btn{
+    min-height:44px;border-radius:var(--radius-s);
+    background:var(--bg-raised);color:var(--text-primary);
+    border:1px solid var(--border-subtle);
+    font-size:14px;font-weight:600;box-shadow:none;
+    transition:background var(--dur-fast) ease,border-color var(--dur-fast) ease,transform var(--dur-fast) ease;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn:disabled,.btn[disabled]{opacity:.5;cursor:not-allowed;}
+  /* 주요 CTA: 단색 앤틱 브론즈 (그라데이션·발광 없음) */
+  .btn-gold{
+    background:var(--accent-bronze);color:var(--cta-text);
+    border:1px solid #96744A;box-shadow:none;
+  }
+  .btn-gold:active{background:#6E5332;}
+  .btn-ghost{background:transparent;border:1px solid var(--border-subtle);color:var(--text-secondary);}
+
+  /* ---------- Status label (pill → 각진 라벨) ---------- */
+  .pill{
+    border-radius:4px;padding:2px 8px;font-size:12px;font-weight:600;
+    background:var(--bg-raised);color:var(--text-secondary);border:1px solid var(--border-subtle);
+  }
+
+  /* ---------- Inputs ---------- */
+  input[type=text],input[type=date],textarea,select{
+    background:var(--bg-primary);color:var(--text-primary);
+    border:1px solid var(--border-subtle);border-radius:var(--radius-s);
+    font-size:16px; /* iOS 확대 방지 + 본문 크기 */
+  }
+  input[type=text]:focus,input[type=date]:focus,textarea:focus{
+    outline:none;border-color:var(--accent-bronze-light);box-shadow:0 0 0 1px var(--accent-bronze-light);
+  }
+  ::placeholder{color:var(--text-muted);}
+
+  /* ---------- Chip / Tab: 선택 상태는 색 + 테두리 + 굵기로 동시 표현 ---------- */
+  .chip,.shop-tab{
+    min-height:40px;border-radius:var(--radius-s);
+    background:var(--bg-panel);color:var(--text-secondary);border:1px solid var(--border-subtle);
+  }
+  .chip.active,.shop-tab.active,.diary-filter-opt.active{
+    background:var(--bg-raised);color:var(--accent-bronze-light);
+    border-color:var(--accent-bronze-light);font-weight:700;box-shadow:none;
+  }
+
+  /* ---------- Panel (카드 기본값: 1px 테두리 + 명도차, 그림자 없음) ---------- */
+  .quest-card,.progress-strip,.metric-card{
+    background:var(--bg-panel);border:1px solid var(--border-subtle);
+    border-radius:var(--radius-m);box-shadow:none;
+  }
+  .empty-note{border:1px dashed var(--border-subtle);border-radius:var(--radius-m);color:var(--text-secondary);}
+
+  /* ---------- Progress bar (발광·그라데이션 제거) ---------- */
+  .progress-track,.xp-bar-track{background:var(--bg-primary);border:1px solid var(--border-subtle);border-radius:3px;}
+  .progress-fill{background:var(--success);border-radius:2px;}
+  .xp-bar-fill{background:var(--accent-bronze-light);border-radius:2px;box-shadow:none;}
+  .stat-fill{background:var(--accent-bronze-light);border-radius:2px;}
+  .evo-item.reached::before{background:var(--accent-bronze-light);}
+
+  /* ---------- Top bar ---------- */
+  #topbar{
+    background:var(--bg-panel);backdrop-filter:none;-webkit-backdrop-filter:none;
+    border-bottom:1px solid var(--border-subtle);
+  }
+  .tb-name{font-size:15px;font-weight:700;}
+  .tb-title{font-size:12px;color:var(--text-secondary);}
+  .tb-gold{font-size:15px;color:var(--accent-bronze-light);font-variant-numeric:tabular-nums;}
+  .tb-settings-btn{
+    width:44px !important;height:44px !important;flex-basis:44px !important;
+    border-radius:var(--radius-s);background:var(--bg-raised);border:1px solid var(--border-subtle);
+  }
+  .tb-settings-btn:active{transform:none;}
+  .lv-badge{
+    background:transparent;color:var(--accent-bronze-light);
+    border:1px solid var(--accent-bronze);border-radius:4px;
+    font-family:var(--font-display);font-size:13px;
+  }
+  .xp-num{font-size:12px;color:var(--text-secondary);}
+
+  /* ---------- Modal / Sheet: 앞에 뜨는 요소에만 그림자 ---------- */
+  .sheet-overlay,.bottom-sheet-overlay{background:rgba(12,14,11,.66);}
+  .sheet,.bottom-sheet{
+    background:var(--bg-panel);border:1px solid var(--border-subtle);border-bottom:none;
+    border-radius:var(--radius-l) var(--radius-l) 0 0;
+    box-shadow:0 -12px 32px rgba(0,0,0,.45);
+    transition-duration:var(--dur-sheet);
+  }
+
+  /* ---------- Quick add (거대한 원형 FAB → 절제된 사각 버튼) ---------- */
+  .fab{
+    width:48px;height:48px;border-radius:var(--radius-m);
+    bottom:calc(84px + env(safe-area-inset-bottom));
+    background:var(--accent-bronze);color:var(--cta-text);
+    border:1px solid #96744A;font-size:24px;
+    box-shadow:0 4px 12px rgba(0,0,0,.4);
+  }
+
+  /* ---------- Bottom nav: 고정형, 48px 터치 영역, 활성 상태는 상단 막대 + 색 ---------- */
+  #bottomnav{
+    background:var(--bg-panel);backdrop-filter:none;-webkit-backdrop-filter:none;
+    border-top:1px solid var(--border-subtle);
+  }
+  .nav-item{
+    position:relative;min-height:56px;font-size:12px;color:var(--text-muted);
+    border-radius:0;background:none;
+  }
+  .nav-item .ic{filter:grayscale(1) opacity(.65);}
+  .nav-item.active{color:var(--accent-bronze-light);font-weight:700;}
+  .nav-item.active .ic{filter:none;}
+  .nav-item.active::before{
+    content:'';position:absolute;top:-7px;left:22%;right:22%;height:2px;background:var(--accent-bronze-light);
+  }
+
+
+  /* 하단 내비: 일러스트 아이콘 (리소스 가이드) — 비활성은 채도·명도를 낮추고 활성만 원색 */
+  .nav-item .ic{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;font-size:0;line-height:1;}
+  .nav-item .ic img{width:28px;height:28px;display:block;object-fit:contain;}
+  .nav-item .ic,.nav-item.active .ic{filter:none;} /* 알림 점(::after)은 원색 유지 */
+  .nav-item .ic img{filter:grayscale(.45) brightness(.92);transition:filter var(--dur-fast) ease;}
+  .nav-item.active .ic img{filter:none;}
+
+  /* ---------- UI 아이콘: 글자 크기에 맞춰 이모지 자리에 들어간다 ---------- */
+  img.ui-ico{
+    width:1.3em;height:1.3em;object-fit:contain;vertical-align:-.3em;
+    display:inline-block;flex-shrink:0;user-select:none;-webkit-user-drag:none;
+  }
+
+  /* ================================================================
+     GUILD ARCHIVE — 2단계: 홈 / 퀘스트 (명세서 5.1, 5.2)
+     ================================================================ */
+  /* 홈: 프로필 + 오늘 요약 + 진행도를 하나의 기록 패널로 묶는다 */
+  .home-profile{
+    background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:var(--radius-m);
+    padding:14px;margin-top:4px;
+  }
+  .home-profile .char-stage{
+    flex-direction:row;align-items:center;gap:14px;padding:0;min-height:72px;
+  }
+  .home-profile .char-aura{
+    width:72px;height:72px;flex:0 0 72px;border-radius:var(--radius-m);font-size:40px;
+    background:var(--bg-raised);border:1px solid var(--class-color,var(--border-subtle));box-shadow:none;
+  }
+  .home-profile .char-aura > span{line-height:1;}
+  .home-profile .char-info{flex:1;min-width:0;}
+  .home-profile .char-title{font-size:19px;margin:0;text-align:left;max-width:none;}
+  .home-profile .char-sub{font-size:13px;margin-top:2px;text-align:left;max-width:none;color:var(--text-secondary);}
+  .home-profile .char-badges{margin-top:6px;min-height:0;gap:4px;}
+  .home-profile .char-badges:empty{display:none;}
+  .home-profile .char-go{font-size:22px;color:var(--text-muted);flex-shrink:0;}
+
+  .home-summary{
+    display:grid;grid-template-columns:repeat(3,1fr);margin:14px 0 0;
+    border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);
+  }
+  .home-summary > div{padding:10px 4px;text-align:center;min-width:0;}
+  .home-summary > div + div{border-left:1px solid var(--border-subtle);}
+  .home-summary dt{font-size:12px;color:var(--text-secondary);}
+  .home-summary dd{
+    margin:2px 0 0;font-size:17px;font-weight:700;color:var(--text-primary);
+    font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+  .home-summary dd img.ui-ico{width:1.05em;height:1.05em;vertical-align:-.15em;margin-right:2px;}
+  .home-profile .progress-strip{background:none;border:none;border-radius:0;padding:12px 0 0;margin:0;}
+  .home-profile .streak-row{margin-top:12px;}
+  .home-profile #checkin-btn{min-height:44px;padding:8px 16px;font-size:14px;}
+  .home-profile .npc-bubble{margin:12px 0 0;}
+
+  /* 퀘스트 목록: 카드 나열 대신 하나의 장부(패널) 안에 구분선으로 나눈 행 */
+  .quest-list:has(.quest-card){
+    background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:var(--radius-m);overflow:hidden;
+  }
+  .quest-list > .quest-card{
+    margin:0;border:none;border-radius:0;background:transparent;box-shadow:none;
+    padding:8px 4px 8px 0;gap:6px;align-items:center;min-height:64px;
+  }
+  .quest-list > .quest-card + .quest-card{border-top:1px solid var(--border-subtle);}
+  .quest-card.done{opacity:1;}
+  .quest-card.done .quest-title{color:var(--text-secondary);text-decoration:line-through;text-decoration-color:var(--text-muted);}
+  .quest-card.done .quest-type,.quest-card.done .quest-diff,.quest-card.done .pill,.quest-card.done .quest-reward{opacity:.6;}
+
+  /* 완료 버튼: 시각 24px, 터치 영역 48px */
+  .quest-check{
+    width:48px;height:48px;flex:0 0 48px;border:none;border-radius:var(--radius-s);background:none;padding:0;
+    display:flex;align-items:center;justify-content:center;margin:0;
+  }
+  .quest-check .qc-box{
+    width:24px;height:24px;border-radius:6px;border:2px solid var(--text-muted);
+    display:flex;align-items:center;justify-content:center;
+    transition:background var(--dur-fast) ease,border-color var(--dur-fast) ease;
+  }
+  .quest-card.done .quest-check{background:none;border:none;}
+  .quest-card.done .quest-check .qc-box{background:var(--success);border-color:var(--success);}
+  .quest-card.done .quest-check .qc-box::after{
+    content:'';width:6px;height:11px;border:solid var(--bg-primary);border-width:0 2.5px 2.5px 0;
+    transform:translateY(-1px) rotate(45deg);
+  }
+  .quest-body{cursor:pointer;padding:2px 0;}
+  .quest-title{font-size:15px;font-weight:600;line-height:1.4;word-break:keep-all;overflow-wrap:anywhere;}
+  .quest-meta{margin-top:4px;gap:4px 8px;font-size:12px;color:var(--text-secondary);flex-wrap:wrap;align-items:center;}
+  .quest-meta .pill{font-size:11.5px;}
+  .quest-type,.quest-diff{display:inline-flex;align-items:center;gap:3px;white-space:nowrap;}
+  .quest-type img.ui-ico,.quest-diff img.ui-ico{width:16px;height:16px;vertical-align:0;}
+  .quest-status-done{
+    display:inline-flex;align-items:center;font-size:11.5px;font-weight:700;color:var(--success);
+    border:1px solid var(--success);border-radius:4px;padding:0 6px;
+  }
+  .quest-reward{
+    font-size:13px;font-weight:700;color:var(--accent-bronze-light);line-height:1.35;
+    align-items:flex-end;gap:2px;font-variant-numeric:tabular-nums;
+  }
+  .quest-reward .g{color:var(--accent-bronze-light);font-size:12px;display:inline-flex;align-items:center;gap:2px;}
+  .quest-reward .g img.ui-ico{width:14px;height:14px;vertical-align:0;}
+  .quest-actions{display:flex;flex-direction:column;flex-shrink:0;}
+  .quest-edit,.quest-del{
+    width:40px;height:32px;padding:0;border-radius:var(--radius-s);font-size:15px;color:var(--text-muted);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .quest-del:hover,.quest-del:focus-visible{color:var(--danger);}
+
+  /* 빈 상태 */
+  .quest-empty{display:flex;flex-direction:column;align-items:center;gap:8px;padding:22px 16px;}
+  .quest-empty img.ui-ico{width:44px;height:44px;opacity:.85;}
+  .quest-empty p{margin:0;font-size:14px;color:var(--text-secondary);}
+  .quest-empty .btn{margin-top:4px;min-width:140px;}
+
+  /* 분류 필터: 한 줄 가로 스크롤 (페이지 가로 스크롤은 생기지 않음) */
+  .chip-row-scroll{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-left:-16px;margin-right:-16px;padding:0 16px;}
+  .chip-row-scroll .chip{flex:0 0 auto;}
+
+  /* ================================================================
+     GUILD ARCHIVE — 3단계: 장비 / 상점 / 암시장 (명세서 5.4, 5.5)
+     ================================================================ */
+  /* 진열대: 2열 카드 → 한 열 장부 행 (아이콘 · 이름/상태 · 효과/비교 · 가격 · 구매) */
+  #shop-list,#shop-screen-list,#bm-shop-panel{display:flex;flex-direction:column;gap:0;}
+  #shop-screen-list:has(.shop-item),#shop-list:has(.shop-item){
+    background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:var(--radius-m);overflow:hidden;
+  }
+  .shop-shelf-label{
+    font-size:13px;font-weight:700;color:var(--text-secondary);margin:0;padding:10px 14px;
+    background:var(--bg-raised);border-bottom:1px solid var(--border-subtle);
+  }
+  .shop-item{
+    display:grid;grid-template-columns:48px minmax(0,1fr);grid-template-areas:"ic info" "ic act";
+    column-gap:12px;row-gap:8px;align-items:start;
+    background:transparent;border:none;border-radius:0;padding:12px 14px;margin:0;box-shadow:none;animation:none;
+  }
+  .shop-item + .shop-item{border-top:1px solid var(--border-subtle);}
+  .shop-item.owned{border-color:var(--border-subtle);}
+  .shop-item .ic{
+    grid-area:ic;width:48px;height:48px;font-size:28px;line-height:1;display:flex;align-items:center;justify-content:center;
+    background:var(--bg-primary);border:1px solid var(--border-subtle);border-radius:var(--radius-s);
+  }
+  .shop-item .ic img.ui-ico{width:36px;height:36px;vertical-align:0;}
+  .shop-item .info{grid-area:info;text-align:left;}
+  .shop-item .info .nm{font-size:15px;justify-content:flex-start;gap:6px;}
+  .shop-item .info .sub{font-size:13px;color:var(--text-secondary);-webkit-line-clamp:unset;display:block;margin-top:2px;}
+  .shop-item .info .price{font-size:14px;color:var(--accent-bronze-light);margin-top:4px;font-variant-numeric:tabular-nums;}
+  .shop-item .item-action{grid-area:act;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .shop-item .item-buy{width:auto;min-height:44px;padding:8px 14px;font-size:14px;flex:0 0 auto;}
+  .shop-item button:disabled{opacity:.55;}
+  .item-after{font-size:12px;color:var(--text-secondary);}
+  .item-after.short{color:var(--danger);}
+  .item-compare{font-size:12px;color:var(--text-secondary);margin-top:4px;display:flex;flex-wrap:wrap;gap:2px 8px;}
+  .item-compare .up{color:var(--success);font-weight:700;}
+  .item-compare .down{color:var(--danger);font-weight:700;}
+  .shop-badge{font-size:11.5px;border-radius:4px;padding:1px 6px;border:1px solid currentColor;background:none;}
+  .shop-badge.equipped{color:var(--accent-bronze-light);background:none;}
+  .shop-badge.owned{color:var(--text-secondary);background:none;}
+  .shop-screen-gold .value{font-variant-numeric:tabular-nums;}
+
+  /* 장비 슬롯: 장착/빈 슬롯/미보유를 글자 + 테두리로 함께 구분 */
+  .equip-card{
+    background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:var(--radius-m);box-shadow:none;min-height:150px;
+  }
+  .equip-card.equipped{border-color:var(--accent-bronze-light);box-shadow:none;}
+  .equip-card:not(.equipped){border-style:dashed;}
+  .equip-card .slot-label{font-size:12px;color:var(--text-secondary);}
+  .equip-card .nm{font-size:13px;}
+  .equip-card .eff{font-size:12px;color:var(--text-secondary);}
+  .equip-card .equip-status{border-radius:4px;font-size:11.5px;}
+  .equip-card .equip-status.on{background:none;color:var(--accent-bronze-light);border:1px solid var(--accent-bronze-light);}
+  .equip-card .equip-status.empty,.equip-card .equip-status.none{background:none;color:var(--text-muted);border:1px dashed var(--border-subtle);}
+  .equip-pick-row .item-compare{margin-top:2px;}
+
+  /* 상태 메시지(토스트) 통일: 왼쪽 막대 + 아이콘으로 성공/오류 구분 */
+  .toast{
+    background:var(--bg-raised);border:1px solid var(--border-subtle);border-left:4px solid var(--accent-bronze-light);
+    border-radius:var(--radius-s);color:var(--text-primary);font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.45);
+  }
+  .toast.toast-success{border-left-color:var(--success);}
+  .toast.toast-error{border-left-color:var(--danger);}
+  .toast.toast-success::before{content:'✓ ';color:var(--success);font-weight:700;}
+  .toast.toast-error::before{content:'! ';color:var(--danger);font-weight:700;}
+
+  /* 암시장: 일반 상점과 구분되는 적갈색·먹색 테마 (본문 대비 유지) */
+  #bm-overlay{
+    --bm-ink:#1E1715;--bm-panel:#2B201C;--bm-raised:#362823;--bm-line:#5A3F35;--bm-accent:#D9A88A;--bm-cta:#7A3B2E;
+  }
+  #bm-overlay .sheet.bm-sheet{background:var(--bm-ink);border-color:var(--bm-line) !important;}
+  #bm-overlay h3{color:#F0E5D0;}
+  #bm-overlay .hint{color:#C9B6A8;}
+  .bm-tabs{gap:6px;}
+  .bm-tab{
+    min-height:44px;border-radius:var(--radius-s);background:var(--bm-panel);color:#C9B6A8;border:1px solid var(--bm-line);
+  }
+  .bm-tab.active{background:var(--bm-raised);color:var(--bm-accent);border-color:var(--bm-accent);font-weight:700;}
+  .btn-bm{background:var(--bm-cta,#7A3B2E);color:#F6EEDC;border:1px solid #965040;}
+  .btn-bm:active{background:#652F24;}
+  .btn-duel{background:#8E3A30;color:#F6EEDC;border:1px solid #A9483C;}
+  #bm-shop-panel:has(.shop-item){background:var(--bm-panel);border:1px solid var(--bm-line);border-radius:var(--radius-m);overflow:hidden;}
+  #bm-overlay .shop-item + .shop-item{border-top-color:var(--bm-line);}
+  #bm-overlay .shop-item .ic{background:var(--bm-ink);border-color:var(--bm-line);}
+  #bm-overlay .shop-item .info .price{color:var(--bm-accent);}
+  #bm-overlay .bm-shelf-note,#bm-overlay .mg-daily-note{
+    background:none;border:none;border-left:3px solid var(--bm-line);border-radius:0;padding:6px 10px;color:#C9B6A8;font-size:13px;
+  }
+  .duel-card,.mg-game-card{background:var(--bm-panel);border:1px solid var(--bm-line);border-radius:var(--radius-m);box-shadow:none;}
+  .duel-card.selected{border-color:var(--bm-accent);background:var(--bm-raised);}
+  .duel-bet-btn{min-height:44px;border-radius:var(--radius-s);}
+  .duel-bet-btn.selected{border-color:var(--bm-accent);color:var(--bm-accent);}
+  .duel-result-card,.mg-result-card{border-radius:var(--radius-m);box-shadow:none;}
+
+  /* 게임 시작 전 정보 / 결과의 증감·잔액 */
+  .game-brief{display:grid;grid-template-columns:repeat(3,1fr);margin:0 0 8px;border:1px solid var(--bm-line,var(--border-subtle));border-radius:var(--radius-s);}
+  .game-brief > div{padding:8px 4px;text-align:center;min-width:0;}
+  .game-brief > div + div{border-left:1px solid var(--bm-line,var(--border-subtle));}
+  .game-brief dt{font-size:12px;color:#C9B6A8;}
+  .game-brief dd{margin:2px 0 0;font-size:14px;font-weight:700;color:#F0E5D0;font-variant-numeric:tabular-nums;}
+  .game-expect{font-size:13px;color:#E3CFC0;margin:0 0 10px;}
+  .result-gold{font-size:22px;font-weight:800;margin-top:8px;font-variant-numeric:tabular-nums;}
+  .result-gold.up{color:var(--success);}
+  .result-gold.down{color:var(--danger);}
+  .result-balance{font-size:13px;color:var(--text-secondary);margin-top:2px;}
+
+  /* ================================================================
+     GUILD ARCHIVE — 4단계: 일기 / 탐험 / 통계 / 설정 (명세서 5.6~5.8)
+     ================================================================ */
+  /* 일기: 쓰기 / 목록 전환 */
+  .diary-pane-tabs{display:grid;grid-template-columns:1fr 1fr;margin:0 0 12px;border-bottom:1px solid var(--border-subtle);}
+  .diary-pane-tab{
+    min-height:48px;background:none;color:var(--text-secondary);font-size:15px;font-weight:600;
+    border-bottom:2px solid transparent;margin-bottom:-1px;
+  }
+  .diary-pane-tab.active{color:var(--accent-bronze-light);border-bottom-color:var(--accent-bronze-light);font-weight:700;}
+  #diary-pane-count{font-size:12px;color:var(--text-muted);font-weight:600;}
+  .diary-pane-tab.active #diary-pane-count{color:inherit;}
+  .diary-save-btn[data-state="saving"]{opacity:.75;cursor:progress;}
+  .diary-save-btn[data-state="saved"]{background:var(--success);border-color:var(--success);color:var(--bg-primary);}
+  .diary-save-btn[data-state="failed"]{background:transparent;border:1px solid var(--danger);color:var(--danger);}
+
+  /* 탐험: 지도가 주 콘텐츠 -- 높이를 키우고 상태를 아이콘+글자로 */
+  .explore-map-wrap{height:min(52vh,420px);min-height:260px;}
+  .explore-status{
+    display:flex;align-items:center;gap:8px;min-height:44px;padding:10px 12px;margin:0 0 10px;
+    background:var(--bg-panel);border:1px solid var(--border-subtle);border-left:4px solid var(--text-muted);
+    border-radius:var(--radius-s);font-size:14px;color:var(--text-primary);
+  }
+  .explore-status .es-ic{font-size:18px;flex-shrink:0;}
+  .explore-status[data-kind="walking"]{border-left-color:var(--success);}
+  .explore-status[data-kind="ready"],.explore-status[data-kind="saved"]{border-left-color:var(--accent-bronze-light);}
+  .explore-status[data-kind="signal"],.explore-status[data-kind="saveFailed"],.explore-status[data-kind="denied"],
+  .explore-status[data-kind="error"],.explore-status[data-kind="unsupported"]{border-left-color:var(--danger);}
+  #walk-toggle-btn{min-width:132px;min-height:48px;}
+  #walk-toggle-btn.walk-stop{background:transparent;color:var(--danger);border:1px solid var(--danger);}
+
+  /* 통계: 7일 막대 그래프 (단일 계열 · 값 라벨은 최댓값/오늘만 · 표 보기 제공) */
+  .week-chart-card{
+    background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:var(--radius-m);padding:14px;margin-bottom:10px;
+  }
+  .week-chart-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+  .week-chart-title{font-size:14px;font-weight:700;color:var(--text-primary);}
+  .week-chart-toggle{display:flex;gap:6px;}
+  .week-chart-toggle .chip{min-height:36px;padding:6px 10px;font-size:12.5px;}
+  .week-chart{display:grid;grid-template-columns:repeat(7,1fr);gap:0;height:170px;margin-bottom:6px;}
+  .wc-col{
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;min-width:0;
+    background:none;border:none;padding:0;color:var(--text-secondary);cursor:pointer;border-radius:4px;
+  }
+  .wc-col:hover .wc-bar,.wc-col:focus-visible .wc-bar{filter:brightness(1.15);}
+  .wc-val{font-size:12px;font-weight:700;color:var(--text-primary);min-height:16px;font-variant-numeric:tabular-nums;}
+  .wc-bar-area{flex:1;width:100%;display:flex;align-items:flex-end;justify-content:center;border-bottom:1px solid var(--border-subtle);}
+  .wc-bar{width:min(22px,70%);background:var(--accent-bronze-light);border-radius:4px 4px 0 0;display:block;}
+  .wc-x{font-size:12px;line-height:1.2;}
+  .wc-col.today .wc-x{color:var(--accent-bronze-light);font-weight:700;}
+  .week-chart-readout{font-size:13px;color:var(--text-primary);min-height:18px;}
+  .week-chart-insight{font-size:13px;color:var(--text-secondary);margin:4px 0 0;line-height:1.5;}
+  .week-chart-table{margin-top:8px;font-size:13px;color:var(--text-secondary);}
+  .week-chart-table summary{cursor:pointer;min-height:32px;display:flex;align-items:center;}
+  .week-chart-table table{width:100%;border-collapse:collapse;margin-top:6px;}
+  .week-chart-table th,.week-chart-table td{padding:5px 6px;border-bottom:1px solid var(--border-subtle);text-align:right;font-variant-numeric:tabular-nums;}
+  .week-chart-table th:first-child,.week-chart-table td:first-child{text-align:left;}
+  .metric-card .lbl{font-size:12px;color:var(--text-secondary);}
+
+  /* 캐릭터 화면: 과한 발광 제거, 비율 유지 */
+  #screen-character .char-aura{box-shadow:none;border-width:1px;background:var(--bg-raised);width:120px;height:120px;border-radius:var(--radius-l);font-size:60px;}
+  .char-aura{background-repeat:no-repeat;}
+
+  /* 업적 상세: 상태 / 조건 / 보상을 나눠 표시 */
+  #achievement-detail-reward{display:flex;flex-direction:column;gap:6px;align-items:center;}
+  .ad-state{font-weight:700;font-size:13px;padding:2px 8px;border-radius:4px;border:1px solid currentColor;}
+  .ad-state.on{color:var(--success);}
+  .ad-state.off{color:var(--text-muted);}
+  .ad-reward{font-size:13px;color:var(--accent-bronze-light);}
+  .dex-card.locked .dex-card-state{color:var(--text-muted);}
+  .dex-card.unlocked .dex-card-state{color:var(--success);}
+
+  /* 설정: 위험 구역 구분 + 아코디언 포커스 */
+  .settings-card > h3[role="button"]{min-height:48px;}
+  .settings-card > h3[role="button"]:focus-visible{outline:2px solid var(--accent-bronze-light);outline-offset:-2px;border-radius:var(--radius-m);}
+  .settings-card.danger-card{border-color:rgba(208,132,118,.55);}
+  .settings-card.danger-card h3{color:var(--danger);}
+  .btn-danger{background:transparent;color:var(--danger);border:1px solid var(--danger);}
+  .confirm-card .btn-danger{background:#8E3A30;color:#F6EEDC;border-color:#A9483C;}
+  .confirm-detail{display:inline-block;margin-top:6px;font-size:13px;color:var(--text-secondary);}
+
+  /* ================================================================
+     GUILD ARCHIVE — 구조 개편: 연출 · 던전 · 데일리 미니게임 (명세서 5.3, 8)
+     ================================================================ */
+  /* 연출: 화면 전체를 덮고 조작을 막던 카드 → 상단에 잠깐 뜨는 알림 띠 (입력 차단 없음) */
+  .fx-overlay{
+    inset:auto;top:calc(env(safe-area-inset-top) + 76px);left:50%;transform:translateX(-50%);
+    width:min(440px,calc(100% - 24px));background:none;pointer-events:none;
+    display:block;transition:opacity .18s ease;z-index:72;
+  }
+  .fx-overlay.show{pointer-events:none;}
+  .fx-card{
+    display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:12px;align-items:center;text-align:left;
+    min-width:0;padding:12px 14px;border-radius:var(--radius-m);
+    background:var(--bg-raised);border:1px solid var(--border-subtle);border-left:4px solid var(--accent-bronze-light);
+    box-shadow:0 10px 28px rgba(0,0,0,.5);transform:translateY(-8px);transition:transform .18s ease;
+  }
+  .fx-overlay.show .fx-card{transform:translateY(0);}
+  .fx-card > *{grid-column:2;margin:0;}
+  .fx-card > .fx-clear-ic{grid-column:1;grid-row:1 / span 6;font-size:32px;line-height:1;text-align:center;align-self:center;}
+  .fx-clear-title{font-family:var(--font-body);font-size:11.5px;letter-spacing:.12em;color:var(--accent-bronze-light);margin:0 0 2px;}
+  .fx-quest-name{font-size:15px;font-weight:700;color:var(--text-primary);line-height:1.35;}
+  .fx-reward-row{display:flex;justify-content:flex-start;gap:10px;margin-top:4px;font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;}
+  .fx-reward-row .xp{color:var(--accent-bronze-light);}
+  .fx-reward-row .gold{color:var(--warning);}
+  .fx-stat-row{display:flex;justify-content:flex-start;font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+  .fx-stat-row:empty{display:none;}
+  /* 레벨업: 이전 레벨·화살표는 숨기고 새 레벨과 칭호, 스탯 변화만 */
+  #fx-levelup-overlay .lu-lv:not(.new),#fx-levelup-overlay .lu-arrow{display:none;}
+  #fx-levelup-overlay .lu-lv.new{font-family:var(--font-display);font-size:22px;color:var(--text-primary);}
+  #fx-levelup-overlay .lu-unlock{display:none;font-size:12.5px;color:var(--accent-bronze-light);}
+  #fx-levelup-overlay.evolution .lu-unlock{display:block;}
+  #fx-levelup-overlay .lu-new-title{font-size:14px;font-weight:700;color:var(--accent-bronze-light);}
+  #fx-levelup-overlay .lu-new-title:empty{display:none;}
+  #fx-levelup-overlay .lu-stat-gain{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:4px;margin-top:4px;}
+  #fx-levelup-overlay .lu-stat-chip{font-size:12px;padding:1px 6px;border:1px solid var(--border-subtle);border-radius:4px;background:none;}
+  /* 진화(칭호 변경)는 브론즈 테두리로만 강조 -- 발광 없음 */
+  .fx-overlay.evolution .fx-card{border-color:var(--accent-bronze-light);box-shadow:0 10px 28px rgba(0,0,0,.5);}
+  /* 업적 알림만 눌러서 닫을 수 있게 카드에 한해 포인터 허용 */
+  #fx-achv-overlay.show .fx-card{pointer-events:auto;cursor:pointer;}
+  .fx-achv-desc{font-size:12.5px;color:var(--text-secondary);}
+  .fx-achv-reward-tag{font-size:12.5px;font-weight:700;color:var(--accent-bronze-light);}
+  /* 화면 전체 번쩍임 제거 (명세 8: 짧고 기능적인 연출) */
+  .fx-flash{display:none !important;}
+  .fx-particle{background:var(--accent-bronze-light);}
+
+  /* 데일리 미니게임 홈 카드: 게임별 한 줄 */
+  .dmg-home-card{background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:var(--radius-m);padding:14px;margin-top:12px;box-shadow:none;}
+  .dmg-home-title{font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--text-primary);}
+  .dmg-home-sub{font-size:12.5px;color:var(--text-secondary);margin:2px 0 8px;}
+  .dmg-row{display:flex;align-items:center;gap:12px;padding:10px 0;}
+  .dmg-row + .dmg-row{border-top:1px solid var(--border-subtle);}
+  .dmg-row-ic{width:40px;height:40px;flex:0 0 40px;display:flex;align-items:center;justify-content:center;font-size:24px;
+    background:var(--bg-primary);border:1px solid var(--border-subtle);border-radius:var(--radius-s);}
+  .dmg-row-info{flex:1;min-width:0;}
+  .dmg-row-info .nm{font-size:15px;font-weight:700;}
+  .dmg-row-info .sub{font-size:12.5px;color:var(--accent-bronze-light);margin-top:1px;}
+  .dmg-row.done .dmg-row-info .sub{color:var(--success);}
+  .dmg-row .btn{min-width:76px;min-height:44px;}
+
+  /* ================================================================
+     GUILD ARCHIVE — 내비게이션 (명세 4장): 하단 5개 + 더보기, PC 좌측 메뉴
+     ================================================================ */
+  .more-list{display:flex;flex-direction:column;background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:var(--radius-m);overflow:hidden;}
+  .more-row{display:flex;align-items:center;gap:12px;min-height:64px;padding:10px 14px;background:none;color:var(--text-primary);text-align:left;width:100%;}
+  .more-row + .more-row{border-top:1px solid var(--border-subtle);}
+  .more-row:active{background:var(--bg-raised);}
+  .more-ic{width:40px;height:40px;flex:0 0 40px;display:flex;align-items:center;justify-content:center;font-size:24px;
+    background:var(--bg-primary);border:1px solid var(--border-subtle);border-radius:var(--radius-s);}
+  .more-ic img.ui-ico{width:30px;height:30px;vertical-align:0;}
+  .more-txt{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .more-txt b{font-size:15px;}
+  .more-txt small{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+  .more-go{font-size:22px;color:var(--text-muted);}
+
+  /* PC(1024px 이상): 같은 메뉴를 같은 순서로 좌측 세로 메뉴로 */
+  @media (min-width:1024px){
+    #bottomnav{
+      top:0;bottom:0;left:0;transform:none;width:200px;max-width:none;
+      flex-direction:column;justify-content:flex-start;gap:4px;padding:84px 12px 12px;
+      border-top:none;border-right:1px solid var(--border-subtle);
+    }
+    .nav-item{flex:0 0 auto;flex-direction:row;justify-content:flex-start;gap:12px;min-height:52px;padding:0 14px;font-size:15px;border-radius:var(--radius-s);}
+    .nav-item.active{background:var(--bg-raised);}
+    .nav-item.active::before{top:10px;bottom:10px;left:0;right:auto;width:3px;height:auto;}
+    .screen{padding-bottom:40px;}
+    .fab{bottom:28px;}
+  }
+
+  /* 퀘스트 관리(⋯) 버튼 48px + 관리 시트 */
+  .quest-more{
+    width:48px;height:48px;flex:0 0 48px;padding:0;border-radius:var(--radius-s);background:none;
+    color:var(--text-secondary);font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center;
+  }
+  .quest-more:hover,.quest-more:focus-visible{background:var(--bg-raised);color:var(--text-primary);}
+  .quest-action-sheet h3{font-size:16px;margin-bottom:12px;overflow-wrap:anywhere;}
+  .quest-action-sheet .btn{min-height:48px;margin-top:8px;font-size:15px;}
+
+  /* 장비 등급 (명세 3.2: 희귀도 색은 등급 표현에만) */
+  .grade-tag{
+    display:inline-flex;align-items:center;font-size:11.5px;font-weight:700;line-height:1.4;
+    padding:0 6px;margin-left:6px;border-radius:4px;border:1px solid var(--grade);color:var(--grade);background:none;
+    vertical-align:middle;white-space:nowrap;
+  }
+  .equip-card .nm{flex-direction:column;}
+  .equip-card .nm .grade-tag{margin:4px 0 0;}
+
+  .week-chart-period{display:flex;gap:6px;margin-bottom:10px;}
+  .week-chart-period .chip{min-height:36px;padding:6px 12px;font-size:13px;}
+  .week-chart.dense .wc-bar{width:min(10px,80%);border-radius:2px 2px 0 0;}
+  .week-chart.dense .wc-val{font-size:10.5px;}
+  .week-chart.dense .wc-x{font-size:10px;white-space:nowrap;overflow:visible;}
+
+  /* 장식용 반복 애니메이션은 몇 번만 재생 (명세 3.4: 무한 반복 금지).
+     실제 진행 상태를 뜻하는 것(슬롯 릴 회전 중, GPS 탐색, 실제 날씨 표시)은 그대로 둔다 */
+  .coin-card.shimmer::after{animation-iteration-count:2;}
+  .bm-raid-overlay.show{animation-iteration-count:4;}
+  .mg-slot-stage.jackpot .mg-slot-reel.jackpot-reel,.mg-jackpot-crown,.mg-jackpot-777{animation-iteration-count:3;}
+  .bm-home-card.live{animation-iteration-count:3;}
+  .bm-ending-pulse{animation-iteration-count:3;}
+  .shop-item.bm.legendary::after{animation-iteration-count:2;}
+
+  /* ================================================================
+     GUILD ARCHIVE — 나머지 화면: 능력치 · 코인도감 · 업적도감 · 소셜 · 암시장 잔여 색
+     ================================================================ */
+  :root{ --bm-purple:#7A3B2E; --bm-purple-dim:#3A2622; } /* 예전 보라 암시장 색 → 적갈색 (명세 5.5) */
+  .stat-row{display:grid;grid-template-columns:84px 1fr 40px;align-items:center;column-gap:10px;row-gap:2px;margin-bottom:14px;}
+  .stat-label{font-size:14px;width:auto;}
+  .stat-val{font-size:15px;font-weight:700;width:auto;text-align:right;font-variant-numeric:tabular-nums;}
+  .stat-note{grid-column:2 / -1;font-size:12px;color:var(--text-secondary);line-height:1.4;}
+  .stat-track{height:8px;background:var(--bg-primary);border:1px solid var(--border-subtle);border-radius:3px;}
+
+  .coin-card{background:var(--bg-panel);border-radius:var(--radius-m);box-shadow:none;}
+  .coin-card .ct{display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap;font-size:12px;}
+  .coin-card .ct .grade-tag{margin-left:0;}
+
+  .dex-book,.dex-book.secret-book{background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:var(--radius-m);}
+  .dex-book.secret-book{background:#2A2530;border-color:#5A4E66;}
+  .dex-card,.secret-book .dex-card.unlocked{background:var(--bg-raised);box-shadow:none;border-radius:var(--radius-m);}
+  .dex-card.unlocked{border:1px solid var(--accent-bronze-light);}
+  .secret-book .dex-card.unlocked{border-color:#B9A6D0;}
+  .dex-card.locked{opacity:.7;filter:none;border:1px dashed var(--border-subtle);}
+  .dex-card-name{font-size:13px;}
+  .dex-card-state{font-size:12px;}
+  .dex-tab{min-height:44px;border-radius:var(--radius-s);}
+  .dex-tab.active.general{background:var(--bg-raised);color:var(--accent-bronze-light);border-color:var(--accent-bronze-light);}
+  .dex-tab.active.secret{background:var(--bg-raised);color:#CDBDE0;border-color:#B9A6D0;}
+  .dex-close{width:44px;height:44px;border-radius:var(--radius-s);}
+  .dex-nav button{height:44px;border-radius:var(--radius-s);color:var(--accent-bronze-light);}
+  .dex-page-label,.dex-topline h3{color:var(--accent-bronze-light);}
+  .secret-book .dex-page-label{color:#CDBDE0;}
+  .achievement-dex-launch{background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:var(--radius-m);box-shadow:none;}
+  .achv-detail-card{border-color:var(--border-subtle);}
+  .achv-detail-reward{background:var(--bg-primary);border:1px solid var(--border-subtle);border-radius:var(--radius-s);}
+
+  /* 소셜: 카드 나열 → 한 장부 안의 행 */
+  /* 행이 #soc-body 바로 아래 형제로 그려지므로 래퍼 없이 구분선 목록으로 표시 */
+  #screen-social .soc-row{margin:0;border-radius:0;border-width:0 0 1px;border-color:var(--border-subtle);background:transparent;min-height:56px;}
+  #screen-social .soc-row.me{background:var(--bg-panel);border:1px solid var(--accent-bronze);border-radius:var(--radius-s);margin-bottom:8px;}
+  #screen-social .soc-row .rk{color:var(--accent-bronze-light);}
+  .soc-msg{border-radius:var(--radius-m);}
+  .soc-prof-card{border-radius:var(--radius-l);background:var(--bg-panel);}
+  /* ---------- Motion: prefers-reduced-motion 존중 ---------- */
+  @media (prefers-reduced-motion: reduce){
+    #explore-weather-fx *{animation:none !important;}
+    .btn,.chip,.sheet,.bottom-sheet,.sheet-overlay,.bottom-sheet-overlay,.progress-fill,.xp-bar-fill,.stat-fill,.quest-check .qc-box{
+      transition:none !important;
+    }
+  }
+</style>
 </head>
 <body>
 <div id="app">
@@ -1938,12 +2590,21 @@
 
     <!-- HOME -->
     <div class="screen" id="screen-home">
+      <section class="home-profile" aria-label="오늘의 모험가 현황">
       <div class="char-stage" id="home-char-stage" role="button" tabindex="0" style="cursor:pointer" aria-label="캐릭터 정보 보기" onclick="openCharacterFromHome()">
         <div class="char-aura" id="home-char-aura"><span id="home-char-emoji">🧍</span></div>
-        <div class="char-badges" id="home-char-badges"></div>
-        <div class="char-title" id="home-char-title">훈련병</div>
-        <div class="char-sub" id="home-char-sub"></div>
+        <div class="char-info">
+          <div class="char-title" id="home-char-title">훈련병</div>
+          <div class="char-sub" id="home-char-sub"></div>
+          <div class="char-badges" id="home-char-badges"></div>
+        </div>
+        <span class="char-go" aria-hidden="true">›</span>
       </div>
+      <dl class="home-summary">
+        <div><dt>오늘 완료</dt><dd id="home-sum-done">0/0</dd></div>
+        <div><dt>오늘 획득</dt><dd id="home-sum-xp">0 XP</dd></div>
+        <div><dt>보유 골드</dt><dd id="home-sum-gold">0 G</dd></div>
+      </dl>
 
       <div class="npc-bubble hidden" id="home-npc-bubble" onclick="dismissNpcBubble()">
         <span class="npc-ic">🧙</span>
@@ -1957,14 +2618,15 @@
         <div class="streak-row">
           <span class="streak-flame">🔥</span>
           <span class="streak-text"><b id="streak-num">0</b>일 연속 출석</span>
-          <button class="btn btn-gold" style="margin-left:auto;padding:7px 12px;font-size:12px;" id="checkin-btn" onclick="doCheckIn()">출석 체크</button>
+          <button class="btn btn-gold" style="margin-left:auto;" id="checkin-btn" onclick="doCheckIn()">출석 체크</button>
         </div>
       </div>
+      </section>
 
       <div id="bm-home-alert"></div>
-      <div class="section-head"><h2>오늘의 퀘스트</h2><span class="meta" id="home-date"></span></div>
-      <div id="today-quest-list"></div>
-      <button class="btn btn-ghost btn-block hidden" id="home-quest-more-btn" style="margin-top:4px;" onclick="switchTab('quest')">전체 보기</button>
+      <div class="section-head"><h2>오늘의 의뢰</h2><span class="meta" id="home-date"></span></div>
+      <div id="today-quest-list" class="quest-list"></div>
+      <button class="btn btn-ghost btn-block hidden" id="home-quest-more-btn" style="margin-top:8px;" onclick="switchTab('quest')">전체 의뢰 보기</button>
 
       <div id="dungeon-card"></div>
 
@@ -1979,8 +2641,8 @@
 
     <!-- QUEST LIST -->
     <div class="screen hidden" id="screen-quest">
-      <div class="section-head"><h2>전체 퀘스트</h2><span class="meta" id="quest-count-meta"></span></div>
-      <div class="chip-row" id="quest-filter-row" style="margin-bottom:14px;">
+      <div class="section-head"><h2>전체 의뢰</h2><span class="meta" id="quest-count-meta"></span></div>
+      <div class="chip-row chip-row-scroll" id="quest-filter-row" style="margin-bottom:14px;">
         <button class="chip active" data-val="all" onclick="setQuestFilter(this,'all')">전체</button>
         <button class="chip" data-val="운동" onclick="setQuestFilter(this,'운동')">🏃 운동</button>
         <button class="chip" data-val="공부" onclick="setQuestFilter(this,'공부')">📚 공부</button>
@@ -1989,7 +2651,7 @@
         <button class="chip" data-val="사회" onclick="setQuestFilter(this,'사회')">🤝 사회</button>
         <button class="chip" data-val="기타" onclick="setQuestFilter(this,'기타')">✨ 기타</button>
       </div>
-      <div id="all-quest-list"></div>
+      <div id="all-quest-list" class="quest-list"></div>
     </div>
 
     <!-- CHARACTER -->
@@ -2019,10 +2681,28 @@
         <div class="section-head" style="margin-top:4px;"><h2>성장 단계</h2></div>
         <div class="evo-timeline" id="evo-timeline"></div>
 
-        <div class="section-head"><h2>이번 주 리포트</h2></div>
+        <div class="section-head"><h2>활동 리포트</h2><span class="meta" id="week-chart-range">최근 7일</span></div>
+        <div class="week-chart-card">
+          <div class="week-chart-period" role="group" aria-label="기간">
+            <button type="button" class="chip active" data-period="7" onclick="setWeekChartPeriod(7)">7일</button>
+            <button type="button" class="chip" data-period="30" onclick="setWeekChartPeriod(30)">30일</button>
+            <button type="button" class="chip" data-period="90" onclick="setWeekChartPeriod(90)">90일</button>
+          </div>
+          <div class="week-chart-head">
+            <div class="week-chart-title" id="week-chart-title">일별 완료 퀘스트 (개)</div>
+            <div class="week-chart-toggle" role="group" aria-label="그래프 항목">
+              <button type="button" class="chip active" data-metric="cleared" onclick="setWeekChartMetric('cleared')">완료 수</button>
+              <button type="button" class="chip" data-metric="xp" onclick="setWeekChartMetric('xp')">획득 XP</button>
+            </div>
+          </div>
+          <div class="week-chart" id="week-chart" role="img"></div>
+          <div class="week-chart-readout" id="week-chart-readout" aria-live="polite"></div>
+          <p class="week-chart-insight" id="week-chart-insight"></p>
+          <details class="week-chart-table"><summary>표로 보기</summary><table id="week-chart-table"></table></details>
+        </div>
         <div class="stat-grid-2">
-          <div class="metric-card"><div class="num" id="m-cleared">0</div><div class="lbl">완료 퀘스트</div></div>
-          <div class="metric-card"><div class="num" id="m-xp">0</div><div class="lbl">획득 XP</div></div>
+          <div class="metric-card"><div class="num" id="m-cleared">0</div><div class="lbl">최근 7일 완료 퀘스트</div></div>
+          <div class="metric-card"><div class="num" id="m-xp">0</div><div class="lbl">최근 7일 획득 XP</div></div>
           <div class="metric-card"><div class="num" id="m-rate">0%</div><div class="lbl">완료율</div></div>
           <div class="metric-card"><div class="num" id="m-streak">0일</div><div class="lbl">연속 출석</div></div>
         </div>
@@ -2056,6 +2736,11 @@
       </div>
 
       <div id="diary-personal-section">
+      <div class="diary-pane-tabs" role="tablist" aria-label="일기 화면">
+        <button type="button" class="diary-pane-tab" id="diary-pane-write-btn" role="tab" aria-selected="true" onclick="setDiaryPane('write')">기록 쓰기</button>
+        <button type="button" class="diary-pane-tab" id="diary-pane-list-btn" role="tab" aria-selected="false" onclick="setDiaryPane('list')">나의 기록 <span id="diary-pane-count"></span></button>
+      </div>
+      <div id="diary-write-pane">
       <div class="diary-write-card">
         <div id="diary-editing-banner"></div>
         <div class="diary-write-head" id="diary-write-head"><span class="diary-quill">🖋️</span>오늘의 기록을 남겨보세요</div>
@@ -2079,13 +2764,16 @@
           <span class="label">📖 기록 저장</span><span class="xp-preview" id="diary-save-xp-preview"></span>
         </button>
       </div>
+      </div>
 
+      <div id="diary-list-pane" class="hidden">
       <div class="diary-list-head">
         <h2 class="diary-list-title">나의 기록</h2>
         <button type="button" class="diary-search-btn" onclick="openDiarySearchSheet()" aria-label="일기 검색">🔍</button>
       </div>
       <div id="diary-active-filters"></div>
       <div id="diary-list"></div>
+      </div>
       </div>
 
       <div id="diary-rooms-section" class="hidden">
@@ -2156,6 +2844,7 @@
       </div>
       <div class="section-head" style="margin-top:4px;"><h2>탐험</h2><span class="meta">실시간 GPS 기반</span></div>
 
+      <div class="explore-status" id="explore-status" role="status" aria-live="polite" data-kind="idle"><span class="es-ic" aria-hidden="true">📍</span><span class="es-txt">위치 권한을 확인하는 중이에요</span></div>
       <div class="explore-note" id="explore-permission-note">
         위치 권한을 허용하면 근처의 보물상자를 찾고, 산책 거리를 기록할 수 있어요. 앱이 켜져 있는 동안에만 위치가 추적됩니다.
       </div>
@@ -2218,6 +2907,19 @@
         <div id="notif-log-list"></div>
         <button class="btn btn-ghost btn-block" style="margin-top:16px;" onclick="closeNotifLog()">닫기</button>
       </div>
+    </div>
+
+    <!-- MORE (더보기): 하단에 없는 기존 화면들의 입구 -->
+    <div class="screen hidden" id="screen-more">
+      <div class="section-head" style="margin-top:4px;"><h2>더보기</h2></div>
+      <nav class="more-list" aria-label="전체 메뉴">
+        <button type="button" class="more-row" onclick="switchTab('calendar')"><span class="more-ic">📅</span><span class="more-txt"><b>캘린더</b><small>일정·컨디션·던전 기록, 보관함</small></span><span class="more-go" aria-hidden="true">›</span></button>
+        <button type="button" class="more-row" onclick="switchTab('shop')"><span class="more-ic">🛒</span><span class="more-txt"><b>상점</b><small>장비·캘린더 꾸미기, 암시장 입구</small></span><span class="more-go" aria-hidden="true">›</span></button>
+        <button type="button" class="more-row" onclick="switchTab('character')"><span class="more-ic">📈</span><span class="more-txt"><b>캐릭터 · 통계 · 업적</b><small>능력치, 성장 단계, 주간 리포트, 업적도감</small></span><span class="more-go" aria-hidden="true">›</span></button>
+        <button type="button" class="more-row" onclick="openEquip()"><span class="more-ic">🛡️</span><span class="more-txt"><b>장비</b><small>무기·방어구·장신구 장착</small></span><span class="more-go" aria-hidden="true">›</span></button>
+        <button type="button" class="more-row" onclick="switchTab('social')"><span class="more-ic">👥</span><span class="more-txt"><b>랭킹 · 친구</b><small>로그인 후 이용</small></span><span class="more-go" aria-hidden="true">›</span></button>
+        <button type="button" class="more-row" onclick="switchTab('settings')"><span class="more-ic">⚙️</span><span class="more-txt"><b>설정</b><small>캐릭터, 알림, 백업, 회귀</small></span><span class="more-go" aria-hidden="true">›</span></button>
+      </nav>
     </div>
 
     <!-- SETTINGS -->
@@ -2396,12 +3098,23 @@
 
     <div class="fab" onclick="openAddSheet()">+</div>
 
-    <div id="bottomnav">
-      <button class="nav-item" data-tab="growth" onclick="switchTab('growth')"><span class="ic">📖</span>일기</button>
-      <button class="nav-item" data-tab="calendar" onclick="switchTab('calendar')"><span class="ic">📅</span>캘린더</button>
-      <button class="nav-item active" data-tab="home" onclick="switchTab('home')"><span class="ic">🏠</span>홈</button>
-      <button class="nav-item" data-tab="world" onclick="switchTab('world')"><span class="ic">🗺️</span>월드맵</button>
-      <button class="nav-item" data-tab="shop" onclick="switchTab('shop')"><span class="ic">🛒</span>상점</button>
+    <!-- 하단 내비 (명세 4장): 핵심 목적지 4개 + 더보기. 나머지 화면은 '더보기'에서 진입 -->
+    <nav id="bottomnav" aria-label="주요 메뉴">
+      <button class="nav-item active" data-tab="home" onclick="switchTab('home')"><span class="ic"><img src="icons/ui/nav-home.png" alt="" width="28" height="28"></span>홈</button>
+      <button class="nav-item" data-tab="quest" onclick="switchTab('quest')"><span class="ic"><img src="icons/ui/nav-quest.png" alt="" width="28" height="28"></span>퀘스트</button>
+      <button class="nav-item" data-tab="growth" onclick="switchTab('growth')"><span class="ic"><img src="icons/ui/nav-diary.png" alt="" width="28" height="28"></span>모험일지</button>
+      <button class="nav-item" data-tab="world" onclick="switchTab('world')"><span class="ic"><img src="icons/ui/nav-explore.png" alt="" width="28" height="28"></span>탐험</button>
+      <button class="nav-item" data-tab="more" onclick="switchTab('more')"><span class="ic"><img src="icons/ui/nav-more.png" alt="" width="28" height="28"></span>더보기</button>
+    </nav>
+  </div>
+
+  <!-- QUEST ACTIONS SHEET -->
+  <div class="sheet-overlay" id="quest-action-overlay" onclick="closeOverlayOnBg(event, closeQuestActions)">
+    <div class="sheet quest-action-sheet" role="dialog" aria-modal="true" aria-labelledby="quest-action-title" onclick="event.stopPropagation()">
+      <h3 id="quest-action-title"></h3>
+      <button type="button" class="btn btn-block" id="quest-action-edit" onclick="questActionEdit()">✎ 수정하기</button>
+      <button type="button" class="btn btn-block btn-danger" onclick="questActionDelete()">삭제하기</button>
+      <button type="button" class="btn btn-ghost btn-block" onclick="closeQuestActions()">취소</button>
     </div>
   </div>
 
@@ -2563,7 +3276,7 @@
   </div>
 
   <!-- QUEST CLEAR FX -->
-  <div class="fx-overlay" id="fx-clear-overlay">
+  <div class="fx-overlay" id="fx-clear-overlay" role="status" aria-live="polite">
     <div class="fx-card">
       <div class="fx-clear-ic">⚔️</div>
       <div class="fx-clear-title">QUEST CLEAR</div>
@@ -2577,7 +3290,7 @@
   </div>
 
   <!-- LEVEL UP FX -->
-  <div class="fx-overlay" id="fx-levelup-overlay">
+  <div class="fx-overlay" id="fx-levelup-overlay" role="status" aria-live="polite">
     <div class="fx-card">
       <div class="fx-clear-ic">✨</div>
       <div class="fx-clear-title">LEVEL UP</div>
@@ -2591,7 +3304,7 @@
   </div>
 
   <!-- COIN FOUND FX -->
-  <div class="fx-overlay" id="fx-coin-overlay">
+  <div class="fx-overlay" id="fx-coin-overlay" role="status" aria-live="polite">
     <div class="fx-card">
       <div class="fx-clear-ic" id="fx-coin-ic">🪙</div>
       <div class="fx-clear-title">COIN FOUND</div>
@@ -2602,7 +3315,7 @@
   </div>
 
   <!-- ACHIEVEMENT UNLOCK FX -->
-  <div class="fx-overlay" id="fx-achv-overlay" onclick="hideAchvFx()">
+  <div class="fx-overlay" id="fx-achv-overlay" role="status" aria-live="polite" onclick="hideAchvFx()">
     <div class="fx-card">
       <div class="fx-clear-ic" id="fx-achv-ic">🏆</div>
       <div class="fx-clear-title">ACHIEVEMENT UNLOCKED</div>
@@ -2653,8 +3366,8 @@
       <div class="confirm-title">회귀</div>
       <div class="confirm-body" id="regress-confirm-body"></div>
       <div class="confirm-btn-row">
-        <button class="btn btn-ghost" onclick="closeRegressConfirm()">아니오</button>
-        <button class="btn btn-danger" onclick="confirmRegress()">예</button>
+        <button class="btn btn-ghost" id="regress-cancel-btn" onclick="closeRegressConfirm()">취소</button>
+        <button class="btn btn-danger" onclick="confirmRegress()">회귀하기</button>
       </div>
     </div>
   </div>
@@ -2755,6 +3468,8 @@ const CATEGORY_STAT = {
   '기타':{stat:'힘',amt:3},
 };
 const STAT_ORDER = ['힘','체력','지능','민첩','의지','창의력','사회성'];
+/* 던전 전투에서 쓰이는 곳 (calendar.js pStats 계산식과 동일한 내용만 표기) */
+const STAT_USE = {힘:'공격력', 지능:'공격력', 체력:'최대 HP', 민첩:'치명타 확률', 의지:'받는 피해 감소'};
 const STAT_ICON = {힘:'💪',체력:'❤️',지능:'🧠',민첩:'⚡',의지:'🔥',창의력:'🎨',사회성:'🤝'};
 
 const ACHIEVEMENTS = [
@@ -2862,6 +3577,25 @@ const BLACK_MARKET_ITEMS = [
   {id:'bm_jail_reset', slot:'ticket', name:'감옥 초기화 티켓', icon:'🧹', price:800, desc:'감옥 출입 횟수를 0회로 초기화'},
 ];
 const ALL_ITEMS = ITEMS.concat(BLACK_MARKET_ITEMS);
+/* 장비 등급 (표시 전용 정적 데이터 -- 저장 데이터·가격·효과와 무관).
+   기준: 가격대(80 일반 / 150~300 고급 / 500~900 희귀 / 그 이상·암시장 영웅), 암시장 전설 진열품(BM_LEGENDARY_IDS)은 전설 */
+const GRADE_INFO = {
+  common:{label:'일반', color:'#A9AE9F'}, uncommon:{label:'고급', color:'#8DBF7E'}, rare:{label:'희귀', color:'#7FA8DE'},
+  epic:{label:'영웅', color:'#B996DB'}, legendary:{label:'전설', color:'#E0B86E'},
+};
+const ITEM_GRADE = {
+  wpn_wood:'common', arm_leather:'common',
+  acc_charm:'uncommon', wpn_iron:'uncommon', arm_chain:'uncommon',
+  acc_amulet:'rare', wpn_flame:'rare', arm_plate:'rare',
+  acc_crown:'epic', bm_dagger:'epic', bm_cloak:'epic', bm_ring:'epic',
+  bm_voidsword:'legendary', bm_bloodarmor:'legendary', bm_amulet:'legendary',
+};
+/* 등급 라벨: 색 + 글자로 표시 (색만으로 구분하지 않음) */
+function gradeTagHTML(itemId){
+  const g = GRADE_INFO[ITEM_GRADE[itemId]];
+  return g ? `<span class="grade-tag" style="--grade:${g.color}">${g.label}</span>` : '';
+}
+function gradeColor(itemId){ const g = GRADE_INFO[ITEM_GRADE[itemId]]; return g ? g.color : ''; }
 const DUEL_OPPONENTS = [
   {id:'smuggler', name:'검은 장갑의 밀수꾼', icon:'🥷', baseWinRate:0.48, difficulty:18, multiplier:2.0},
   {id:'assassin', name:'달빛 암살자', icon:'🌒', baseWinRate:0.40, difficulty:30, multiplier:2.4},
@@ -2970,6 +3704,7 @@ function defaultState(){
     inventory:[], // owned equipment item ids
     equipped:{weapon:null, armor:null, accessory:null},
     weekLog:[], // {date, xp, cleared:bool count}
+    dailyLog:[], // {date, xp, cleared} 최근 DAILY_LOG_DAYS일 -- 통계 기간 선택용 (weekLog는 기존 호환을 위해 그대로 유지)
     lastNotifyDate:null,
     notifEnabled:true,
     explore:{
@@ -3069,6 +3804,12 @@ async function loadState(){
   state.blackMarket.closureNotice = Object.assign({evenOdd:false,slot:false,shell:false}, state.blackMarket.closureNotice||{});
   state.jail = Object.assign({active:false,jailedUntil:null,storyStage:0,lastTriggeredTap:0,visitCount:0}, state.jail||{});
   state.jail.visitCount = Number(state.jail.visitCount)||0;
+  // 구버전 호환: dailyLog가 없으면 기존 weekLog(최근 7일)로 시작한다
+  // dailyLogSince가 없으면 이 업데이트 이전 저장본: dailyLog를 weekLog(최근 7일)로 채우고, 그 시작일부터 기록이 빠짐없다고 표시
+  if(!state.dailyLogSince){
+    if(!Array.isArray(state.dailyLog) || !state.dailyLog.length) state.dailyLog = (state.weekLog||[]).map(e=>({date:e.date, xp:e.xp||0, cleared:e.cleared||0}));
+    const d=new Date(); d.setDate(d.getDate()-6); state.dailyLogSince = dateKey(d);
+  }
   state.minigame = Object.assign(defaultState().minigame, state.minigame||{});
   // 구버전 호환: 카드 뒤집기 / 금고 해킹 / 룰렛 통계는 새 구조로 이전한다
   const legacyCard = state.minigame.stats && state.minigame.stats.card;
@@ -3111,11 +3852,13 @@ function trackGold(delta){
 }
 function settleBet(won, bet, winnings){ if(won){ state.gold += winnings - bet; trackGold(winnings); trackGold(-bet); } else { state.gold -= bet; trackGold(-bet); } }
 async function saveState(){
+  let ok = true;
   try{
     if(window.storage){ await window.storage.set(STORAGE_KEY, JSON.stringify(state)); }
     else { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-  }catch(e){ console.error('save failed', e); }
+  }catch(e){ console.error('save failed', e); ok = false; }
   if(window.queueQuestSync) window.queueQuestSync(); // 로그인 상태면 소셜 서버로 퀘스트를 밀어올림 (social.js)
+  return ok; // 저장 성공 여부 -- 일기처럼 '저장 완료'를 알려야 하는 곳에서 확인한다
 }
 /* ===================== 데이터 백업 / 복원 (JSON) ===================== */
 function exportStateBackup(){
@@ -3272,6 +4015,11 @@ function todaysQuests(){
     return false;
   });
 }
+const HOME_QUEST_LIMIT = 5;
+function questEmptyHTML(msg){
+  return `<div class="empty-note quest-empty">${uiIcon('quest-daily')}<p>${msg}</p>`
+    + `<button class="btn btn-gold" onclick="openAddSheet()">첫 의뢰 등록</button></div>`;
+}
 function renderHome(){
   document.getElementById('home-date').textContent = new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
   renderDailyMgHomeCard();
@@ -3280,14 +4028,24 @@ function renderHome(){
   const list = todaysQuests();
   const wrap = document.getElementById('today-quest-list');
   wrap.innerHTML='';
+  const isDoneToday = q=> q.type==='daily' ? q.lastDoneDate===t : q.status==='done';
   if(list.length===0){
-    wrap.innerHTML = `<div class="empty-note">아직 등록된 퀘스트가 없습니다.<br>오른쪽 하단 + 버튼으로 첫 퀘스트를 등록해보세요.</div>`;
+    wrap.innerHTML = questEmptyHTML(state.quests.length===0 ? '아직 받은 의뢰가 없습니다.' : '오늘 처리할 의뢰가 없습니다.');
   } else {
-    list.forEach(q=> wrap.appendChild(questCardEl(q, t)) );
+    // 홈에는 남은 의뢰를 먼저, 최대 HOME_QUEST_LIMIT개만 보여주고 나머지는 '전체 의뢰 보기'로 넘긴다
+    const ordered = [...list.filter(q=>!isDoneToday(q)), ...list.filter(isDoneToday)];
+    ordered.slice(0, HOME_QUEST_LIMIT).forEach(q=> wrap.appendChild(questCardEl(q, t)) );
   }
-  document.getElementById('home-quest-more-btn').classList.toggle('hidden', state.quests.length===0);
-  const done = list.filter(q=> q.type==='daily' ? q.lastDoneDate===t : q.status==='done').length;
+  const moreBtn = document.getElementById('home-quest-more-btn');
+  moreBtn.classList.toggle('hidden', state.quests.length===0);
+  const hiddenCount = Math.max(0, list.length - HOME_QUEST_LIMIT);
+  moreBtn.textContent = hiddenCount ? `전체 의뢰 보기 (+${hiddenCount})` : '전체 의뢰 보기';
+  const done = list.filter(isDoneToday).length;
   const total = list.length;
+  const todayLog = (state.weekLog||[]).find(e=>e.date===t);
+  document.getElementById('home-sum-done').textContent = `${done}/${total}`;
+  document.getElementById('home-sum-xp').textContent = `${(todayLog?todayLog.xp:0).toLocaleString()} XP`;
+  document.getElementById('home-sum-gold').innerHTML = `${uiIcon('stat-gold')}${Number(state.gold).toLocaleString()} G`;
   document.getElementById('today-progress-txt').textContent = `${done}/${total}`;
   document.getElementById('today-progress-fill').style.width = total? (done/total*100)+'%' : '0%';
   document.getElementById('streak-num').textContent = state.streak;
@@ -3356,7 +4114,17 @@ const SoundManager = (()=>{
   const toggle=()=>{muted=!muted;localStorage.setItem('qp_sound_muted',muted?'1':'0'); updateSoundButton(); if(!muted)play('click');};
   return {play,toggle,isMuted:()=>muted};
 })();
-function toggleSettingsCard(h3){ const card=h3.closest('.settings-card'); if(card) card.classList.toggle('open'); }
+function toggleSettingsCard(h3){ const card=h3.closest('.settings-card'); if(!card) return; card.classList.toggle('open'); h3.setAttribute('aria-expanded', card.classList.contains('open')); }
+/* 설정 아코디언 제목을 키보드로도 열고 닫을 수 있게 한다 (명세 7: 키보드 조작) */
+function enhanceSettingsAccordions(){
+  document.querySelectorAll('.settings-card > h3[onclick]').forEach(h3=>{
+    if(h3.dataset.a11y) return;
+    h3.dataset.a11y = '1';
+    h3.setAttribute('role','button'); h3.setAttribute('tabindex','0');
+    h3.setAttribute('aria-expanded', h3.closest('.settings-card').classList.contains('open'));
+    h3.addEventListener('keydown', e=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggleSettingsCard(h3); } });
+  });
+}
 function updateSoundButton(){const b=document.getElementById('sound-toggle');if(b)b.textContent=SoundManager.isMuted()?'🔇 효과음 꺼짐':'🔊 효과음 켜짐';}
 function toggleSound(){SoundManager.toggle();}
 function cinematicFX(kind='normal'){
@@ -3811,23 +4579,34 @@ function questCardEl(q, t){
   const isDoneToday = q.type==='daily' ? q.lastDoneDate===t : q.status==='done';
   const div = document.createElement('div');
   div.className = 'quest-card' + (isDoneToday?' done':'');
+  const typeInfo = QUEST_TYPE_INFO[q.type] || QUEST_TYPE_INFO.once;
+  // 완료된 의뢰는 실제 지급값(lastReward), 아직이면 장비 보너스를 반영한 예상값
+  const paid = isDoneToday && q.lastReward;
+  const xpShown = paid ? q.lastReward.xp : applyXpBonus(q.xp), goldShown = paid ? q.lastReward.gold : applyGoldBonus(q.gold);
   const isOverdue = q.type==='dated' && q.status!=='done' && q.dueDate && q.dueDate < t;
   const datePill = q.type==='dated' ? `<span class="pill quest-date-pill${isOverdue?' overdue':''}">📅 ${formatDatePill(q.dueDate)}${isOverdue?' 지남':''}</span>` : '';
   const weekdayPill = (q.type==='daily' && q.weekdays && q.weekdays.length>0) ? `<span class="pill">🔁 ${q.weekdays.slice().sort().map(weekdayLabel).join('')}</span>` : '';
+  const titleTxt = escapeHtml(q.title);
   div.innerHTML = `
-    <div class="quest-check">${isDoneToday?'✓':''}</div>
+    <button class="quest-check" type="button" aria-pressed="${isDoneToday}" aria-label="${isDoneToday?'완료 취소':'완료하기'}: ${titleTxt}"><span class="qc-box" aria-hidden="true"></span></button>
     <div class="quest-body">
-      <div class="quest-title">${escapeHtml(q.title)}</div>
-      <div class="quest-meta"><span class="pill">${catIcon(q.category)} ${q.category}</span><span>${diffLabel(q.difficulty)}</span>${datePill}${weekdayPill}</div>
+      <div class="quest-title">${titleTxt}</div>
+      <div class="quest-meta">
+        ${isDoneToday?'<span class="quest-status-done">완료</span>':''}
+        <span class="quest-type">${uiIcon(typeInfo.icon)}${typeInfo.label}</span>
+        <span class="pill">${catIcon(q.category)} ${q.category}</span>
+        <span class="quest-diff">${uiIcon(DIFF_ICON[q.difficulty]||DIFF_ICON.normal)}${diffLabel(q.difficulty)}</span>${datePill}${weekdayPill}
+      </div>
     </div>
-    <div class="quest-reward">+${q.xp}XP${q.gold>0?`<span class="g">+${q.gold}G</span>`:''}</div>
-    <button class="quest-edit" onclick="event.stopPropagation();openEditQuest('${q.id}')">✎</button>
-    <button class="quest-del" onclick="event.stopPropagation();deleteQuest('${q.id}')">✕</button>
+    <div class="quest-reward" title="${paid?'실제 지급된 보상':'장비 보너스 포함 예상 보상'}"><span class="x">+${xpShown} XP</span>${goldShown>0?`<span class="g">${uiIcon('stat-gold')}+${goldShown} G</span>`:''}</div>
+    <button class="quest-more" type="button" aria-haspopup="dialog" aria-label="의뢰 관리: ${titleTxt}" onclick="event.stopPropagation();openQuestActions('${q.id}', this)">⋯</button>
   `;
   div.querySelector('.quest-check').onclick = ()=> toggleQuest(q.id);
   div.querySelector('.quest-body').onclick = ()=> toggleQuest(q.id);
   return div;
 }
+const QUEST_TYPE_INFO = { daily:{label:'일일',icon:'quest-daily'}, once:{label:'일회성',icon:'quest-once'}, dated:{label:'날짜지정',icon:'quest-dated'} };
+const DIFF_ICON = { easy:'diff-common', normal:'diff-uncommon', hard:'diff-rare', veryhard:'diff-epic' };
 function catIcon(cat){ return {'운동':'🏃','공부':'📚','창작':'🎨','생활':'🧹','사회':'🤝','기타':'✨'}[cat]||'✨'; }
 function diffLabel(d){ return {easy:'쉬움',normal:'보통',hard:'어려움',veryhard:'매우어려움'}[d]||'보통'; }
 function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
@@ -3836,6 +4615,24 @@ function formatDatePill(dateStr){
   const [y,m,d] = dateStr.split('-');
   return `${parseInt(m,10)}/${parseInt(d,10)}`;
 }
+
+/* 퀘스트 관리 시트: 수정·삭제를 48px 버튼 하나(⋯)로 모아 터치 영역을 확보한다 (명세 7) */
+let questActionId = null, questActionReturn = null;
+function openQuestActions(id, btn){
+  const q = state.quests.find(x=>x.id===id);
+  if(!q) return;
+  questActionId = id; questActionReturn = btn || null;
+  document.getElementById('quest-action-title').textContent = q.title;
+  document.getElementById('quest-action-overlay').classList.add('show');
+  setTimeout(()=>document.getElementById('quest-action-edit')?.focus(), 30);
+}
+function closeQuestActions(){
+  document.getElementById('quest-action-overlay').classList.remove('show');
+  if(questActionReturn && document.body.contains(questActionReturn)) questActionReturn.focus();
+  questActionId = null; questActionReturn = null;
+}
+function questActionEdit(){ const id = questActionId; closeQuestActions(); if(id) openEditQuest(id); }
+function questActionDelete(){ const id = questActionId; closeQuestActions(); if(id) deleteQuest(id); }
 
 /* ===================== ALL QUESTS TAB ===================== */
 let questFilterCat = 'all';
@@ -3851,7 +4648,7 @@ function renderAllQuests(){
   let list = [...state.quests].reverse();
   if(questFilterCat!=='all') list = list.filter(q=>q.category===questFilterCat);
   document.getElementById('quest-count-meta').textContent = questFilterCat==='all' ? `총 ${state.quests.length}개` : `${list.length}개`;
-  if(list.length===0){ wrap.innerHTML = `<div class="empty-note">등록된 퀘스트가 없습니다.</div>`; return; }
+  if(list.length===0){ wrap.innerHTML = state.quests.length===0 ? questEmptyHTML('아직 받은 의뢰가 없습니다.') : `<div class="empty-note">이 분류의 의뢰가 없습니다.</div>`; return; }
   const t = todayStr();
   list.forEach(q=> wrap.appendChild(questCardEl(q,t)) );
 }
@@ -3984,10 +4781,15 @@ async function toggleQuest(id){
   const t = todayStr();
   const isDone = q.type==='daily' ? q.lastDoneDate===t : q.status==='done';
   if(isDone){
-    // undo
+    // undo: 완료 때 실제로 받은 보상(보너스 포함)을 그대로 회수한다
+    const r = questRewardRecord(q, t);
     if(q.type==='daily') q.lastDoneDate=null; else { q.status='active'; q.completedDate=null; }
-    state.totalXP = Math.max(0, state.totalXP - q.xp);
-    state.gold = Math.max(0, state.gold - q.gold);
+    state.totalXP = Math.max(0, state.totalXP - r.xp);
+    state.gold = Math.max(0, state.gold - r.gold);
+    if(state.goldLedger && state.goldLedger.date===r.date) state.goldLedger.earned = Math.max(0, state.goldLedger.earned - r.gold);
+    if(r.stat) state.stats[r.stat] = Math.max(0, (state.stats[r.stat]||0) - r.amt);
+    unlogDay(r.date, r.xp);
+    delete q.lastReward;
     state.totalCleared = Math.max(0, state.totalCleared-1);
     state.questsUpdatedAt = Date.now();
     await saveState();
@@ -4009,6 +4811,8 @@ async function toggleQuest(id){
   state.easter.recentCompletionTimes.push(Date.now());
   const statInfo = CATEGORY_STAT[q.category];
   if(statInfo) state.stats[statInfo.stat] = (state.stats[statInfo.stat]||0) + statInfo.amt;
+  // 완료 취소 시 정확히 회수할 수 있도록 이번에 실제 지급한 보상을 기록한다
+  q.lastReward = {date:t, xp:gainedXp, gold:gainedGold, stat:statInfo?statInfo.stat:null, amt:statInfo?statInfo.amt:0};
   logToday(gainedXp);
   state.questsUpdatedAt = Date.now();
   await saveState();
@@ -4050,6 +4854,25 @@ function logToday(xpGain){
     const diff = (new Date(t) - new Date(e.date))/86400000;
     return diff < 7;
   });
+  state.dailyLog = state.dailyLog || [];
+  let d = state.dailyLog.find(e=>e.date===t);
+  if(!d){ d={date:t,xp:0,cleared:0}; state.dailyLog.push(d); }
+  d.xp += xpGain; d.cleared += 1;
+  state.dailyLog = state.dailyLog.filter(e=> (new Date(t) - new Date(e.date))/86400000 < DAILY_LOG_DAYS);
+}
+const DAILY_LOG_DAYS = 120;
+/* 완료 취소: 그날 기록에서 획득 XP와 완료 수를 되돌린다 */
+function unlogDay(date, xp){
+  [state.weekLog, state.dailyLog].forEach(log=>{
+    const e = (log||[]).find(x=>x.date===date);
+    if(e){ e.xp = Math.max(0, e.xp - xp); e.cleared = Math.max(0, e.cleared - 1); }
+  });
+}
+/* 완료 기록: 새 버전은 실제 지급값(lastReward), 기록이 없는 예전 완료는 기본 보상·카테고리 스탯으로 계산 */
+function questRewardRecord(q, today){
+  if(q.lastReward) return q.lastReward;
+  const st = CATEGORY_STAT[q.category];
+  return {date: q.type==='daily' ? today : (q.completedDate||today), xp:q.xp, gold:q.gold, stat:st?st.stat:null, amt:st?st.amt:0};
 }
 
 async function doCheckIn(){
@@ -4139,11 +4962,16 @@ async function maybeShowLevelUp(beforeLevel){
   }
 }
 
-function toast(msg){
+/* kind: 'success' | 'error' | 'info'(기본). 상점·장착·베팅 등 상태 메시지를 같은 모양으로 보여준다 */
+function toast(msg, kind){
   const t = document.getElementById('toast');
   t.textContent = msg;
+  t.classList.remove('toast-success','toast-error');
+  if(kind==='success' || kind==='error') t.classList.add('toast-'+kind);
+  t.setAttribute('role', kind==='error' ? 'alert' : 'status');
   t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 1800);
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>t.classList.remove('show'), 1800);
 }
 
 let _achvFxTimer = null;
@@ -4189,11 +5017,11 @@ function renderCoinDex(){
     const shimmer = found && (c.rarity==='epic' || c.rarity==='legendary');
     const div = document.createElement('div');
     div.className = 'coin-card'+(found?'':' locked')+(shimmer?' shimmer':'');
-    div.style.borderColor = found ? COIN_RARITY[c.rarity].color : 'var(--border)';
+    div.style.borderColor = found ? ((GRADE_INFO[c.rarity]||COIN_RARITY[c.rarity]).color) : 'var(--border)';
     div.innerHTML = `
       <span class="ic">${found?c.icon:'❔'}</span>
       <div class="nm">${found?c.name:'???'}</div>
-      <div class="ct">${found?(COIN_RARITY[c.rarity].label+' · 보유 '+count+'개'):'미발견'}</div>
+      <div class="ct">${found?`<span class="grade-tag" style="--grade:${(GRADE_INFO[c.rarity]||COIN_RARITY[c.rarity]).color}">${COIN_RARITY[c.rarity].label}</span> 보유 ${count}개`:'미발견'}</div>
     `;
     grid.appendChild(div);
   });
@@ -4267,7 +5095,7 @@ function renderEquipSlots(){
     let icHtml, nmHtml, effHtml, statusHtml;
     if(item){
       icHtml = item.icon;
-      nmHtml = item.name;
+      nmHtml = `${item.name}${gradeTagHTML(item.id)}`;
       effHtml = item.desc;
       statusHtml = `<span class="equip-status on">장착 중</span>`;
     } else if(owned.length>0){
@@ -4297,7 +5125,7 @@ let equipPickerSlot = null;
 function openEquipPicker(slot){
   const owned = state.inventory.filter(id=>{ const it=ALL_ITEMS.find(i=>i.id===id); return it && it.slot===slot; });
   if(owned.length===0){
-    toast('보유한 장비가 없어요. 상점에서 구매해보세요!');
+    toast('보유한 장비가 없어요. 상점에서 구매해보세요!', 'error');
     return;
   }
   equipPickerSlot = slot;
@@ -4322,7 +5150,7 @@ function renderEquipPicker(){
     const active = id===curId;
     return `<div class="equip-pick-row${active?' active':''}" onclick="selectEquipItem('${slot}', '${id}')">
       <span class="ic">${it.icon}</span>
-      <div class="nm-wrap"><div class="nm">${it.name}</div><div class="eff">${it.desc}</div></div>
+      <div class="nm-wrap"><div class="nm">${it.name}${gradeTagHTML(it.id)}</div><div class="eff">${it.desc}</div>${active?'':equipCompareHTML(it)}</div>
       ${active?'<span class="equip-status">착용 중</span>':''}
     </div>`;
   }).join('');
@@ -4336,7 +5164,7 @@ async function selectEquipItem(slot, itemId){
   renderEquipSlots();
   renderCharacterScreen();
   const item = ALL_ITEMS.find(i=>i.id===itemId);
-  toast(item ? `${item.icon} ${item.name} 장착!` : '장비를 해제했어요.');
+  toast(item ? `${item.icon} ${item.name} 장착 완료` : '장비를 해제했어요.', 'success');
 }
 function closeEquipPicker(){ document.getElementById('equip-picker-overlay').classList.remove('show'); equipPickerSlot = null; }
 
@@ -4378,25 +5206,50 @@ function setShopCategory(cat){
   renderShop();
   renderShopScreen();
 }
-function renderShopItemCard(it){
+/* 장착 시 현재 장비 대비 변화 (명세 5.4: 비교 수치 표시). 실제 효과 필드(xpBonus/goldBonus/duelBonus)만 사용 */
+const EQUIP_STAT_FIELDS = [['xpBonus','XP'],['goldBonus','골드'],['duelBonus','결투 승률']];
+function equipCompareHTML(it){
+  if(!SLOT_META[it.slot]) return ''; // 티켓 등 장착 불가 아이템
+  const curId = state.equipped[it.slot];
+  if(curId===it.id) return '';
+  const cur = ALL_ITEMS.find(i=>i.id===curId);
+  const diffs = EQUIP_STAT_FIELDS.map(([k,label])=>{
+    const d = Math.round(((it[k]||0)-(cur&&cur[k]||0))*100);
+    if(!d) return '';
+    return `<span class="${d>0?'up':'down'}">${label} ${d>0?'▲ +':'▼ −'}${Math.abs(d)}%p</span>`;
+  }).filter(Boolean);
+  const base = cur ? `현재 ${cur.name} 대비` : '빈 슬롯에 장착 시';
+  return `<div class="item-compare">${base} ${diffs.length?diffs.join(' '):'<span>변화 없음</span>'}</div>`;
+}
+/* 상점·암시장 공용 진열 행: 아이콘 → 이름/상태 → 효과 → 비교 → 가격과 구매 후 잔액 */
+function shopItemRowHTML(it, opt={}){
   const owned = state.inventory.includes(it.id);
-  const equipped = state.equipped[it.slot]===it.id;
-  const badge = equipped
-    ? `<span class="shop-badge equipped">★ 장착 중</span>`
-    : (owned ? `<span class="shop-badge owned">보유중</span>` : '');
+  const equipped = it.slot!=='ticket' && state.equipped[it.slot]===it.id;
+  const badge = equipped ? `<span class="shop-badge equipped">장착 중</span>` : (owned ? `<span class="shop-badge owned">보유</span>` : '');
   const canAfford = state.gold >= it.price;
-  return `<div class="shop-item${owned?' owned':''}">
-      <span class="ic">${it.icon}</span>
+  const after = state.gold - it.price;
+  const btnCls = opt.bm ? 'btn btn-bm' : 'btn btn-gold';
+  const btnId = opt.bm ? ` id="bm-buy-${it.id}"` : '';
+  const onBuy = opt.bm ? `buyBmItem('${it.id}')` : `buyItem('${it.id}')`;
+  let action;
+  if(owned) action = `<button class="btn btn-ghost item-buy" disabled>보유 중</button>`;
+  else if(canAfford) action = `<button class="${btnCls} item-buy"${btnId} onclick="${onBuy}">구매하기 · ${it.price.toLocaleString()} G</button>
+      <div class="item-after">구매 후 잔액 ${after.toLocaleString()} G</div>`;
+  else action = `<button class="${btnCls} item-buy"${btnId} disabled>골드 부족 · ${it.price.toLocaleString()} G</button>
+      <div class="item-after short">${(it.price-state.gold).toLocaleString()} G 더 필요</div>`;
+  const gc = gradeColor(it.id);
+  return `<div class="shop-item${owned?' owned':''}${opt.extraCls||''}"${opt.bm?` id="bm-item-${it.id}"`:''}${opt.style?` style="${opt.style}"`:''}>
+      <span class="ic"${gc?` style="border-color:${gc}"`:''}>${it.icon}</span>
       <div class="info">
-        <div class="nm">${it.name}${badge}</div>
+        <div class="nm">${it.name}${gradeTagHTML(it.id)}${badge}</div>
         <div class="sub">${it.desc}</div>
-        <div class="price">🪙 ${it.price}</div>
+        ${owned?'':equipCompareHTML(it)}
+        <div class="price">🪙 ${it.price.toLocaleString()} G</div>
       </div>
-      ${owned
-        ? `<button class="btn btn-ghost" disabled>보유중</button>`
-        : `<button class="btn btn-gold" onclick="buyItem('${it.id}')" ${canAfford?'':'disabled'}>${canAfford?'구매':'부족'}</button>`}
+      <div class="item-action">${action}</div>
     </div>`;
 }
+function renderShopItemCard(it){ return shopItemRowHTML(it); }
 function getShopMarkup(){
   const cats = [shopCategory];
   return cats.map(cat=>{
@@ -4474,7 +5327,7 @@ async function buyItem(itemId){
   renderShop();
   renderShopScreen();
   playSound('gold');
-  toast(`${item.icon} ${item.name} 구매 완료!`);
+  toast(`${item.icon} ${item.name} 구매 완료 · 잔액 ${state.gold.toLocaleString()} G`, 'success');
 }
 function openShop(){
   closeEquip();
@@ -4490,14 +5343,23 @@ function closeShop(){ const overlay=document.getElementById('shop-overlay'); if(
 function renderDailyMgHomeCard(){
   const card = document.getElementById('dmg-home-card');
   if(!card) return;
-  const cardDone = !dmgRewardAvailable('card');
-  const vaultDone = !dmgRewardAvailable('vault');
   card.innerHTML = `
     <div class="dmg-home-title">🎮 오늘의 데일리 미니게임</div>
-    <div class="dmg-home-sub">가볍게 즐기고 골드・XP를 챙기세요 · 하루 1회 보상</div>
-    <div class="dmg-home-btns">
-      <button class="btn btn-gold${cardDone?' done':''}" onclick="openDailyMiniGame('card')">🃏 카드 뒤집기${cardDone?' ✓':''}</button>
-      <button class="btn btn-gold${vaultDone?' done':''}" onclick="openDailyMiniGame('vault')">🔐 금고 열기${vaultDone?' ✓':''}</button>
+    <div class="dmg-home-sub">하루 1회 보상 · 보상을 받은 뒤에는 연습 모드</div>
+    <div class="dmg-rows">${DMG_GAMES.map(dmgGameRowHTML).join('')}</div>`;
+}
+/* 데일리 미니게임 목록 정보: 보상 범위는 난이도 상수에서 계산 (명세 5.5: 시작 전 보상 범위 표시) */
+const DMG_GAMES = [
+  {key:'card', icon:'🃏', name:'카드 뒤집기', desc:'기억력 · 쉬움/보통/어려움', rewards:()=>Object.values(MG_CARD_DIFF).map(d=>d.reward)},
+  {key:'vault', icon:'🔐', name:'금고 열기', desc:'기억력·순발력 · 3단계', rewards:()=>Object.values(MG_VAULT_LEVELS).map(l=>l.reward)},
+];
+function dmgGameRowHTML(g){
+  const avail = dmgRewardAvailable(g.key), r = g.rewards();
+  return `<div class="dmg-row${avail?'':' done'}">
+      <span class="dmg-row-ic">${g.icon}</span>
+      <div class="dmg-row-info"><div class="nm">${g.name}</div>
+        <div class="sub">${avail?`보상 ${Math.min(...r)}~${Math.max(...r)} G`:'✓ 오늘 보상 받음 · 연습 가능'}</div></div>
+      <button class="btn ${avail?'btn-gold':'btn-ghost'}" onclick="openDailyMiniGame('${g.key}')">${avail?'플레이':'연습'}</button>
     </div>`;
 }
 function renderBlackMarketHomeCard(){
@@ -4770,22 +5632,9 @@ function renderBmShop(){
   wrap.innerHTML = `<div class="bm-shelf-note">오늘 밤에만 진열되는 특수 장비예요. 결투 승률 보너스가 붙어있어요. (${items.length}종 진열 중)</div>` +
     items.map((it,i)=>{
       const owned = state.inventory.includes(it.id);
-      const equipped = it.slot!=='ticket' && state.equipped[it.slot]===it.id;
-      const badge = equipped ? `<span class="shop-badge equipped">★ 장착 중</span>` : (owned ? `<span class="shop-badge owned">보유중</span>` : '');
-      const canAfford = state.gold >= it.price;
       const legendary = !owned && BM_LEGENDARY_IDS.includes(it.id);
       const ticket = it.slot==='ticket';
-      return `<div class="shop-item bm${owned?' owned':''}${legendary?' legendary':''}${ticket?' ticket-item':''}" id="bm-item-${it.id}" style="animation-delay:${i*70}ms">
-        <span class="ic">${it.icon}</span>
-        <div class="info">
-          <div class="nm">${it.name}${badge}</div>
-          <div class="sub">${it.desc}</div>
-          <div class="price">🪙 ${it.price}</div>
-        </div>
-        ${owned
-          ? `<button class="btn btn-ghost" disabled>보유중</button>`
-          : `<button class="btn btn-bm" id="bm-buy-${it.id}" onclick="buyBmItem('${it.id}')" ${canAfford?'':'disabled'}>${canAfford?'구매':'부족'}</button>`}
-      </div>`;
+      return shopItemRowHTML(it, {bm:true, extraCls:` bm${legendary?' legendary':''}${ticket?' ticket-item':''}`, style:`animation-delay:${i*70}ms`});
     }).join('');
 }
 function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
@@ -4865,7 +5714,7 @@ async function buyBmItem(itemId){
   if(btn) btn.textContent = '구매 완료';
   if(card){ card.classList.add('purchased'); spawnBmParticles(card); }
   animateGoldPill(document.getElementById('bm-gold-pill'), goldBefore, state.gold, 400);
-  toast(`${item.icon} ${item.name} 구매 완료!`);
+  toast(`${item.icon} ${item.name} 구매 완료 · 잔액 ${state.gold.toLocaleString()} G`, 'success');
   await sleep(420); // 결과가 최소 500ms 이상 머물도록
   renderAll();
   renderBmShop();
@@ -4883,10 +5732,15 @@ function renderBmDuel(){
   let resultHtml = '';
   if(bm.duelResult){
     const r = bm.duelResult;
+    // 증감은 저장된 결과(베팅액·상대)와 상대 배율로 계산한다 (startDuel의 지급식과 동일)
+    const op = DUEL_OPPONENTS.find(o=>o.id===r.opponentId);
+    const net = r.won ? (op ? Math.round(r.bet*op.multiplier)-r.bet : null) : -r.bet;
     resultHtml = `<div class="duel-result-card ${r.won?'win':'lose'}">
       <div class="dr-ic">${r.won?'🏆':'💀'}</div>
       <div class="dr-title">결투 ${r.won?'승리':'패배'} · ${r.opponentName}</div>
       <div class="dr-sub">베팅 ${r.bet}G · 당시 예상 승률 ${r.winRatePct}%</div>
+      ${net===null?'':`<div class="result-gold ${net>=0?'up':'down'}">${net>=0?'+':'−'}${Math.abs(net).toLocaleString()} G</div>`}
+      <div class="result-balance">현재 보유 ${Number(state.gold).toLocaleString()} G</div>
     </div>`;
   }
   if(bm.duelDone){
@@ -4909,7 +5763,15 @@ function renderBmDuel(){
     return `<button class="duel-bet-btn${bmSelectedBet===b?' selected':''}${afford?'':' insufficient'}" onclick="selectDuelBet(${b}, this)">${b}G</button>`;
   }).join('');
   const canStart = bmSelectedOpponent && bmSelectedBet && state.gold>=bmSelectedBet;
+  const pickOp = DUEL_OPPONENTS.find(o=>o.id===bmSelectedOpponent);
+  const expect = (pickOp && bmSelectedBet) ? `승리 시 +${(Math.round(bmSelectedBet*pickOp.multiplier)-bmSelectedBet).toLocaleString()} G · 패배 시 −${bmSelectedBet.toLocaleString()} G` : '상대와 베팅액을 고르면 예상 증감이 표시됩니다';
   wrap.innerHTML = resultHtml +
+    `<dl class="game-brief">
+      <div><dt>보유 골드</dt><dd>${Number(state.gold).toLocaleString()} G</dd></div>
+      <div><dt>베팅액</dt><dd>${Math.min(...DUEL_BETS)}~${Math.max(...DUEL_BETS)} G</dd></div>
+      <div><dt>남은 결투</dt><dd>오늘 1회</dd></div>
+    </dl>` +
+    `<div class="game-expect">${expect}</div>` +
     `<div class="bm-shelf-note">상대를 고르고 베팅액을 선택하세요. 결투는 하루 한 번만 가능해요.</div>` +
     `<div class="bm-duel-cards${bmSelectedOpponent?' has-pick':''}">${cardsHtml}</div>` +
     `<div class="duel-bet-row">${betHtml}</div>` +
@@ -4919,7 +5781,7 @@ function selectDuelOpponent(id){ bmSelectedOpponent = id; renderBmDuel(); }
 function selectDuelBet(amt, btnEl){
   if(state.gold < amt){
     if(btnEl){ btnEl.classList.remove('shake'); void btnEl.offsetWidth; btnEl.classList.add('shake'); }
-    toast('골드가 부족해요.');
+    toast('골드가 부족해요.', 'error');
     return;
   }
   bmSelectedBet = amt;
@@ -5041,7 +5903,7 @@ async function startDuel(){
   await saveState();
   renderAll();
   document.getElementById('bm-gold-pill').textContent = `🪙${state.gold}`;
-  toast(won ? `🏆 결투 승리! 🪙+${Math.round(bmSelectedBet*opponent.multiplier)-bmSelectedBet}` : `💀 결투 패배... 🪙-${bmSelectedBet}`);
+  toast(won ? `🏆 결투 승리! 🪙+${Math.round(bmSelectedBet*opponent.multiplier)-bmSelectedBet}` : `💀 결투 패배... 🪙-${bmSelectedBet}`, won?'success':'error');
   bmSelectedOpponent = null; bmSelectedBet = null;
   renderBmDuel();
 }
@@ -5155,7 +6017,9 @@ function renderMgResultCard(win, title, sub, gameKey){
       <div class="mg-result-card ${win?'win':'lose'}">
         <div class="mg-r-ic">${win?'✨':'💥'}</div>
         <div class="mg-r-title">${title}</div>
-        <div class="mg-r-sub">${sub}<br>현재 보유 🪙${Number(state.gold)||0}G</div>
+        <div class="mg-r-sub">${sub}</div>
+        ${typeof mg.goldBefore==='number'?(()=>{ const net=(Number(state.gold)||0)-mg.goldBefore; return `<div class="result-gold ${net>=0?'up':'down'}">${net>=0?'+':'−'}${Math.abs(net).toLocaleString()} G</div>`; })():''}
+        <div class="result-balance">현재 보유 ${(Number(state.gold)||0).toLocaleString()} G</div>
       </div>
       <div class="mg-retry-grid">
         <button class="btn btn-bm" onclick="retryMg('${gameKey}')">배팅 다시하기</button>
@@ -5181,13 +6045,18 @@ function retryMgSame(gameKey){
 
 function renderMgList(wrap){
   const closed=state.blackMarket.closedGames||{};
+  // 베팅·보상 범위는 게임 상수에서 그대로 계산해 시작 전에 보여준다 (명세 5.5)
+  const range = arr => `${Math.min(...arr)}~${Math.max(...arr)}G`;
+  const shellMults = Object.values(MG_SHELL_MODES).map(m=>m.mult);
+  const slotMults = Object.values(MG_SLOT_PAYOUT).concat(MG_SLOT_PAIR_MULT);
   const cards=[
-    ['evenOdd','🪙','홀짝','50 : 50 · FAIR RANDOM'],
-    ['slot','🎰','슬롯머신','완전 랜덤 · MAX ×20 JACKPOT'],
-    ['shell','🥤','야바위','FIND THE COIN · 공정 셔플']
+    ['evenOdd','🪙','홀짝',`50 : 50 · FAIR RANDOM<br>베팅 ${range(MG_EO_BETS)} · 적중 시 ×1.9`],
+    ['slot','🎰','슬롯머신',`완전 랜덤 · MAX ×20 JACKPOT<br>베팅 ${range(MG_SLOT_BETS)} · 보상 ×${Math.min(...slotMults)}~×${Math.max(...slotMults)}`],
+    ['shell','🥤','야바위',`FIND THE COIN · 공정 셔플<br>베팅 ${range(MG_SHELL_BETS)} · 적중 시 ×${Math.min(...shellMults)}~×${Math.max(...shellMults)}`]
   ];
   wrap.innerHTML = `
     <div class="mg-daily-note">ILLEGAL GAMES · 완전 랜덤 또는 공정 셔플로 결과가 확정돼요. 신중하게 베팅하세요.</div>
+    <div class="game-expect">보유 ${Number(state.gold).toLocaleString()} G · 수익 한도를 넘긴 게임은 폐업돼요</div>
     <div class="mg-game-list">${cards.map((c,i)=>closed[c[0]]
       ? `<div class="mg-game-card mg-game-closed"><span class="ic">🚫</span><div class="info"><div class="nm">${c[2]} · 폐업</div><div class="sub">암시장 수익 한도 초과 · CLOSED</div></div><span class="arrow">×</span></div>`
       : `<div class="mg-game-card" style="animation-delay:${i*70}ms" onclick="openMiniGame('${c[0]}')"><span class="ic">${c[1]}</span><div class="info"><div class="nm">${c[2]}</div><div class="sub">${c[3]}</div></div><span class="arrow">›</span></div>`).join('')}</div>`;
@@ -5195,12 +6064,13 @@ function renderMgList(wrap){
 
 /* ---------- ① 홀짝 (완전 랜덤) ---------- */
 function mgSelectEoBet(amt, btnEl){
-  if(state.gold<amt){ if(btnEl){btnEl.classList.remove('shake'); void btnEl.offsetWidth; btnEl.classList.add('shake');} toast('골드가 부족해요.'); return; }
+  if(state.gold<amt){ if(btnEl){btnEl.classList.remove('shake'); void btnEl.offsetWidth; btnEl.classList.add('shake');} toast('골드가 부족해요.', 'error'); return; }
   mg.bet = amt; renderBmGame();
 }
 function mgSelectEoChoice(c){ if(mg.spinning||mg.done) return; mg.choice = c; renderBmGame(); }
 async function startMgEvenOdd(){
   if(!mg.bet || !mg.choice || state.gold<mg.bet || mg.spinning || mg.done) return;
+  mg.goldBefore = state.gold; // 결과 화면의 증감 표시용 (표시 전용, 저장하지 않음)
   mg.spinning = true;
   renderBmGame();
   const coinEl = document.getElementById('mg-eo-coin');
@@ -5255,7 +6125,7 @@ function renderMgEvenOdd(wrap){
 
 /* ---------- ② 슬롯머신 (3릴 · 완전 랜덤 · 결과는 회전 전 확정) ---------- */
 function mgSelectSlotBet(amt, btnEl){
-  if(state.gold<amt){ if(btnEl){btnEl.classList.remove('shake'); void btnEl.offsetWidth; btnEl.classList.add('shake');} toast('골드가 부족해요.'); return; }
+  if(state.gold<amt){ if(btnEl){btnEl.classList.remove('shake'); void btnEl.offsetWidth; btnEl.classList.add('shake');} toast('골드가 부족해요.', 'error'); return; }
   mg.bet = amt; renderBmGame();
 }
 function mgSlotOutcome(result){
@@ -5265,6 +6135,7 @@ function mgSlotOutcome(result){
 }
 function startMgSlot(){
   if(!mg.bet || state.gold<mg.bet || mg.spinning || mg.done) return;
+  mg.goldBefore = state.gold;
   mg.spinning = true; mg.lever = true;
   renderBmGame();
   // 결과는 릴이 돌기 전에 이미 확정 -- 회전 프레임이나 클릭 타이밍으로 바뀌지 않는다
@@ -5384,13 +6255,14 @@ function renderMgSlot(wrap){
 
 /* ---------- ③ 야바위 (컵 셔플 · 결과는 셔플 전 확정) ---------- */
 function mgSelectShellBet(amt, btnEl){
-  if(state.gold<amt){ if(btnEl){btnEl.classList.remove('shake'); void btnEl.offsetWidth; btnEl.classList.add('shake');} toast('골드가 부족해요.'); return; }
+  if(state.gold<amt){ if(btnEl){btnEl.classList.remove('shake'); void btnEl.offsetWidth; btnEl.classList.add('shake');} toast('골드가 부족해요.', 'error'); return; }
   mg.bet = amt; renderBmGame();
 }
 function mgSelectShellMode(key){ if(mg.spinning||mg.done) return; mg.mode = key; renderBmGame(); }
 function startMgShell(){
   if(!mg.bet || !mg.mode || state.gold<mg.bet || mg.spinning || mg.done) return;
   const cfg = MG_SHELL_MODES[mg.mode];
+  mg.goldBefore = state.gold;
   mg.spinning = true;
   mg.order = Array.from({length:cfg.cups}, (_,i)=>i); // order[슬롯] = 컵 id
   mg.winCup = Math.floor(Math.random()*cfg.cups); // 코인 위치는 셔플 시작 전에 확정 (Fisher-Yates 셔플로 위치만 뒤섞음)
@@ -5596,12 +6468,12 @@ function renderDmgList(wrap){
     <div class="mg-game-list">
       <div class="mg-game-card" style="animation-delay:0ms" onclick="openDailyMiniGame('card')">
         <span class="ic">🃏</span>
-        <div class="info"><div class="nm">카드 뒤집기${cardDone?' · 완료':''}</div><div class="sub">EASY / NORMAL / HARD · 기억력 게임</div></div>
+        <div class="info"><div class="nm">카드 뒤집기${cardDone?' · 완료':''}</div><div class="sub">EASY / NORMAL / HARD · 기억력 게임<br>${cardDone?'오늘 보상 받음 · 연습 모드':`보상 ${Math.min(...DMG_GAMES[0].rewards())}~${Math.max(...DMG_GAMES[0].rewards())} G`}</div></div>
         <span class="arrow">›</span>
       </div>
       <div class="mg-game-card" style="animation-delay:70ms" onclick="openDailyMiniGame('vault')">
         <span class="ic">🔐</span>
-        <div class="info"><div class="nm">금고 열기${vaultDone?' · 완료':''}</div><div class="sub">Quest Reward Vault · 기억력·순발력</div></div>
+        <div class="info"><div class="nm">금고 열기${vaultDone?' · 완료':''}</div><div class="sub">Quest Reward Vault · 기억력·순발력<br>${vaultDone?'오늘 보상 받음 · 연습 모드':`보상 ${Math.min(...DMG_GAMES[1].rewards())}~${Math.max(...DMG_GAMES[1].rewards())} G`}</div></div>
         <span class="arrow">›</span>
       </div>
     </div>`;
@@ -5844,10 +6716,12 @@ function renderCharacterScreen(){
     const val = state.stats[s]||0;
     const div = document.createElement('div');
     div.className='stat-row';
+    const src = Object.entries(CATEGORY_STAT).filter(([,v])=>v.stat===s).map(([cat,v])=>`${cat} 의뢰 +${v.amt}`);
     div.innerHTML = `
       <div class="stat-label">${STAT_ICON[s]} ${s}</div>
-      <div class="stat-track"><div class="stat-fill" style="width:${Math.min(100,val/max*100)}%"></div></div>
-      <div class="stat-val">${val}</div>`;
+      <div class="stat-track" role="progressbar" aria-label="${s}" aria-valuenow="${val}" aria-valuemin="0" aria-valuemax="${max}"><div class="stat-fill" style="width:${Math.min(100,val/max*100)}%"></div></div>
+      <div class="stat-val">${val}</div>
+      <div class="stat-note">${src.length?`오르는 방법 · ${src.join(', ')}`:'현재 의뢰로는 오르지 않아요'}${STAT_USE[s]?` · 던전: ${STAT_USE[s]}`:''}</div>`;
     wrap.appendChild(div);
   });
 
@@ -5867,8 +6741,9 @@ function renderCharacterScreen(){
   const xp = state.weekLog.reduce((a,e)=>a+e.xp,0);
   const totalQuestSlots = state.weekLog.length ? state.weekLog.reduce((a,e)=>a+e.cleared,0) : 0;
   const rate = state.quests.length ? Math.round((cleared / Math.max(cleared, state.quests.filter(q=>q.type==='daily').length*7 || cleared || 1))*100) : 0;
-  document.getElementById('m-cleared').textContent = cleared;
-  document.getElementById('m-xp').textContent = xp;
+  document.getElementById('m-cleared').textContent = `${cleared}개`;
+  document.getElementById('m-xp').textContent = `${xp.toLocaleString()} XP`;
+  renderWeekChart();
   document.getElementById('m-rate').textContent = Math.min(100,rate)+'%';
   document.getElementById('m-streak').textContent = state.streak+'일';
 
@@ -5883,6 +6758,84 @@ function renderCharacterScreen(){
   document.getElementById('achv-meta').textContent = `${unlockedCount}/${ACHIEVEMENTS.length}`;
   document.getElementById('achv-dex-summary').textContent = `${unlockedCount} / ${ACHIEVEMENTS.length} 발견 · 도감을 펼쳐보세요`;
   if(document.getElementById('achievement-dex-overlay').classList.contains('show')) renderAchievementDex();
+}
+
+/* 활동 리포트 그래프: dailyLog(최근 120일, {date,xp,cleared})만 사용. 기록이 없는 날은 0
+   7·30일은 일별 막대, 90일은 주(7일) 단위 합계 막대 */
+let weekChartMetric = 'cleared', weekChartPeriod = 7;
+function setWeekChartMetric(m){
+  weekChartMetric = m;
+  document.querySelectorAll('.week-chart-toggle .chip').forEach(b=>b.classList.toggle('active', b.dataset.metric===m));
+  renderWeekChart();
+}
+function setWeekChartPeriod(n){
+  weekChartPeriod = n;
+  document.querySelectorAll('.week-chart-period .chip').forEach(b=>b.classList.toggle('active', Number(b.dataset.period)===n));
+  renderWeekChart();
+}
+function dateKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function weekChartDays(n){
+  const out = [], log = state.dailyLog || state.weekLog || [];
+  for(let i=n-1;i>=0;i--){
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const key = dateKey(d);
+    const e = log.find(x=>x.date===key) || {xp:0, cleared:0};
+    out.push({key, label:`${d.getMonth()+1}/${d.getDate()}`, dow:WEEKDAY_KR[d.getDay()], today:i===0, cleared:e.cleared||0, xp:e.xp||0});
+  }
+  return out;
+}
+function weekChartBuckets(){
+  const n = weekChartPeriod, days = weekChartDays(n);
+  if(n<=30) return days.map((d,i)=>({...d, x: d.today ? '오늘' : (n===7 ? d.dow : ((n-1-i)%5===0 ? d.label : '')), name:`${d.label}(${d.dow})`}));
+  const out = []; // 90일: 오래된 쪽부터 7일씩 묶음 (마지막 묶음은 오늘로 끝남)
+  for(let end=days.length; end>0; end-=7){
+    const chunk = days.slice(Math.max(0,end-7), end);
+    out.unshift({cleared:chunk.reduce((a,d)=>a+d.cleared,0), xp:chunk.reduce((a,d)=>a+d.xp,0), today:end===days.length,
+      name:`${chunk[0].label}~${chunk[chunk.length-1].label}`, x:''});
+  }
+  out.forEach((b,i)=>{ b.x = b.today ? '이번 주' : ((out.length-1-i)%4===0 ? b.name.split('~')[0] : ''); });
+  return out;
+}
+function renderWeekChart(){
+  const el = document.getElementById('week-chart');
+  if(!el) return;
+  const m = weekChartMetric, unit = m==='xp' ? ' XP' : '개', name = m==='xp' ? '획득 XP' : '완료 퀘스트'; // 수치 뒤에 바로 붙는 단위
+  const weekly = weekChartPeriod>30, per = weekly ? '주별' : '일별';
+  const bars = weekChartBuckets();
+  const vals = bars.map(b=>b[m]);
+  const max = Math.max(...vals), total = vals.reduce((a,b)=>a+b,0);
+  const maxIdx = max>0 ? vals.lastIndexOf(max) : -1;
+  document.getElementById('week-chart-title').textContent = `${per} ${name} (${unit.trim()})`;
+  document.getElementById('week-chart-range').textContent = `최근 ${weekChartPeriod}일`;
+  el.style.gridTemplateColumns = `repeat(${bars.length},1fr)`;
+  el.classList.toggle('dense', bars.length>14);
+  el.setAttribute('aria-label', `최근 ${weekChartPeriod}일 ${per} ${name}: ` + bars.map(b=>`${b.name} ${b[m]}${unit}`).join(', '));
+  el.innerHTML = bars.map((b,i)=>{
+    const h = max>0 ? Math.max(b[m]>0?4:0, Math.round(b[m]/max*100)) : 0;
+    const showVal = b[m]>0 && (i===maxIdx || b.today); // 값 라벨은 최댓값과 오늘(이번 주)만
+    const tip = `${b.name} ${name} ${b[m].toLocaleString()}${unit}`;
+    return `<button type="button" class="wc-col${b.today?' today':''}" aria-label="${tip}" data-tip="${tip}"
+        onmouseenter="showWeekChartTip(this)" onfocus="showWeekChartTip(this)" onclick="showWeekChartTip(this)">
+      <span class="wc-val">${showVal?b[m].toLocaleString():''}</span>
+      <span class="wc-bar-area"><span class="wc-bar" style="height:${h}%"></span></span>
+      <span class="wc-x">${b.x}</span>
+    </button>`;
+  }).join('');
+  document.getElementById('week-chart-readout').textContent = '';
+  const avg = Math.round(total/weekChartPeriod*10)/10;
+  const since = new Date(); since.setDate(since.getDate()-(weekChartPeriod-1));
+  const from = state.dailyLogSince;
+  const partial = from && from > dateKey(since) ? ` (기록은 ${Number(from.slice(5,7))}/${Number(from.slice(8))}부터 쌓여 있어요)` : '';
+  document.getElementById('week-chart-insight').textContent = total===0
+    ? `최근 ${weekChartPeriod}일 동안 기록된 ${name}가 없어요. 의뢰를 완료하면 여기에 쌓여요.${partial}`
+    : `${weekChartPeriod}일 합계 ${total.toLocaleString()}${unit} · 하루 평균 ${avg.toLocaleString()}${unit} · 가장 많았던 ${weekly?'주':'날'} ${bars[maxIdx].name} ${max.toLocaleString()}${unit}${partial}`;
+  document.getElementById('week-chart-table').innerHTML =
+    `<thead><tr><th scope="col">${weekly?'기간':'날짜'}</th><th scope="col">완료 퀘스트(개)</th><th scope="col">획득 XP</th></tr></thead><tbody>`+
+    bars.map(b=>`<tr><td>${b.name}</td><td>${b.cleared}</td><td>${b.xp.toLocaleString()}</td></tr>`).join('')+`</tbody>`;
+}
+function showWeekChartTip(btn){
+  const r = document.getElementById('week-chart-readout');
+  if(r) r.textContent = btn.dataset.tip;
 }
 
 /* ===================== DIARY SCREEN (하단 네비게이션 '일기' 탭. 내부 tab key는 과거 이름인 'growth') ===================== */
@@ -5944,8 +6897,26 @@ function renderDiaryMainMode(){
 function questsCompletedOn(date){
   return (state.quests||[]).filter(q=> q.type==='daily' ? q.lastDoneDate===date : (q.status==='done' && q.completedDate===date));
 }
+let diaryPane = 'write'; // 'write'=기록 쓰기, 'list'=나의 기록 (명세 5.6: 읽기와 쓰기 분리)
+function setDiaryPane(pane){
+  diaryPane = pane;
+  renderDiaryPane();
+  if(pane==='list') renderDiaryList();
+}
+function renderDiaryPane(){
+  const w = document.getElementById('diary-write-pane'), l = document.getElementById('diary-list-pane');
+  if(!w || !l) return;
+  w.classList.toggle('hidden', diaryPane!=='write');
+  l.classList.toggle('hidden', diaryPane!=='list');
+  const wb = document.getElementById('diary-pane-write-btn'), lb = document.getElementById('diary-pane-list-btn');
+  if(wb){ wb.classList.toggle('active', diaryPane==='write'); wb.setAttribute('aria-selected', diaryPane==='write'); }
+  if(lb){ lb.classList.toggle('active', diaryPane==='list'); lb.setAttribute('aria-selected', diaryPane==='list'); }
+  const cnt = document.getElementById('diary-pane-count');
+  if(cnt) cnt.textContent = `${(state.diary||[]).length}`;
+}
 function renderGrowth(){
   renderDiaryMainMode();
+  renderDiaryPane();
   const diaryInput = document.getElementById('diary-input');
   const titleInput = document.getElementById('diary-title-input');
   const editingToday = !diaryEditingDate || diaryEditingDate===todayStr();
@@ -6061,6 +7032,7 @@ function updateDiaryNavBadge(){
 function editDiaryEntry(date){
   diaryEditingDate = date;
   diaryMainMode = 'personal';
+  diaryPane = 'write';
   renderGrowth();
   const card = document.querySelector('.diary-write-card');
   if(card) card.scrollIntoView({behavior:'smooth', block:'start'});
@@ -6070,6 +7042,7 @@ function cancelDiaryEdit(){
   renderGrowth();
 }
 function focusDiaryComposer(){
+  diaryPane = 'write'; renderDiaryPane();
   const card = document.querySelector('.diary-write-card');
   if(card) card.scrollIntoView({behavior:'smooth', block:'start'});
   const ta = document.getElementById('diary-input');
@@ -6079,7 +7052,7 @@ function deleteDiaryEntry(date){
   const ok = confirm('이 날의 기록을 정말 삭제할까요?\n이 작업은 되돌릴 수 없습니다.');
   if(!ok) return;
   state.diary = (state.diary||[]).filter(d=>d.date!==date);
-  saveState();
+  saveState().then(ok=>{ if(!ok) toast('삭제 내용을 저장하지 못했어요. 다시 시도해 주세요.', 'error'); });
   if(typeof queueDiarySync==='function') queueDiarySync();
   if(diaryEditingDate===date) diaryEditingDate = null;
   renderGrowth();
@@ -6192,13 +7165,31 @@ async function saveDiaryEntry(){
   }
   state.diary.sort((a,b)=> b.date<a.date?-1:1);
   if(state.diaryDrafts && state.diaryDrafts[t]) delete state.diaryDrafts[t];
-  await saveState();
+  setDiarySaveBtnState('saving');
+  const saved = await saveState();
+  if(!saved){
+    // 실제 저장이 실패하면 완료 메시지를 띄우지 않는다 (사진이 많아 저장공간이 부족한 경우 등)
+    setDiarySaveBtnState('failed');
+    toast('저장에 실패했어요. 사진 수를 줄이거나 저장공간을 확인한 뒤 다시 저장해 주세요.', 'error');
+    return;
+  }
   if(typeof queueDiarySync==='function') queueDiarySync();
   diaryEditingDate = null; // 저장하면 오늘 글 작성 화면으로 돌아간다
   renderAll();
+  setDiarySaveBtnState('saved');
   playDiarySaveXpFx(gainedXp);
-  toast(gainedXp>0 ? `📖 모험 일지 기록 완료! (+${gainedXp}XP)` : (t===todayStr() ? '📖 모험 일지를 고쳤어요' : '📖 지난 기록을 고쳤어요'));
+  toast(gainedXp>0 ? `📖 모험 일지 기록 완료! (+${gainedXp}XP)` : (t===todayStr() ? '📖 모험 일지를 고쳤어요' : '📖 지난 기록을 고쳤어요'), 'success');
   if(milestoneMsg) setTimeout(()=>toast(milestoneMsg), 900);
+}
+function setDiarySaveBtnState(st){
+  const btn = document.getElementById('diary-save-btn');
+  if(!btn) return;
+  const label = btn.querySelector('.label');
+  clearTimeout(window._diarySaveBtnTimer);
+  btn.dataset.state = st;
+  btn.disabled = st==='saving';
+  if(label) label.textContent = {saving:'저장 중…', saved:'✓ 저장 완료', failed:'저장 실패 · 다시 저장'}[st] || '📖 기록 저장';
+  if(st==='saved') window._diarySaveBtnTimer = setTimeout(()=>setDiarySaveBtnState('idle'), 1800);
 }
 function playDiarySaveXpFx(xp){
   if(xp<=0) return;
@@ -6572,8 +7563,7 @@ function startDiaryRoomPoll(){
   stopDiaryRoomPoll();
   diaryRoomPollTimer = setInterval(async ()=>{
     if(!diaryRoomOpenId || document.hidden) return;
-    const activeTab = document.querySelector('.nav-item.active')?.dataset.tab;
-    if(activeTab!=='growth') return; // 다른 탭으로 넘어가 있으면 폴링하지 않는다
+    if(currentTab!=='growth') return; // 다른 탭으로 넘어가 있으면 폴링하지 않는다
     const active = document.activeElement;
     const typing = active && (active.id==='diary-room-title-input' || active.id==='diary-room-text-input' || active.classList.contains('diary-room-note-input'));
     if(typing) return; // 작성/메모 입력 중엔 화면을 새로 그려 덮어쓰지 않는다
@@ -6781,7 +7771,7 @@ function openAchievementDex(){achievementDexPage=0;renderAchievementDex();docume
 function closeAchievementDex(){document.getElementById('achievement-dex-overlay').classList.remove('show')}
 function setAchievementDexCategory(category){if(category===achievementDexCategory)return;achievementDexCategory=category;achievementDexPage=0;renderAchievementDex()}
 function changeAchievementDexPage(delta){const next=Math.min(Math.max(achievementDexPage+delta,0),achievementDexPageTotal()-1);if(next!==achievementDexPage){achievementDexPage=next;renderAchievementDex(delta)}}
-function openAchievementDetail(id){const a=ACHIEVEMENTS.find(item=>item.id===id);if(!a)return;const unlocked=state.unlockedAchv.includes(a.id);document.getElementById('achievement-detail-icon').textContent=a.icon;document.getElementById('achievement-detail-name').textContent=a.name;document.getElementById('achievement-detail-desc').textContent=a.desc;const reward=a.reward?`${a.reward.gold?`🪙 +${a.reward.gold}G`:''}${a.reward.gold&&a.reward.xp?' · ':''}${a.reward.xp?`⚡ +${a.reward.xp} XP`:''}`:'기록 업적 · 별도 보상 없음';document.getElementById('achievement-detail-reward').textContent=`${unlocked?'✓ 달성 완료':'○ 아직 미달성'} · ${reward}`;document.getElementById('achievement-detail-overlay').classList.add('show')}
+function openAchievementDetail(id){const a=ACHIEVEMENTS.find(item=>item.id===id);if(!a)return;const unlocked=state.unlockedAchv.includes(a.id);document.getElementById('achievement-detail-icon').textContent=a.icon;document.getElementById('achievement-detail-name').textContent=a.name;document.getElementById('achievement-detail-desc').textContent=`조건 · ${a.desc}`;const reward=a.reward?`${a.reward.gold?`🪙 +${a.reward.gold}G`:''}${a.reward.gold&&a.reward.xp?' · ':''}${a.reward.xp?`⭐ +${a.reward.xp} XP`:''}`:'별도 보상 없음 (기록 업적)';document.getElementById('achievement-detail-reward').innerHTML=`<span class="ad-state ${unlocked?'on':'off'}">${unlocked?'✓ 달성 완료':'○ 아직 미달성'}</span><span class="ad-reward">보상 · ${reward}</span>`;document.getElementById('achievement-detail-overlay').classList.add('show')}
 function closeAchievementDetail(){document.getElementById('achievement-detail-overlay').classList.remove('show')}
 function setupAchievementDexGestures(){const book=document.getElementById('achievement-dex-book');if(!book)return;book.addEventListener('pointerdown',e=>{achievementDexPointer={x:e.clientX,y:e.clientY}});book.addEventListener('pointerup',e=>{if(!achievementDexPointer)return;const dx=e.clientX-achievementDexPointer.x,dy=e.clientY-achievementDexPointer.y;achievementDexPointer=null;if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy))changeAchievementDexPage(dx<0?1:-1)});book.addEventListener('pointercancel',()=>achievementDexPointer=null);window.addEventListener('resize',()=>{if(document.getElementById('achievement-dex-overlay').classList.contains('show'))renderAchievementDex()})}
 function checkAchievements(){
@@ -6940,23 +7930,34 @@ async function changeNickname(){
 
 async function changeClass(){
   if(!selectedSetClass || selectedSetClass===state.character.cls) return;
-  state.character.cls = selectedSetClass;
+  const newCls = selectedSetClass; // renderSettings()가 selectedSetClass를 비우므로 먼저 보관
+  state.character.cls = newCls;
   await saveState();
   renderAll();
   renderSettings();
-  toast(`보직이 ${CLASSES[selectedSetClass].name}(으)로 변경되었습니다`);
+  toast(`보직이 ${CLASSES[newCls].name}(으)로 변경되었습니다`, 'success');
 }
 
 function openRegressConfirm(){
   const cls = CLASSES[state.character.cls];
   document.getElementById('regress-confirm-body').innerHTML =
     `닉네임 <b>${escapeHtml(state.character.nickname)}</b>, 보직 <b>${cls.icon} ${cls.name}</b><br>`+
-    `모든 레벨, 퀘스트, 업적 기록이 사라집니다.<br><br>정말로 회귀하시겠습니까?`;
+    `모든 레벨, 퀘스트, 업적 기록이 사라집니다.<br>`+
+    `<span class="confirm-detail">골드·장비·일기 등 이 기기에 저장된 진행 데이터도 함께 초기화돼요. 필요하면 먼저 설정 &gt; 데이터 백업으로 내보내세요.</span><br><br>정말로 회귀하시겠습니까?`;
+  regressReturnFocus = document.activeElement;
   document.getElementById('regress-confirm-overlay').classList.add('show');
+  setTimeout(()=>document.getElementById('regress-cancel-btn')?.focus(), 30); // 기본 포커스는 안전한 '취소'
 }
+let regressReturnFocus = null;
 function closeRegressConfirm(){
   document.getElementById('regress-confirm-overlay').classList.remove('show');
+  if(regressReturnFocus && regressReturnFocus.focus) regressReturnFocus.focus(); // 닫으면 원래 버튼으로 포커스 복귀
+  regressReturnFocus = null;
 }
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape' && document.getElementById('regress-confirm-overlay')?.classList.contains('show')) closeRegressConfirm();
+  if(e.key==='Escape' && document.getElementById('quest-action-overlay')?.classList.contains('show')) closeQuestActions();
+});
 async function confirmRegress(){
   state = defaultState();
   await saveState();
@@ -6974,7 +7975,7 @@ async function confirmRegress(){
 
 /* ===================== CALENDAR EXPORT (.ics) ===================== */
 function icsDate(dateStr){ return dateStr.replace(/-/g,''); }
-function icsEscape(s){ return String(s).replace(/([,;])/g,'\\$1'); }
+function icsEscape(s){ return String(s).replace(/\\/g,'\\\\').replace(/([,;])/g,'\\$1').replace(/\r?\n/g,'\\n'); } // RFC 5545: 역슬래시·쉼표·세미콜론·줄바꿈
 function exportToCalendar(){
   const exportable = state.quests.filter(q=> q.type==='daily' || (q.type==='dated' && q.dueDate));
   if(exportable.length===0){ toast('내보낼 일정이 있는 퀘스트가 없습니다'); return; }
@@ -6991,7 +7992,9 @@ function exportToCalendar(){
     if(q.type==='daily'){
       lines.push('DTSTART;VALUE=DATE:'+todayIcs);
       lines.push('DURATION:P1D');
-      lines.push('RRULE:FREQ=DAILY');
+      // 요일 반복 퀘스트는 그 요일에만 (이전에는 요일 설정과 관계없이 매일로 내보냈음)
+      const ICS_DAYS = ['SU','MO','TU','WE','TH','FR','SA'];
+      lines.push(q.weekdays && q.weekdays.length ? 'RRULE:FREQ=WEEKLY;BYDAY='+q.weekdays.slice().sort().map(d=>ICS_DAYS[d]).join(',') : 'RRULE:FREQ=DAILY');
     } else {
       lines.push('DTSTART;VALUE=DATE:'+icsDate(q.dueDate));
       lines.push('DURATION:P1D');
@@ -7379,11 +8382,32 @@ function showWalkHistoryOnMap(idx){
 }
 
 
+/* 탐험 상태 표시 (명세 5.7): 아이콘 + 글자로 권한·측정·종료·저장·오류 상태를 보여준다 */
+const EXPLORE_STATUS = {
+  requesting:{ic:'📍',txt:'위치를 확인하는 중이에요'},
+  ready:{ic:'🧭',txt:'위치 수신 중 · 산책을 시작하면 거리를 측정해요'},
+  walking:{ic:'🚶',txt:'산책 측정 중 · 앱을 켜 둔 동안 기록돼요'},
+  saved:{ic:'✅',txt:'산책을 종료하고 기록을 저장했어요'},
+  saveFailed:{ic:'⚠️',txt:'산책 기록을 저장하지 못했어요'},
+  signal:{ic:'⚠️',txt:'GPS 신호가 약해요 · 마지막 위치를 유지하는 중'},
+  denied:{ic:'🔒',txt:'위치 권한이 거부되었어요'},
+  error:{ic:'⚠️',txt:'위치를 가져올 수 없어요'},
+  unsupported:{ic:'⚠️',txt:'이 기기는 위치 기능을 지원하지 않아요'},
+};
+function setExploreStatus(kind){
+  const el = document.getElementById('explore-status');
+  const info = EXPLORE_STATUS[kind];
+  if(!el || !info) return;
+  el.dataset.kind = kind;
+  el.innerHTML = `<span class="es-ic" aria-hidden="true">${info.ic}</span><span class="es-txt">${info.txt}</span>`;
+}
 function initExploreScreen(){
   if(!('geolocation' in navigator)){
+    setExploreStatus('unsupported');
     document.getElementById('explore-permission-note').textContent = '이 기기/브라우저는 위치 기능을 지원하지 않아요.';
     return;
   }
+  if(!exploreStarted) setExploreStatus('requesting');
   if(exploreStarted){
     // returning to the tab after we paused tracking elsewhere: just resume the watch
     startWatchingPosition();
@@ -7399,6 +8423,7 @@ function initExploreScreen(){
       document.getElementById('explore-chest-card').style.display = '';
       document.getElementById('explore-walk-card').style.display = '';
       document.getElementById('walk-goal-km').textContent = (WALK_GOAL_METERS/1000).toFixed(1);
+      if(!walkTracking) setExploreStatus('ready'); // 지도 라이브러리 로드 실패와 관계없이 위치 수신 상태는 먼저 알린다
       const {latitude:lat, longitude:lng, accuracy} = pos.coords;
       setupExploreMap(lat, lng, accuracy);
       fetchAndRenderWeather(lat, lng);
@@ -7410,6 +8435,7 @@ function initExploreScreen(){
     },
     (err)=>{
       exploreStarted = false;
+      setExploreStatus(err.code===1 ? 'denied' : 'error');
       if(err.code===1) document.getElementById('explore-permission-note').textContent = '위치 권한이 거부되었어요. 브라우저 설정에서 위치 접근을 허용해주세요.';
       else document.getElementById('explore-permission-note').textContent = '위치를 가져올 수 없어요. GPS/네트워크 상태를 확인해주세요.';
     },
@@ -7743,17 +8769,26 @@ function renderWalkUI(){
   document.getElementById('walk-progress-fill').style.width = pct+'%';
   document.getElementById('walk-distance-text').textContent = `${Math.round(ex.walkMeters)}m / ${WALK_GOAL_METERS}m`;
   const btn = document.getElementById('walk-toggle-btn');
-  if(btn) btn.textContent = walkTracking ? '산책 중지' : '산책 시작';
+  if(btn){
+    btn.textContent = walkTracking ? '■ 산책 종료' : '▶ 산책 시작';
+    btn.classList.toggle('btn-gold', !walkTracking);
+    btn.classList.toggle('walk-stop', walkTracking);
+    btn.setAttribute('aria-pressed', walkTracking);
+  }
 }
 async function toggleWalkTracking(){
+  // 실수로 종료하지 않도록 확인 (명세 5.7)
+  if(walkTracking && !confirm(`산책을 종료할까요?\n지금까지 ${Math.round(state.explore.walkMeters)}m를 기록했어요. 종료하면 오늘 경로가 타임라인에 저장돼요.`)) return;
   walkTracking = !walkTracking;
   if(walkTracking){
     exploreLastFix = null;
+    setExploreStatus('walking');
     toast('산책을 시작했어요. 걷는 동안 앱을 켜두세요!');
   } else {
     snapshotWalkToHistory();
-    await saveState();
-    toast('산책을 종료했어요.');
+    const ok = await saveState();
+    setExploreStatus(ok ? 'saved' : 'saveFailed');
+    toast(ok ? '산책을 종료하고 기록을 저장했어요.' : '산책 기록을 저장하지 못했어요.', ok ? 'success' : 'error');
   }
   renderWalkUI();
 }
@@ -7810,7 +8845,7 @@ function startWatchingPosition(){
         exploreLastFix = {lat,lng,t:now};
       }
     },
-    (err)=>{ /* keep last known state silently; foreground-only limitation */ },
+    (err)=>{ if(walkTracking) setExploreStatus('signal'); /* 마지막 위치는 유지 -- 화면이 켜져 있는 동안만 추적 */ },
     { enableHighAccuracy:true, maximumAge:5000, timeout:15000 }
   );
 }
@@ -7861,14 +8896,21 @@ function stopCompass(){
 }
 
 /* ===================== NAV ===================== */
+/* 지금 보고 있는 화면. 하단 내비 강조와 분리해서 관리한다 (더보기 안의 화면도 정확히 알기 위해) */
+let currentTab = 'home';
+const NAV_GROUP = { character:'home', calendar:'more', shop:'more', settings:'more', social:'more', explore:'world' };
 function switchTab(tab){
-  const prevTab = document.querySelector('.nav-item.active')?.dataset.tab;
-  ['home','quest','calendar','character','growth','shop','world','explore','settings','social'].forEach(t=>{
+  const prevTab = currentTab;
+  currentTab = tab;
+  ['home','quest','calendar','character','growth','shop','world','explore','settings','social','more'].forEach(t=>{
     const screen=document.getElementById('screen-'+t);
     if(screen) screen.classList.toggle('hidden', t!==tab);
   });
+  const navTab = NAV_GROUP[tab] || tab; // 더보기 안의 화면은 '더보기'를, 캐릭터 화면은 홈을 강조
   document.querySelectorAll('.nav-item').forEach(el=>{
-    el.classList.toggle('active', el.dataset.tab===(tab==='character' ? 'home' : tab)); // 캐릭터 화면은 홈 프로필에서 진입하므로 홈 탭을 강조
+    const on = el.dataset.tab===navTab;
+    el.classList.toggle('active', on);
+    if(on) el.setAttribute('aria-current','page'); else el.removeAttribute('aria-current');
   });
   const fab = document.querySelector('.fab');
   if(fab) fab.classList.toggle('off', tab!=='home'); // 다른 화면의 버튼·목록을 가리지 않도록 홈에서만 표시
@@ -7895,7 +8937,7 @@ function renderAll(){
   renderCharacterVisual('home');
   renderHome();
   updateDiaryNavBadge();
-  const activeTab = document.querySelector('.nav-item.active')?.dataset.tab || 'home';
+  const activeTab = currentTab || 'home';
   if(activeTab==='quest') renderAllQuests();
   if(activeTab==='calendar' && window.calRender) calRender();
   if(activeTab==='character') renderCharacterScreen();
@@ -7903,8 +8945,71 @@ function renderAll(){
   if(activeTab==='shop') renderShopScreen();
 }
 
+/* ===================== UI 아이콘 (GUILD ARCHIVE 리소스) ===================== */
+/* 화면의 이모지를 일러스트 아이콘으로 바꿔 보여준다.
+   - 데이터·문구 원본은 그대로 두고, DOM에 그려진 텍스트만 바꾼다 (alt에 원래 이모지 보존)
+   - 사용자가 직접 쓴 글(퀘스트 제목, 일기, 채팅, 닉네임)과 입력창은 건드리지 않는다 */
+const UI_ICON_BASE = 'icons/ui/';
+function uiIcon(name, alt=''){ return `<img class="ui-ico" src="${UI_ICON_BASE}${name}.png" alt="${alt}" draggable="false">`; }
+const EMOJI_ICON_MAP = {
+  '🪙':'stat-gold','💰':'shop-buy','⭐':'stat-xp','❤️':'stat-hp','💪':'stat-atk','⚡':'stat-stamina','💧':'stat-mana','🍀':'stat-luck',
+  '⚔️':'shop-duel','🗡️':'equip-weapon','🛡️':'stat-def','💍':'equip-accessory','🎒':'equip-armor',
+  '🛒':'shop-shop','🕶️':'shop-blackmarket','🎲':'shop-minigame',
+  '📜':'quest-daily','📅':'quest-dated','🎁':'quest-reward','🏆':'misc-achievement','📈':'misc-stats','📊':'misc-stats',
+  '📖':'misc-journal','🗺️':'misc-map','🧭':'misc-explore-start','🏁':'misc-explore-end','⚙️':'misc-settings','💾':'misc-backup',
+  '🗝️':'item-key','🧪':'item-potion-stamina','🍖':'item-food',
+  '🔔':'status-bell','⚠️':'status-warning','✅':'status-success','ℹ️':'status-info','🔄':'char-classchange','🧥':'equip-cape','🥋':'equip-armor',
+  '✏️':'vis-writing','🔒':'vis-private','👥':'vis-group'
+};
+const EmojiIcons = (()=>{
+  const SKIP = 'script,style,textarea,input,select,option,title,svg,canvas,[contenteditable],[data-no-icon],'
+    + '.quest-title,.tb-name,.soc-msg,.diary-entry-body,.diary-entry-title,.diary-list-item,.diary-room-entry,.ui-ico,.ui-ico-text';
+  const keys = Object.keys(EMOJI_ICON_MAP).sort((a,b)=>b.length-a.length);
+  // 이모지 표현 문자(U+FE0F)가 빠진 형태도 같이 잡는다
+  const esc = k => k.replace(/️/g,'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\uFE0F?';
+  const re = new RegExp(keys.map(esc).join('|'), 'gu');
+  const lookup = {}; keys.forEach(k=>{ lookup[k.replace(/️/g,'')] = EMOJI_ICON_MAP[k]; });
+  function decorateText(node){
+    const txt = node.nodeValue; re.lastIndex = 0;
+    if(!txt || !re.test(txt)) return;
+    const parent = node.parentElement;
+    if(!parent || parent.closest(SKIP)) return;
+    // 하나의 span으로 감싸 flex 부모에서도 원래 텍스트처럼 한 덩어리로 배치되게 한다
+    const frag = document.createElement('span'); frag.className = 'ui-ico-text'; let last = 0; re.lastIndex = 0; let m;
+    while((m = re.exec(txt))){
+      if(m.index > last) frag.appendChild(document.createTextNode(txt.slice(last, m.index)));
+      const img = document.createElement('img');
+      img.className = 'ui-ico'; img.alt = m[0]; img.draggable = false;
+      img.src = UI_ICON_BASE + lookup[m[0].replace(/️/g,'')] + '.png';
+      frag.appendChild(img); last = m.index + m[0].length;
+    }
+    if(last < txt.length) frag.appendChild(document.createTextNode(txt.slice(last)));
+    node.replaceWith(frag);
+  }
+  function decorate(root){
+    if(!root) return;
+    if(root.nodeType === 3){ decorateText(root); return; }
+    if(root.nodeType !== 1 || root.closest(SKIP)) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const nodes = []; while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(decorateText);
+  }
+  function start(){
+    decorate(document.body);
+    new MutationObserver(muts=>{
+      for(const m of muts){
+        if(m.type === 'characterData') decorateText(m.target);
+        else m.addedNodes.forEach(decorate);
+      }
+    }).observe(document.body, {childList:true, subtree:true, characterData:true});
+  }
+  return {start, decorate};
+})();
+
 /* ===================== INIT ===================== */
 async function init(){
+  EmojiIcons.start();
+  enhanceSettingsAccordions();
   renderClassGrid();
   setupAchievementDexGestures();
   await loadState();

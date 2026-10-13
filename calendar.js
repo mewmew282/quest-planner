@@ -6,7 +6,7 @@ const $ = (id)=>document.getElementById(id);
 
 // 가격은 퀘스트 골드(XP÷5: 보통 20G, 하루 5개 약 100G) 기준
 const THEMES = [
-  {id:'kingdom',   name:'기본 왕국',   icon:'🏰', price:0,    accent:'#E7B549', bg:'#1C1740', line:'#3A3170', desc:'성벽과 깃발이 있는 왕국 지도', cls:'th-kingdom'},
+  {id:'kingdom',   name:'기본 왕국',   icon:'🏰', price:0,    accent:'#D5C39A', bg:'#262B24', line:'#4A5045', desc:'성벽과 깃발이 있는 왕국 지도', cls:'th-kingdom'},
   {id:'forest',    name:'숲속 마을',   icon:'🌲', price:300,  accent:'#7BD389', bg:'#14261B', line:'#2F5A3F', desc:'이끼 낀 숲길과 오두막', cls:'th-forest'},
   {id:'winter',    name:'겨울 왕국',   icon:'❄️', price:600,  accent:'#2F8FD6', bg:'#E4F1FA', line:'#B7D7EC', desc:'눈 내리는 밝은 얼음 성', cls:'th-winter'},
   {id:'pirate',    name:'해적 항구',   icon:'🏴‍☠️', price:700,  accent:'#E0B25A', bg:'#3A2817', line:'#6B4A2B', desc:'낡은 항해 지도와 나무 부두', cls:'th-pirate'},
@@ -176,10 +176,13 @@ function renderHomeCond(){
 
 const css = document.createElement('style');
 css.textContent = `
-.cal-scope{--ca:#E7B549;--cb:#221C3B;--cl:#372C55;margin-bottom:14px}
+.cal-scope{--ca:#D5C39A;--cb:#2A3028;--cl:#4A5045;margin-bottom:14px}
 .cal-box{background:var(--cb);border:1px solid var(--cl);border-radius:var(--radius-s,12px);padding:10px}
 .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-weight:800}
-.cal-head button{background:none;border:1px solid var(--cl);color:var(--text);border-radius:8px;padding:6px 12px;font-size:15px}
+.cal-head button{background:none;border:1px solid var(--cl);color:var(--text);border-radius:8px;min-width:44px;min-height:44px;padding:6px 12px;font-size:17px}
+.cal-legend{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:8px;font-size:12px;color:var(--text-dim)}
+.rg-progress{display:flex;align-items:center;gap:8px;margin:2px 0 6px}.rg-num{font-size:12px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
+.wm-node:focus{outline:none}.wm-node:focus-visible circle:first-of-type{stroke:var(--ca);stroke-width:4}
 .cal-head .ttl{color:var(--ca)}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .cal-dow{text-align:center;font-size:11px;color:var(--text-dim);padding:2px 0}
@@ -194,7 +197,7 @@ css.textContent = `
 .cal-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--cl);font-size:13px;flex-wrap:wrap}
 .cal-row:last-child{border-bottom:0}
 .cal-row .t{flex:1;min-width:0}.cal-row .s{font-size:11.5px;color:var(--text-dim)}
-.cal-row button,.cal-tabs button,.cal-act button{padding:7px 12px;border-radius:8px;border:1px solid var(--cl);background:var(--card-hi);color:var(--text);font-size:12px}
+.cal-row button,.cal-tabs button,.cal-act button{min-height:40px;padding:7px 12px;border-radius:8px;border:1px solid var(--cl);background:var(--card-hi);color:var(--text);font-size:13px}
 .cal-row button.on,.cal-tabs button.on{background:var(--ca);color:#1B1300;border-color:var(--ca)}
 .cal-row button:disabled{opacity:.5}
 .cal-top{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap}
@@ -225,20 +228,21 @@ css.textContent = `
 .th-pirate .cal-head .ttl{font-style:italic;letter-spacing:.08em}
 .th-pirate .cal-panel h3{font-variant:small-caps;letter-spacing:.08em}
 .cal-scope.th-cyber{font-family:ui-monospace,Menlo,Consolas,'Courier New',monospace;--cx:#FF2BD6}
-.th-cyber .cal-box{border:1px solid var(--ca);border-radius:0;box-shadow:0 0 14px rgba(0,240,255,.35),inset 0 0 18px rgba(0,240,255,.08);background-image:linear-gradient(rgba(0,240,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.07) 1px,transparent 1px);background-size:22px 22px}
+.th-cyber .cal-box{border:1px solid var(--ca);border-radius:0;background-image:linear-gradient(rgba(0,240,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.07) 1px,transparent 1px);background-size:22px 22px}
 .th-cyber .cal-panel{border:1px solid var(--cl);border-left:3px solid var(--cx);border-radius:0}
 .th-cyber .cal-day{border-radius:0;background:rgba(0,240,255,.04)}
-.th-cyber .cal-day.today{border-color:var(--cx);box-shadow:0 0 8px var(--cx)}
+.th-cyber .cal-day.today{border-color:var(--cx);box-shadow:inset 0 0 0 1px var(--cx)}
 .th-cyber .cal-day.sel{background:var(--ca);color:#001014}
-.th-cyber .cal-head .ttl{text-shadow:0 0 8px var(--ca);letter-spacing:.14em;text-transform:uppercase}
+.th-cyber .cal-head .ttl{letter-spacing:.14em;text-transform:uppercase}
 .th-cyber .cal-panel h3{text-transform:uppercase;letter-spacing:.14em;color:var(--cx)}
 .th-cyber .cal-row button,.th-cyber .cal-tabs button{border-radius:0}
-.cal-scope.th-kingdom .cal-box{border:2px solid var(--ca);border-radius:3px;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 22px),repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 1px,transparent 1px 44px)}
-.th-kingdom .cal-panel{border:1px solid var(--cl);border-top:3px solid var(--ca);border-radius:2px}
-.th-kingdom .cal-day{border-radius:2px;border-bottom:3px solid var(--ca);background:rgba(255,255,255,.04)}
-.th-kingdom .cal-day.sel{background:var(--ca);color:#1B1300}
-.th-kingdom .cal-head .ttl{font-weight:800;letter-spacing:.16em;text-shadow:0 1px 0 #000}
-.th-kingdom .cal-panel h3{letter-spacing:.12em}
+/* 기본 왕국(길드 기록실): 장식 무늬 없이 1px 선과 명도차로 구분 */
+.cal-scope.th-kingdom .cal-box{border:1px solid var(--cl);border-radius:10px}
+.th-kingdom .cal-panel{border:1px solid var(--cl);border-radius:10px}
+.th-kingdom .cal-day{border-radius:6px;border-color:transparent;background:rgba(0,0,0,.14)}
+.th-kingdom .cal-day.today{border-color:var(--ca);box-shadow:none}
+.th-kingdom .cal-day.sel{background:var(--bg-raised,#30372D);color:var(--ca);border-color:var(--ca);box-shadow:inset 0 -3px 0 var(--ca)}
+.th-kingdom .cal-head .ttl{font-family:var(--font-display);font-weight:700;letter-spacing:.02em}
 .cal-scope.th-forest{font-family:'Trebuchet MS','Malgun Gothic',system-ui,sans-serif}
 .th-forest .cal-box{border:2px dotted var(--ca);border-radius:26px 8px 26px 8px;background-image:radial-gradient(circle at 15% 20%,rgba(123,211,137,.22) 0 14px,transparent 15px),radial-gradient(circle at 85% 75%,rgba(123,211,137,.18) 0 22px,transparent 23px),radial-gradient(circle at 60% 10%,rgba(123,211,137,.12) 0 10px,transparent 11px)}
 .th-forest .cal-panel{border:1px dotted var(--ca);border-radius:18px 6px 18px 6px}
@@ -246,38 +250,48 @@ css.textContent = `
 .th-forest .cal-day.sel{background:var(--ca);color:#0E2415}
 .th-forest .cal-head .ttl{letter-spacing:.04em}
 .cal-scope.th-academy{font-family:'Palatino Linotype','Book Antiqua',Palatino,serif}
-.th-academy .cal-box{border:1px solid var(--ca);border-radius:16px;outline:1px dashed rgba(195,155,255,.55);outline-offset:4px;box-shadow:0 0 22px rgba(195,155,255,.28);background-image:radial-gradient(circle at 12% 18%,#fff 0 1px,transparent 2px),radial-gradient(circle at 78% 32%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 40% 70%,#fff 0 1px,transparent 2px),radial-gradient(circle at 90% 88%,#fff 0 1px,transparent 2px);background-size:90px 90px,120px 120px,70px 70px,100px 100px}
-.th-academy .cal-panel{border:1px solid var(--cl);border-radius:14px;box-shadow:inset 0 0 18px rgba(195,155,255,.12)}
+.th-academy .cal-box{border:1px solid var(--ca);border-radius:16px;outline:1px dashed rgba(195,155,255,.55);outline-offset:4px;background-image:radial-gradient(circle at 12% 18%,#fff 0 1px,transparent 2px),radial-gradient(circle at 78% 32%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 40% 70%,#fff 0 1px,transparent 2px),radial-gradient(circle at 90% 88%,#fff 0 1px,transparent 2px);background-size:90px 90px,120px 120px,70px 70px,100px 100px}
+.th-academy .cal-panel{border:1px solid var(--cl);border-radius:14px}
 .th-academy .cal-day{border-radius:50% 50% 6px 6px;background:rgba(195,155,255,.08);text-align:center;align-items:center}
 .th-academy .cal-day .n{justify-content:center}
 .th-academy .cal-day.sel{background:var(--ca);color:#1B1038}
-.th-academy .cal-head .ttl{font-variant:small-caps;letter-spacing:.12em;text-shadow:0 0 10px var(--ca)}
+.th-academy .cal-head .ttl{font-variant:small-caps;letter-spacing:.12em}
 .th-academy .cal-panel h3{font-variant:small-caps;letter-spacing:.1em}
 /* 홈 펫 */
 .home-pet{position:absolute;right:-14px;bottom:-6px;width:46px;height:46px;border-radius:50%;border:2px solid var(--border);background:var(--card);font-size:26px;line-height:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;cursor:pointer}
 .home-pet.p1{right:auto;left:-14px}
 .home-pet small{font-size:9px;color:var(--text-dim);margin-top:1px}
 /* 던전 카드·전투 창 */
-.dg-card{margin:14px 0 4px;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-s,12px)}
-.dg-top{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;margin-bottom:8px}
-.dg-top span{font-size:12px;color:var(--gold)}
-.dg-floors{display:flex;gap:4px;margin-bottom:8px}
-.dg-fl{flex:1;text-align:center;font-size:11px;padding:5px 0;border:1px solid var(--border);border-radius:6px;color:var(--text-dim)}
-.dg-fl.done{background:var(--gold);color:#1B1300;border-color:var(--gold)}
-.dg-fl.cur{border-color:var(--gold);color:var(--gold)}
-.dg-note{font-size:12.5px;margin-bottom:6px}
-.dg-sub{font-size:11.5px;color:var(--text-dim);margin-top:4px;line-height:1.5}
-.dg-hp,.dg-bar{display:block;height:7px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden}
-.dg-hp i,.dg-bar i{display:block;height:100%;background:#5EE08A;transition:width .3s}.dg-bar.m i{background:#FF6A6A}
-.dg-go{display:block;width:100%;margin-top:10px;padding:10px;border-radius:8px;border:0;background:var(--gold);color:#1B1300;font-weight:700;font-size:14px}
-.dg-go:disabled{opacity:.45}
-.dg-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px}
-.dg-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;max-width:340px;width:100%;color:var(--text)}
-.dg-box .dg-top button{padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:12px}
-.dg-side{display:grid;grid-template-columns:70px 1fr 64px;align-items:center;gap:8px;font-size:12px;margin:6px 0}
-.dg-side em{font-style:normal;font-size:11px;color:var(--text-dim);text-align:right}
-.dg-log{height:110px;overflow-y:auto;margin:10px 0;padding:8px;border-radius:8px;background:rgba(0,0,0,.25);font-size:12px;line-height:1.6}
-.dg-res{font-size:13px;font-weight:700;color:var(--gold);min-height:20px}
+.dg-card{margin:14px 0 4px;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-m,10px)}
+.dg-top{display:flex;justify-content:space-between;align-items:center;font-size:16px;margin-bottom:10px}
+.dg-top b{font-family:var(--font-display)}
+.dg-keys{font-size:13px;font-weight:700;color:var(--gold)}
+.dg-floors{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:0 0 12px;padding:0;list-style:none}
+.dg-fl{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 0;border:1px dashed var(--border);border-radius:6px;color:var(--text-faint);font-size:12px}
+.dg-fl-s{font-size:11px;min-height:14px;font-weight:700}
+.dg-fl.done{border-style:solid;border-color:var(--success);color:var(--success)}
+.dg-fl.cur{border-style:solid;border-color:var(--gold);color:var(--gold);background:var(--card-hi)}
+.dg-note{font-size:14px;margin-bottom:6px}
+.dg-vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.dg-vs-side{min-width:0}.dg-vs-side:last-child{text-align:right}
+.dg-vs-lbl{font-size:12px;color:var(--text-dim)}
+.dg-vs-val{font-size:15px;font-weight:700;margin:1px 0 4px;font-variant-numeric:tabular-nums}
+.dg-vs-sub{font-size:12px;color:var(--text-dim);margin-top:4px}
+.dg-vs-mid{font-family:var(--font-display);font-size:13px;color:var(--text-faint)}
+.dg-sub{font-size:12px;color:var(--text-dim);margin-top:6px;line-height:1.5}
+.dg-hp,.dg-bar{display:block;height:6px;border-radius:3px;background:rgba(0,0,0,.3);overflow:hidden;border:1px solid var(--border)}
+.dg-hp i,.dg-bar i{display:block;height:100%;background:var(--success);transition:width .3s}.dg-bar.m i{background:var(--danger)}
+.dg-go{display:block;width:100%;margin-top:12px;min-height:48px;padding:10px;border-radius:8px;border:1px solid #96744A;background:var(--gold-dim);color:#F6EEDC;font-weight:700;font-size:15px}
+.dg-go:disabled{opacity:.5;background:transparent;color:var(--text-dim);border-color:var(--border)}
+.dg-modal{position:fixed;inset:0;background:rgba(12,14,11,.72);z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px}
+.dg-box{background:var(--bg-elev);border:1px solid var(--border);border-radius:12px;padding:16px;max-width:360px;width:100%;color:var(--text);box-shadow:0 16px 40px rgba(0,0,0,.5)}
+.dg-box .dg-top button{min-height:40px;padding:4px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:13px}
+.dg-side{display:grid;grid-template-columns:76px 1fr 64px;align-items:center;gap:8px;font-size:13px;margin:8px 0}
+.dg-side em{font-style:normal;font-size:12px;color:var(--text-dim);text-align:right;font-variant-numeric:tabular-nums}
+.dg-log{height:120px;overflow-y:auto;margin:10px 0;padding:8px 10px;border-radius:8px;background:rgba(0,0,0,.25);border:1px solid var(--border);font-size:13px;line-height:1.6}
+.dg-res{font-size:14px;font-weight:700;min-height:20px;padding:8px 10px;border-radius:8px}
+.dg-res:empty{padding:0}
+.dg-res.win{color:var(--success);border:1px solid var(--success)}.dg-res.lose{color:var(--danger);border:1px solid var(--danger)}
 /* 캘린더 상점: 장비 상점과 같은 카드 목록 + 토글 스위치 */
 #shop-cal-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:stretch}
 #shop-cal-list .shop-shelf-label{grid-column:1/-1}
@@ -303,9 +317,9 @@ css.textContent = `
 @keyframes calPulse{0%,100%{box-shadow:0 0 0 1px var(--ca) inset,0 0 0 rgba(255,255,255,0)}50%{box-shadow:0 0 0 1px var(--ca) inset,0 0 10px 2px var(--ca)}}
 @keyframes calFlick{from{box-shadow:0 0 4px 0 #FF8A4C}to{box-shadow:0 0 12px 3px #FFB347}}
 @keyframes calGlow{from{box-shadow:0 0 4px 0 var(--ca)}to{box-shadow:0 0 16px 3px var(--ca)}}
-.fx-sparkle .cal-day.today{animation:calPulse 1.6s ease-in-out infinite}
-.fx-flame .cal-day.today,.fx-flame .cal-day.clr{animation:calFlick .9s ease-in-out infinite alternate}
-.fx-magic .cal-box{animation:calGlow 2s ease-in-out infinite alternate}
+.fx-sparkle .cal-day.today{animation:calPulse 1.6s ease-in-out 3}
+.fx-flame .cal-day.today,.fx-flame .cal-day.clr{animation:calFlick .9s ease-in-out 4 alternate}
+.fx-magic .cal-box{animation:calGlow 2s ease-in-out 2 alternate}
 @media (prefers-reduced-motion:reduce){.fx-sparkle .cal-day.today,.fx-flame .cal-day.today,.fx-flame .cal-day.clr,.fx-magic .cal-box{animation:none}}
 `;
 document.head.appendChild(css);
@@ -318,7 +332,9 @@ function dayCell(d, today){
   const rep = qs.length-dated.length>0 ? '·' : '';
   const diaryMark = hasDiary(ds) ? '📖' : '';
   const cls = `${ds===today?' today':''}${ds===sel?' sel':''}${c.clearDays[ds]?' clr':''}`;
-  return `<button class="cal-day${cls}" onclick="calSelect('${ds}')"><span class="n"><span>${d}</span><span>${c.clearDays[ds]?'🏆':''}${c.restDays[ds]?'🏨':''}</span></span><span class="ic">${icons}${more}${rep}${diaryMark}</span></button>`;
+  const label = [`${ym.m+1}월 ${d}일${ds===today?' 오늘':''}`, dated.length?`날짜지정 퀘스트 ${dated.length}개`:'', qs.length-dated.length>0?`반복 퀘스트 ${qs.length-dated.length}개`:'',
+    c.clearDays[ds]?'던전 클리어':'', c.restDays[ds]?'휴식일':'', hasDiary(ds)?'일기 있음':''].filter(Boolean).join(', ');
+  return `<button class="cal-day${cls}" aria-label="${label}" aria-pressed="${ds===sel}" onclick="calSelect('${ds}')"><span class="n"><span>${d}</span><span>${c.clearDays[ds]?'🏆':''}${c.restDays[ds]?'🏨':''}</span></span><span class="ic">${icons}${more}${rep}${diaryMark}</span></button>`;
 }
 function hasDiary(ds){
   return (state.diary||[]).some(d=>d.date===ds);
@@ -548,8 +564,9 @@ function render(){
     <div class="cal-top"><span class="g">❤️ ${g.hp} · 😣 ${g.stress} · 컨디션 ${tr.name}</span><span><button class="chip" onclick="calTogglePanel('bag')">🎒 보관함</button></span></div>
     ${prev}
     <div class="cal-box">
-      <div class="cal-head"><button onclick="calMove(-1)">‹</button><span class="ttl">${th.icon} ${ym.y}년 ${ym.m+1}월</span><button onclick="calMove(1)">›</button></div>
+      <div class="cal-head"><button onclick="calMove(-1)" aria-label="이전 달">‹</button><span class="ttl">${th.icon} ${ym.y}년 ${ym.m+1}월</span><button onclick="calMove(1)" aria-label="다음 달">›</button></div>
       <div class="cal-grid">${['일','월','화','수','목','금','토'].map(w=>`<div class="cal-dow">${w}</div>`).join('')}${cells}</div>
+      <div class="cal-legend" aria-hidden="true"><span>🏆 던전 클리어</span><span>🏨 휴식</span><span>👑 보스 일정</span><span>📖 일기</span><span>· 반복 퀘스트</span></div>
     </div>
     ${panel==='bag' ? bagPanel() : ''}${dayPanel()}${chestPanel()}${pending ? confirmModal() : ''}`;
   renderShopCal(); // 상점 탭의 캘린더 상점도 같은 상태로 다시 그린다
@@ -908,24 +925,33 @@ function renderDungeonCard(){
   if(!el || !state || !state.character) return;
   const d = dg(), p = pStats(), f = Math.min(d.floor, 4), m = mStats(f, p.lv);
   if(d.hp==null) d.hp = p.maxHp;
-  const floors = DG_MONSTERS.map((mo,i)=>`<span class="dg-fl${i<d.floor?' done':''}${i===d.floor&&!d.cleared?' cur':''}">${mo.boss?'보스':(i+1)+'층'}</span>`).join('');
+  // 층 상태는 색과 함께 글자(✓/진행)로도 표시한다
+  const floors = DG_MONSTERS.map((mo,i)=>{
+    const st = i<d.floor ? 'done' : (i===d.floor && !d.cleared ? 'cur' : 'lock');
+    const name = mo.boss ? '보스' : (i+1)+'층';
+    return `<li class="dg-fl ${st}" aria-label="${name} ${st==='done'?'돌파':st==='cur'?'도전 중':'잠김'}"><span class="dg-fl-n">${name}</span><span class="dg-fl-s">${st==='done'?'✓':st==='cur'?'진행':''}</span></li>`;
+  }).join('');
   const hpPct = Math.round(Math.min(100, d.hp/p.maxHp*100));
-  el.innerHTML = `<div class="dg-card">
-    <div class="dg-top"><b>오늘의 던전</b><span>열쇠 ${d.keys}개</span></div>
-    <div class="dg-floors">${floors}</div>
-    ${d.cleared ? `<div class="dg-note">보스를 쓰러뜨렸어요! 내일 새 던전이 열려요.</div>` : `<div class="dg-note">${f+1}층 · ${m.name}${m.boss?' (보스)':''} · 몬스터 HP ${m.hp}</div>
-    <div class="dg-hp"><i style="width:${hpPct}%"></i></div><div class="dg-sub">내 HP ${d.hp}/${p.maxHp} · 공격력 ${p.atk}</div>
-    <button class="dg-go" ${d.keys>0?'':'disabled'} onclick="dgAdvance()">${d.keys>0?'진격 (열쇠 1개)':'열쇠가 없어요'}</button>
+  el.innerHTML = `<section class="dg-card" aria-label="오늘의 던전">
+    <div class="dg-top"><b>오늘의 던전</b><span class="dg-keys">🗝️ 열쇠 ${d.keys}개</span></div>
+    <ol class="dg-floors">${floors}</ol>
+    ${d.cleared ? `<div class="dg-note dg-clear">🏆 보스를 쓰러뜨렸어요! 내일 새 던전이 열려요.</div>` : `
+    <div class="dg-vs">
+      <div class="dg-vs-side"><div class="dg-vs-lbl">나</div><div class="dg-vs-val">HP ${d.hp}/${p.maxHp}</div><span class="dg-hp" role="progressbar" aria-label="내 HP" aria-valuenow="${hpPct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${hpPct}%"></i></span><div class="dg-vs-sub">공격력 ${p.atk}</div></div>
+      <div class="dg-vs-mid" aria-hidden="true">VS</div>
+      <div class="dg-vs-side"><div class="dg-vs-lbl">${f+1}층${m.boss?' · 보스':''}</div><div class="dg-vs-val">${m.name}</div><div class="dg-vs-sub">HP ${m.hp}</div></div>
+    </div>
+    <button class="dg-go" ${d.keys>0?'':'disabled'} onclick="dgAdvance()">${d.keys>0?'진격하기 · 열쇠 1개':'열쇠 없음'}</button>
     <div class="dg-sub">퀘스트를 완료하면 열쇠를 1개 얻어요. (하루 최대 ${DG_KEY_CAP}개, 매일 무료 1개)</div>`}
-  </div>`;
+  </section>`;
 }
 function showBattle(p, m, r, floorNo, summary){
   const old = $('dg-modal'); if(old) old.remove();
   const box = document.createElement('div'); box.id = 'dg-modal'; box.className = 'dg-modal';
-  box.innerHTML = `<div class="dg-box"><div class="dg-top"><b>${floorNo}층 · ${m.name}</b><button onclick="dgClose()">닫기</button></div>
+  box.innerHTML = `<div class="dg-box" role="dialog" aria-modal="true" aria-label="${floorNo}층 전투"><div class="dg-top"><b>${floorNo}층 · ${m.name}</b><button onclick="dgClose()">닫기</button></div>
     <div class="dg-side">나<span class="dg-bar"><i id="dg-pbar" style="width:100%"></i></span><em id="dg-ptxt"></em></div>
     <div class="dg-side">${m.name}<span class="dg-bar m"><i id="dg-mbar" style="width:100%"></i></span><em id="dg-mtxt"></em></div>
-    <div class="dg-log" id="dg-log"></div><div class="dg-res" id="dg-res"></div>
+    <div class="dg-log" id="dg-log" aria-live="off"></div><div class="dg-res" id="dg-res" role="status" aria-live="polite"></div>
     <button class="dg-go" onclick="dgSkip()">건너뛰기</button></div>`;
   document.body.appendChild(box);
   const log = $('dg-log'); let i = 0;
@@ -937,7 +963,7 @@ function showBattle(p, m, r, floorNo, summary){
     line.textContent = st.who==='p' ? `내 공격! ${st.dmg} 피해${st.crit?' (치명타)':''}` : `${m.name}의 공격! ${st.dmg} 피해`;
     log.appendChild(line); log.scrollTop = log.scrollHeight;
   };
-  const finish = ()=>{ clearInterval(window._dgTimer); window._dgTimer = null; $('dg-res').textContent = summary; box.querySelector('.dg-go').remove(); };
+  const finish = ()=>{ clearInterval(window._dgTimer); window._dgTimer = null; $('dg-res').textContent = summary; $('dg-res').classList.add(r.win?'win':'lose'); box.querySelector('.dg-go').remove(); };
   window._dgSkip = ()=>{ while(i<r.steps.length){ show(r.steps[i++]); } finish(); };
   window._dgTimer = setInterval(()=>{ if(i>=r.steps.length){ finish(); return; } show(r.steps[i++]); }, 420);
 }
@@ -1027,7 +1053,8 @@ function worldMap(){
     const r = REGION_INFO[cat], n = w.regions[cat]||0, lv = regionLv(n);
     const frac = lv>=REGION_MAX ? 1 : (n%REGION_STEP)/REGION_STEP;
     const sel = cat===wRegion;
-    return `<g onclick="worldSel('${cat}')" style="cursor:pointer">
+    const next = lv>=REGION_MAX ? '최대 레벨' : `다음 레벨까지 ${REGION_STEP - n%REGION_STEP}개`;
+    return `<g class="wm-node" role="button" tabindex="0" aria-pressed="${sel}" aria-label="${r.name} Lv.${lv}, ${next}" onclick="worldSel('${cat}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();worldSel('${cat}')}" style="cursor:pointer">
       <circle cx="${r.pos[0]}" cy="${r.pos[1]}" r="30" style="fill:var(--cb);stroke:${sel?'var(--ca)':'var(--cl)'}" stroke-width="${sel?3:2}"/>
       <circle cx="${r.pos[0]}" cy="${r.pos[1]}" r="30" fill="none" style="stroke:var(--ca)" stroke-width="4" stroke-dasharray="${(ring*frac).toFixed(1)} ${ring.toFixed(1)}" transform="rotate(-90 ${r.pos[0]} ${r.pos[1]})" stroke-linecap="round"/>
       <text x="${r.pos[0]}" y="${r.pos[1]-3}" text-anchor="middle" font-size="18">${r.icon}</text>
@@ -1040,7 +1067,8 @@ function regionDetail(){
   const w = S().world, r = REGION_INFO[wRegion], n = w.regions[wRegion]||0, lv = regionLv(n);
   const need = lv>=REGION_MAX ? '최대 레벨' : `다음 레벨까지 ${REGION_STEP - n%REGION_STEP}개`;
   const spots = r.spots.map((sp,i)=>{ const nd = 2+i*2; return `<div class="cal-row"><span class="t">${lv>=nd?sp:'잠긴 장소'}<div class="s">${lv>=nd?'해방됨':`${wRegion} 퀘스트로 지역 Lv.${nd}에 해방`}</div></span></div>`; }).join('');
-  return `<div class="cal-panel"><h3>${r.icon} ${r.name} · Lv.${lv}</h3><div style="font-size:12px;color:var(--text-dim);margin-bottom:4px">'${wRegion}' 카테고리 퀘스트를 ${n}개 완료했어요. ${need}</div>${spots}</div>`;
+  const pct = lv>=REGION_MAX ? 100 : Math.round((n%REGION_STEP)/REGION_STEP*100);
+  return `<div class="cal-panel"><h3>${r.icon} ${r.name} · Lv.${lv}</h3><div class="rg-progress"><span class="cal-bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="다음 레벨 진행도"><i style="width:${pct}%;background:var(--ca)"></i></span><span class="rg-num">${lv>=REGION_MAX?'MAX':`${n%REGION_STEP}/${REGION_STEP}`}</span></div><div style="font-size:12px;color:var(--text-dim);margin-bottom:4px">'${wRegion}' 카테고리 퀘스트를 ${n}개 완료했어요. ${need}</div>${spots}</div>`;
 }
 function journey(){
   const c = S(), k = monthKey(), days = Object.keys(c.clearDays).filter(d=>d.startsWith(k)).sort();
@@ -1059,7 +1087,7 @@ function journey(){
   return `<svg viewBox="0 0 340 226" width="100%" role="img" aria-label="이번 달 여정">
     <polyline points="${line}" fill="none" style="stroke:var(--cl)" stroke-width="4" stroke-dasharray="7 6"/>
     ${nodes}
-    <g onclick="worldBoss()" style="cursor:pointer"><circle cx="${boss[0]}" cy="${boss[1]}" r="22" style="fill:var(--cb);stroke:var(--ca)" stroke-width="${ready?4:2}"/><text x="${boss[0]}" y="${boss[1]+6}" text-anchor="middle" font-size="20">${claimed?'🎁':'👑'}</text><text x="${boss[0]+34}" y="${boss[1]-2}" font-size="12" font-weight="700" style="fill:var(--text)">월간 보스</text><text x="${boss[0]+34}" y="${boss[1]+14}" font-size="11" style="fill:var(--text-dim)">${claimed?'보상 수령 완료':ready?'눌러서 보상 받기':`던전 ${lit}/${goal}일 클리어`}</text></g>
+    <g class="wm-node" role="button" tabindex="0" aria-label="월간 보스, ${claimed?'보상 수령 완료':ready?'보상 받기 가능':`던전 ${lit}/${goal}일 클리어`}" onclick="worldBoss()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();worldBoss()}" style="cursor:pointer"><circle cx="${boss[0]}" cy="${boss[1]}" r="22" style="fill:var(--cb);stroke:var(--ca)" stroke-width="${ready?4:2}"/><text x="${boss[0]}" y="${boss[1]+6}" text-anchor="middle" font-size="20">${claimed?'🎁':'👑'}</text><text x="${boss[0]+34}" y="${boss[1]-2}" font-size="12" font-weight="700" style="fill:var(--text)">월간 보스</text><text x="${boss[0]+34}" y="${boss[1]+14}" font-size="11" style="fill:var(--text-dim)">${claimed?'보상 수령 완료':ready?'눌러서 보상 받기':`던전 ${lit}/${goal}일 클리어`}</text></g>
     <text x="${hero[0]}" y="${hero[1]-20}" text-anchor="middle" font-size="20">${cls}</text></svg>`;
 }
 function renderWorld(){
@@ -1072,7 +1100,7 @@ function renderWorld(){
   const dgLine = d.cleared ? '오늘의 던전 클리어! 내일 새 던전이 열려요.' : `${f+1}층 · ${m.name}${m.boss?' (보스)':''} · 열쇠 ${d.keys}개`;
   wrap.innerHTML = `
     <div class="cal-box">
-      <div class="cal-head"><button onclick="worldMove(-1)">‹</button><span class="ttl">${th.icon} ${ym.y}년 ${ym.m+1}월 월드맵</span><button onclick="worldMove(1)">›</button></div>
+      <div class="cal-head"><button onclick="worldMove(-1)" aria-label="이전 달">‹</button><span class="ttl">${th.icon} ${ym.y}년 ${ym.m+1}월 월드맵</span><button onclick="worldMove(1)" aria-label="다음 달">›</button></div>
       ${worldMap()}
     </div>
     ${regionDetail()}
