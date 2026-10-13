@@ -7975,7 +7975,7 @@ async function confirmRegress(){
 
 /* ===================== CALENDAR EXPORT (.ics) ===================== */
 function icsDate(dateStr){ return dateStr.replace(/-/g,''); }
-function icsEscape(s){ return String(s).replace(/([,;])/g,'\\$1'); }
+function icsEscape(s){ return String(s).replace(/\\/g,'\\\\').replace(/([,;])/g,'\\$1').replace(/\r?\n/g,'\\n'); } // RFC 5545: 역슬래시·쉼표·세미콜론·줄바꿈
 function exportToCalendar(){
   const exportable = state.quests.filter(q=> q.type==='daily' || (q.type==='dated' && q.dueDate));
   if(exportable.length===0){ toast('내보낼 일정이 있는 퀘스트가 없습니다'); return; }
@@ -7992,7 +7992,9 @@ function exportToCalendar(){
     if(q.type==='daily'){
       lines.push('DTSTART;VALUE=DATE:'+todayIcs);
       lines.push('DURATION:P1D');
-      lines.push('RRULE:FREQ=DAILY');
+      // 요일 반복 퀘스트는 그 요일에만 (이전에는 요일 설정과 관계없이 매일로 내보냈음)
+      const ICS_DAYS = ['SU','MO','TU','WE','TH','FR','SA'];
+      lines.push(q.weekdays && q.weekdays.length ? 'RRULE:FREQ=WEEKLY;BYDAY='+q.weekdays.slice().sort().map(d=>ICS_DAYS[d]).join(',') : 'RRULE:FREQ=DAILY');
     } else {
       lines.push('DTSTART;VALUE=DATE:'+icsDate(q.dueDate));
       lines.push('DURATION:P1D');
