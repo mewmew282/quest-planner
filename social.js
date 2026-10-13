@@ -103,7 +103,7 @@ async function openProfile(nick){
     card.querySelector('[data-x]').onclick = ()=>box.remove();
   }
 }
-const clsIcon = (c)=> (typeof CLASSES!=="undefined" && CLASSES[c] && CLASSES[c].icon) || '🧑';
+const clsIcon = (c)=> (typeof classIconHTML==='function' && typeof CLASSES!=="undefined" && CLASSES[c]) ? classIconHTML(c) : '🧑'; // 직업 이미지 (index.html의 공통 아이콘 헬퍼)
 const esc = (s)=> String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
 /* ---------- 프로필 공유 (랭킹을 보는 모든 사용자에게 공개, 끄면 서버에서 지움) ---------- */
@@ -172,12 +172,17 @@ function queueDiarySync(){ // index.html의 saveDiaryEntry()가 저장할 때마
   diarySyncTimer = setTimeout(pushDiary, 1500);
 }
 window.queueDiarySync = queueDiarySync;
+window.diarySyncStatus = 'off'; // 'off'(로그아웃) | 'syncing' | 'ok' | 'fail'
+function setDiarySync(st){ window.diarySyncStatus = st; if(typeof renderDiaryAutosaveIndicator==='function') renderDiaryAutosaveIndicator(); }
+window.socLoggedIn = ()=>!!token;
 function pushDiary(){
   if(!token || !state.character) return Promise.resolve();
   // 사진은 기기 로컬에만 두는 값이라(용량이 커서 서버 문서 크기 한도를 금방 넘길 수 있음) 동기화 페이로드에서는 뺀다
   const entries = (state.diary||[]).map((e)=>{ const { images, ...rest } = e; return rest; });
-  return api('/diary', {method:'PUT', body:{entries}}).catch(()=>{});
+  setDiarySync('syncing');
+  return api('/diary', {method:'PUT', body:{entries}}).then(()=>setDiarySync('ok')).catch(()=>{ setDiarySync('fail'); });
 }
+window.retryDiarySync = ()=>pushDiary();
 async function pullDiaryIfNewer(){ // 로그인 직후 / 앱 시작 시 / 주기적으로: 날짜별로 더 최근에 바뀐 쪽을 남긴다
   if(!token) return;
   try{
