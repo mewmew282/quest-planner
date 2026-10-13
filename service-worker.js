@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quest-planner-v19';
+const CACHE_NAME = 'quest-planner-v21';
 const ASSETS = [
   './index.html',
   './manifest.json',
@@ -7,11 +7,11 @@ const ASSETS = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/badge-192.png',
-  './icons/ui/nav-diary.png',
-  './icons/ui/nav-calendar.png',
   './icons/ui/nav-home.png',
+  './icons/ui/nav-quest.png',
+  './icons/ui/nav-diary.png',
   './icons/ui/nav-explore.png',
-  './icons/ui/nav-shop.png'
+  './icons/ui/nav-more.png'
 ];
 
 self.addEventListener('install', (event) => {

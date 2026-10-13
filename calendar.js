@@ -228,12 +228,12 @@ css.textContent = `
 .th-pirate .cal-head .ttl{font-style:italic;letter-spacing:.08em}
 .th-pirate .cal-panel h3{font-variant:small-caps;letter-spacing:.08em}
 .cal-scope.th-cyber{font-family:ui-monospace,Menlo,Consolas,'Courier New',monospace;--cx:#FF2BD6}
-.th-cyber .cal-box{border:1px solid var(--ca);border-radius:0;box-shadow:0 0 14px rgba(0,240,255,.35),inset 0 0 18px rgba(0,240,255,.08);background-image:linear-gradient(rgba(0,240,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.07) 1px,transparent 1px);background-size:22px 22px}
+.th-cyber .cal-box{border:1px solid var(--ca);border-radius:0;background-image:linear-gradient(rgba(0,240,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.07) 1px,transparent 1px);background-size:22px 22px}
 .th-cyber .cal-panel{border:1px solid var(--cl);border-left:3px solid var(--cx);border-radius:0}
 .th-cyber .cal-day{border-radius:0;background:rgba(0,240,255,.04)}
-.th-cyber .cal-day.today{border-color:var(--cx);box-shadow:0 0 8px var(--cx)}
+.th-cyber .cal-day.today{border-color:var(--cx);box-shadow:inset 0 0 0 1px var(--cx)}
 .th-cyber .cal-day.sel{background:var(--ca);color:#001014}
-.th-cyber .cal-head .ttl{text-shadow:0 0 8px var(--ca);letter-spacing:.14em;text-transform:uppercase}
+.th-cyber .cal-head .ttl{letter-spacing:.14em;text-transform:uppercase}
 .th-cyber .cal-panel h3{text-transform:uppercase;letter-spacing:.14em;color:var(--cx)}
 .th-cyber .cal-row button,.th-cyber .cal-tabs button{border-radius:0}
 /* 기본 왕국(길드 기록실): 장식 무늬 없이 1px 선과 명도차로 구분 */
@@ -250,12 +250,12 @@ css.textContent = `
 .th-forest .cal-day.sel{background:var(--ca);color:#0E2415}
 .th-forest .cal-head .ttl{letter-spacing:.04em}
 .cal-scope.th-academy{font-family:'Palatino Linotype','Book Antiqua',Palatino,serif}
-.th-academy .cal-box{border:1px solid var(--ca);border-radius:16px;outline:1px dashed rgba(195,155,255,.55);outline-offset:4px;box-shadow:0 0 22px rgba(195,155,255,.28);background-image:radial-gradient(circle at 12% 18%,#fff 0 1px,transparent 2px),radial-gradient(circle at 78% 32%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 40% 70%,#fff 0 1px,transparent 2px),radial-gradient(circle at 90% 88%,#fff 0 1px,transparent 2px);background-size:90px 90px,120px 120px,70px 70px,100px 100px}
-.th-academy .cal-panel{border:1px solid var(--cl);border-radius:14px;box-shadow:inset 0 0 18px rgba(195,155,255,.12)}
+.th-academy .cal-box{border:1px solid var(--ca);border-radius:16px;outline:1px dashed rgba(195,155,255,.55);outline-offset:4px;background-image:radial-gradient(circle at 12% 18%,#fff 0 1px,transparent 2px),radial-gradient(circle at 78% 32%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 40% 70%,#fff 0 1px,transparent 2px),radial-gradient(circle at 90% 88%,#fff 0 1px,transparent 2px);background-size:90px 90px,120px 120px,70px 70px,100px 100px}
+.th-academy .cal-panel{border:1px solid var(--cl);border-radius:14px}
 .th-academy .cal-day{border-radius:50% 50% 6px 6px;background:rgba(195,155,255,.08);text-align:center;align-items:center}
 .th-academy .cal-day .n{justify-content:center}
 .th-academy .cal-day.sel{background:var(--ca);color:#1B1038}
-.th-academy .cal-head .ttl{font-variant:small-caps;letter-spacing:.12em;text-shadow:0 0 10px var(--ca)}
+.th-academy .cal-head .ttl{font-variant:small-caps;letter-spacing:.12em}
 .th-academy .cal-panel h3{font-variant:small-caps;letter-spacing:.1em}
 /* 홈 펫 */
 .home-pet{position:absolute;right:-14px;bottom:-6px;width:46px;height:46px;border-radius:50%;border:2px solid var(--border);background:var(--card);font-size:26px;line-height:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;cursor:pointer}
@@ -317,9 +317,9 @@ css.textContent = `
 @keyframes calPulse{0%,100%{box-shadow:0 0 0 1px var(--ca) inset,0 0 0 rgba(255,255,255,0)}50%{box-shadow:0 0 0 1px var(--ca) inset,0 0 10px 2px var(--ca)}}
 @keyframes calFlick{from{box-shadow:0 0 4px 0 #FF8A4C}to{box-shadow:0 0 12px 3px #FFB347}}
 @keyframes calGlow{from{box-shadow:0 0 4px 0 var(--ca)}to{box-shadow:0 0 16px 3px var(--ca)}}
-.fx-sparkle .cal-day.today{animation:calPulse 1.6s ease-in-out infinite}
-.fx-flame .cal-day.today,.fx-flame .cal-day.clr{animation:calFlick .9s ease-in-out infinite alternate}
-.fx-magic .cal-box{animation:calGlow 2s ease-in-out infinite alternate}
+.fx-sparkle .cal-day.today{animation:calPulse 1.6s ease-in-out 3}
+.fx-flame .cal-day.today,.fx-flame .cal-day.clr{animation:calFlick .9s ease-in-out 4 alternate}
+.fx-magic .cal-box{animation:calGlow 2s ease-in-out 2 alternate}
 @media (prefers-reduced-motion:reduce){.fx-sparkle .cal-day.today,.fx-flame .cal-day.today,.fx-flame .cal-day.clr,.fx-magic .cal-box{animation:none}}
 `;
 document.head.appendChild(css);
