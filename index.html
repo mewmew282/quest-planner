@@ -5,12 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>QUEST PLANNER</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#14101F">
+<meta name="theme-color" content="#0B1114">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Quest Planner">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
@@ -1881,7 +1882,154 @@
 .bm-closed-game{text-align:center;padding:34px 18px;border:1px dashed rgba(255,105,95,.5);border-radius:20px;background:rgba(120,30,30,.08)}.bm-closed-stamp{display:inline-block;color:#ff756d;border:2px solid #ff756d;border-radius:7px;padding:5px 12px;font-weight:1000;letter-spacing:2px;transform:rotate(-3deg);margin-bottom:12px}.bm-closed-icon{font-size:44px}.bm-closed-game h3{margin:8px 0}.bm-closed-game p{color:var(--muted);line-height:1.6}.bm-closed-profit{font-weight:900;color:#ffd66d;margin-top:10px}
 .jail-ticket-actions{display:grid;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}.jail-visit-count,.jail-fine-paid{margin:10px 0;padding:9px;border-radius:10px;background:rgba(255,255,255,.05);font-size:13px}.jail-fine-paid{color:#ffd66d}
 .shop-item.ticket-item{border-color:rgba(255,193,72,.35);background:linear-gradient(135deg,rgba(255,193,72,.08),rgba(255,255,255,.02))}
-.mg-game-card.mg-game-closed{opacity:.68;filter:saturate(.55);cursor:not-allowed;border-color:rgba(255,100,90,.35);background:rgba(100,30,30,.08)}.mg-game-closed .nm{color:#ff8b83}.mg-game-closed .arrow{color:#ff756d;font-weight:1000}</style>
+.mg-game-card.mg-game-closed{opacity:.68;filter:saturate(.55);cursor:not-allowed;border-color:rgba(255,100,90,.35);background:rgba(100,30,30,.08)}.mg-game-closed .nm{color:#ff8b83}.mg-game-closed .arrow{color:#ff756d;font-weight:1000}
+  /* ================================================================
+     REDESIGN 2026 — "Midnight Jade"
+     - 딥 슬레이트 배경 + 제이드(주요 행동/진행) + 앰버(보상·골드)
+     - Pretendard 단일 서체, 둥근 카드, 플로팅 하단 내비
+     - 기존 토큰을 재정의하고 핵심 컴포넌트만 덮어쓴다 (마크업/JS 변경 없음)
+     ================================================================ */
+  :root{
+    --bg:#0B1114;
+    --bg-elev:#121A1E;
+    --card:#151F24;
+    --card-hi:#1C2930;
+    --border:#243238;
+    --text:#ECF3F1;
+    --text-dim:#9AB0AC;
+    --text-faint:#5F7672;
+    --gold:#F2B84B;
+    --gold-dim:#8C6A2B;
+    --danger:#F0675E;
+    --success:#3DD6A0;
+    --accent:#3DD6A0;
+    --accent-hi:#6BE8BC;
+    --accent-ink:#04261A;
+    --accent-soft:rgba(61,214,160,.12);
+    --shadow-card:0 1px 0 rgba(255,255,255,.03) inset, 0 8px 24px -14px rgba(0,0,0,.7);
+    --radius-s:12px;
+    --radius-m:18px;
+    --radius-l:26px;
+    --font-display:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    --font-body:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  }
+  body{letter-spacing:-.01em;}
+  #app{
+    background:
+      radial-gradient(520px 260px at 85% -6%, rgba(61,214,160,.10), transparent 70%),
+      radial-gradient(420px 240px at 0% 8%, rgba(242,184,75,.06), transparent 70%),
+      var(--bg);
+  }
+  h1,h2,h3{letter-spacing:-.03em;font-weight:800;}
+
+  /* buttons */
+  .btn{border-radius:var(--radius-s);font-weight:700;background:var(--card-hi);border-color:var(--border);}
+  .btn-gold{
+    background:linear-gradient(180deg,var(--accent-hi),var(--accent));
+    color:var(--accent-ink);border:none;
+    box-shadow:0 6px 16px -8px rgba(61,214,160,.7);
+  }
+  .btn-ghost{background:transparent;}
+  .pill{background:var(--card-hi);border-color:transparent;font-weight:700;}
+  input[type=text],input[type=date],textarea{background:var(--bg-elev);border-radius:var(--radius-s);}
+  input[type=text]:focus,input[type=date]:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+
+  /* top bar */
+  #topbar{
+    background:rgba(11,17,20,.78);
+    backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);
+    border-bottom:1px solid rgba(255,255,255,.05);
+  }
+  .tb-name{font-weight:800;}
+  .tb-gold{
+    background:rgba(242,184,75,.10);border:1px solid rgba(242,184,75,.22);
+    padding:5px 10px;border-radius:999px;color:var(--gold);
+  }
+  .tb-settings-btn{border-radius:12px !important;background:var(--card) !important;border:1px solid var(--border) !important;}
+  .lv-badge{
+    background:var(--accent-soft);color:var(--accent);
+    border:1px solid rgba(61,214,160,.35);border-radius:999px;
+    font-family:var(--font-body);font-weight:800;letter-spacing:.01em;
+  }
+  .xp-bar-track{height:6px;border:none;background:rgba(255,255,255,.06);border-radius:999px;}
+  .xp-bar-fill{background:linear-gradient(90deg,var(--accent),var(--accent-hi));border-radius:999px;box-shadow:0 0 10px rgba(61,214,160,.5);}
+
+  /* home hero */
+  .char-aura{
+    width:140px;height:140px;border-radius:40px;
+    background:
+      radial-gradient(circle at 50% 30%, rgba(255,255,255,.06), transparent 60%),
+      linear-gradient(160deg,var(--card-hi),var(--card));
+    border:1px solid color-mix(in srgb, var(--class-color,var(--accent)) 55%, transparent);
+    box-shadow:0 0 0 8px color-mix(in srgb, var(--class-color,var(--accent)) 8%, transparent),
+               0 20px 50px -20px var(--class-color,var(--accent));
+  }
+  .char-title{font-size:21px;font-weight:800;letter-spacing:-.03em;}
+
+  /* section heads */
+  .section-head h2{font-size:17px;font-weight:800;}
+  .section-head h2::before{
+    content:'';display:inline-block;width:6px;height:6px;border-radius:2px;
+    background:var(--accent);margin-right:8px;vertical-align:middle;transform:translateY(-2px) rotate(45deg);
+  }
+
+  /* cards */
+  .quest-card,.progress-strip,.metric-card{
+    background:linear-gradient(180deg,var(--card),color-mix(in srgb,var(--card) 80%,var(--bg)));
+    border:1px solid var(--border);border-radius:var(--radius-m);
+    box-shadow:var(--shadow-card);
+  }
+  .quest-card{padding:14px;position:relative;overflow:hidden;}
+  .quest-card:active{transform:scale(.99);}
+  .quest-card.done{opacity:.5;}
+  .quest-check{width:24px;height:24px;border-radius:50%;border:2px solid var(--text-faint);}
+  .quest-card.done .quest-check{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+  .quest-title{font-weight:700;}
+  .quest-reward{color:var(--accent);}
+  .quest-reward .g{color:var(--gold);}
+  .progress-track{height:8px;background:rgba(255,255,255,.06);border-radius:999px;}
+  .progress-fill{background:linear-gradient(90deg,var(--accent),var(--accent-hi));border-radius:999px;}
+  .empty-note{border-radius:var(--radius-m);background:rgba(255,255,255,.015);}
+
+  /* FAB */
+  .fab{
+    width:56px;height:56px;border-radius:18px;
+    bottom:calc(96px + env(safe-area-inset-bottom));
+    background:linear-gradient(160deg,var(--accent-hi),var(--accent));
+    color:var(--accent-ink);font-size:28px;
+    box-shadow:0 12px 28px -10px rgba(61,214,160,.75), 0 0 0 1px rgba(255,255,255,.12) inset;
+  }
+
+  /* bottom sheets */
+  .sheet,.bottom-sheet{background:var(--bg-elev);border-radius:28px 28px 0 0;border-color:rgba(255,255,255,.06);}
+  .sheet-overlay,.bottom-sheet-overlay{background:rgba(3,7,9,.6);backdrop-filter:blur(3px);}
+
+  /* floating bottom nav */
+  #bottomnav{
+    bottom:calc(10px + env(safe-area-inset-bottom));
+    width:calc(100% - 24px);max-width:456px;
+    border-radius:22px;
+    background:rgba(18,26,30,.86);
+    backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);
+    border:1px solid rgba(255,255,255,.07);
+    box-shadow:0 16px 40px -12px rgba(0,0,0,.8);
+    padding:6px;
+  }
+  .nav-item{border-radius:16px;min-height:52px;color:var(--text-faint);transition:background .15s,color .15s;}
+  .nav-item .ic{filter:grayscale(.85) opacity(.7);transition:filter .15s,transform .15s;}
+  .nav-item.active{color:var(--accent);background:var(--accent-soft);}
+  .nav-item.active .ic{filter:none;transform:translateY(-1px) scale(1.08);}
+  .screen{padding-bottom:calc(120px + env(safe-area-inset-bottom));}
+
+  /* selection states → jade */
+  .chip.active,.shop-tab.active,.diary-filter-opt.active{
+    background:var(--accent);border-color:var(--accent);color:var(--accent-ink);
+    box-shadow:0 6px 14px -8px rgba(61,214,160,.8);
+  }
+  .chip,.shop-tab{border-radius:999px;}
+  .stat-fill{background:linear-gradient(90deg,var(--accent),var(--accent-hi));border-radius:999px;}
+  .evo-item.reached::before{background:var(--accent);}
+</style>
 </head>
 <body>
 <div id="app">
