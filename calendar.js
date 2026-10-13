@@ -6,7 +6,7 @@ const $ = (id)=>document.getElementById(id);
 
 // 가격은 퀘스트 골드(XP÷5: 보통 20G, 하루 5개 약 100G) 기준
 const THEMES = [
-  {id:'kingdom',   name:'기본 왕국',   icon:'🏰', price:0,    accent:'#F2B84B', bg:'#11222A', line:'#25434C', desc:'성벽과 깃발이 있는 왕국 지도', cls:'th-kingdom'},
+  {id:'kingdom',   name:'기본 왕국',   icon:'🏰', price:0,    accent:'#D5C39A', bg:'#262B24', line:'#4A5045', desc:'성벽과 깃발이 있는 왕국 지도', cls:'th-kingdom'},
   {id:'forest',    name:'숲속 마을',   icon:'🌲', price:300,  accent:'#7BD389', bg:'#14261B', line:'#2F5A3F', desc:'이끼 낀 숲길과 오두막', cls:'th-forest'},
   {id:'winter',    name:'겨울 왕국',   icon:'❄️', price:600,  accent:'#2F8FD6', bg:'#E4F1FA', line:'#B7D7EC', desc:'눈 내리는 밝은 얼음 성', cls:'th-winter'},
   {id:'pirate',    name:'해적 항구',   icon:'🏴‍☠️', price:700,  accent:'#E0B25A', bg:'#3A2817', line:'#6B4A2B', desc:'낡은 항해 지도와 나무 부두', cls:'th-pirate'},
@@ -176,7 +176,7 @@ function renderHomeCond(){
 
 const css = document.createElement('style');
 css.textContent = `
-.cal-scope{--ca:#F2B84B;--cb:#151F24;--cl:#243238;margin-bottom:14px}
+.cal-scope{--ca:#D5C39A;--cb:#2A3028;--cl:#4A5045;margin-bottom:14px}
 .cal-box{background:var(--cb);border:1px solid var(--cl);border-radius:var(--radius-s,12px);padding:10px}
 .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-weight:800}
 .cal-head button{background:none;border:1px solid var(--cl);color:var(--text);border-radius:8px;padding:6px 12px;font-size:15px}

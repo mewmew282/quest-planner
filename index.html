@@ -5,13 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>QUEST PLANNER</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0B1114">
+<meta name="theme-color" content="#20241F">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Quest Planner">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
@@ -1884,151 +1885,190 @@
 .shop-item.ticket-item{border-color:rgba(255,193,72,.35);background:linear-gradient(135deg,rgba(255,193,72,.08),rgba(255,255,255,.02))}
 .mg-game-card.mg-game-closed{opacity:.68;filter:saturate(.55);cursor:not-allowed;border-color:rgba(255,100,90,.35);background:rgba(100,30,30,.08)}.mg-game-closed .nm{color:#ff8b83}.mg-game-closed .arrow{color:#ff756d;font-weight:1000}
   /* ================================================================
-     REDESIGN 2026 — "Midnight Jade"
-     - 딥 슬레이트 배경 + 제이드(주요 행동/진행) + 앰버(보상·골드)
-     - Pretendard 단일 서체, 둥근 카드, 플로팅 하단 내비
-     - 기존 토큰을 재정의하고 핵심 컴포넌트만 덮어쓴다 (마크업/JS 변경 없음)
+     GUILD ARCHIVE — 1단계: 디자인 토큰 + 공통 컴포넌트
+     (명세서 3장 디자인 시스템 / 7장 접근성 기준)
+     - 마크업·JS·저장 구조는 건드리지 않고, 기존 토큰을 재정의한다
+     - 화면별 개편(홈/퀘스트/상점/일기 등)은 다음 단계에서 진행
      ================================================================ */
   :root{
-    --bg:#0B1114;
-    --bg-elev:#121A1E;
-    --card:#151F24;
-    --card-hi:#1C2930;
-    --border:#243238;
-    --text:#ECF3F1;
-    --text-dim:#9AB0AC;
-    --text-faint:#5F7672;
-    --gold:#F2B84B;
-    --gold-dim:#8C6A2B;
-    --danger:#F0675E;
-    --success:#3DD6A0;
-    --accent:#3DD6A0;
-    --accent-hi:#6BE8BC;
-    --accent-ink:#04261A;
-    --accent-soft:rgba(61,214,160,.12);
-    --shadow-card:0 1px 0 rgba(255,255,255,.03) inset, 0 8px 24px -14px rgba(0,0,0,.7);
-    --radius-s:12px;
-    --radius-m:18px;
-    --radius-l:26px;
-    --font-display:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    /* 명세서 3.1 색상 토큰 */
+    --bg-primary:#20241F;
+    --bg-panel:#2A3028;
+    --bg-raised:#30372D;
+    --bg-paper:#E6D9BC;
+    --text-primary:#F0E5D0;
+    --text-secondary:#B4B8A8;
+    --text-muted:#979D8D;      /* 명세 외 보조값: 패널 위 대비 4.5:1 이상 */
+    --text-dark:#30342E;
+    --accent-bronze:#80613A;
+    --accent-bronze-light:#D5C39A;
+    --accent-forest:#343D32;
+    --border-subtle:#4A5045;
+    --warning:#D3AD69;
+    --cta-text:#F6EEDC;        /* 브론즈 버튼 위 글자 (대비 4.9:1) */
+
+    /* 기존 토큰 → 길드 아카이브 토큰으로 연결 (기존 CSS 전체에 일괄 반영) */
+    --bg:var(--bg-primary);
+    --bg-elev:var(--bg-panel);
+    --card:var(--bg-panel);
+    --card-hi:var(--bg-raised);
+    --border:var(--border-subtle);
+    --text:var(--text-primary);
+    --text-dim:var(--text-secondary);
+    --text-faint:var(--text-muted);
+    --gold:var(--accent-bronze-light);
+    --gold-dim:var(--accent-bronze);
+    --success:#9EAF8C;
+    --danger:#D08476;          /* 명세값 #B96C60은 글자 대비 3.5:1 → 접근성 우선 조정 */
+
+    /* 3.4 모서리 */
+    --radius-s:8px;
+    --radius-m:10px;
+    --radius-l:12px;
+
+    /* 3.3 타이포그래피: 장식 서체는 제목에만 */
+    --font-display:'Noto Serif KR',Georgia,'AppleMyungjo','Batang',serif;
     --font-body:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
-  }
-  body{letter-spacing:-.01em;}
-  #app{
-    background:
-      radial-gradient(520px 260px at 85% -6%, rgba(61,214,160,.10), transparent 70%),
-      radial-gradient(420px 240px at 0% 8%, rgba(242,184,75,.06), transparent 70%),
-      var(--bg);
-  }
-  h1,h2,h3{letter-spacing:-.03em;font-weight:800;}
 
-  /* buttons */
-  .btn{border-radius:var(--radius-s);font-weight:700;background:var(--card-hi);border-color:var(--border);}
+    --dur-fast:150ms;
+    --dur-sheet:220ms;
+    --focus-ring:0 0 0 2px var(--bg-primary),0 0 0 4px var(--accent-bronze-light);
+  }
+
+  /* 외부 폰트·이미지 실패에 대비한 단색 배경 (그라데이션 제거) */
+  #app{background:var(--bg-primary);}
+  html,body{background:var(--bg-primary);}
+  body{font-size:15px;line-height:1.5;}
+
+  /* ---------- Typography ---------- */
+  h1,h2,h3{font-family:var(--font-display);font-weight:700;letter-spacing:-.01em;color:var(--text-primary);}
+  .section-head h2{font-size:17px;}
+  .section-head .meta{font-size:12px;color:var(--text-secondary);}
+
+  /* ---------- Focus (키보드 포커스 표시 유지) ---------- */
+  :is(button,a,input,textarea,select,[role=button],[tabindex]):focus-visible{
+    outline:2px solid var(--accent-bronze-light);outline-offset:2px;
+  }
+
+  /* ---------- Button ---------- */
+  .btn{
+    min-height:44px;border-radius:var(--radius-s);
+    background:var(--bg-raised);color:var(--text-primary);
+    border:1px solid var(--border-subtle);
+    font-size:14px;font-weight:600;box-shadow:none;
+    transition:background var(--dur-fast) ease,border-color var(--dur-fast) ease,transform var(--dur-fast) ease;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn:disabled,.btn[disabled]{opacity:.5;cursor:not-allowed;}
+  /* 주요 CTA: 단색 앤틱 브론즈 (그라데이션·발광 없음) */
   .btn-gold{
-    background:linear-gradient(180deg,var(--accent-hi),var(--accent));
-    color:var(--accent-ink);border:none;
-    box-shadow:0 6px 16px -8px rgba(61,214,160,.7);
+    background:var(--accent-bronze);color:var(--cta-text);
+    border:1px solid #96744A;box-shadow:none;
   }
-  .btn-ghost{background:transparent;}
-  .pill{background:var(--card-hi);border-color:transparent;font-weight:700;}
-  input[type=text],input[type=date],textarea{background:var(--bg-elev);border-radius:var(--radius-s);}
-  input[type=text]:focus,input[type=date]:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+  .btn-gold:active{background:#6E5332;}
+  .btn-ghost{background:transparent;border:1px solid var(--border-subtle);color:var(--text-secondary);}
 
-  /* top bar */
-  #topbar{
-    background:rgba(11,17,20,.78);
-    backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);
-    border-bottom:1px solid rgba(255,255,255,.05);
-  }
-  .tb-name{font-weight:800;}
-  .tb-gold{
-    background:rgba(242,184,75,.10);border:1px solid rgba(242,184,75,.22);
-    padding:5px 10px;border-radius:999px;color:var(--gold);
-  }
-  .tb-settings-btn{border-radius:12px !important;background:var(--card) !important;border:1px solid var(--border) !important;}
-  .lv-badge{
-    background:var(--accent-soft);color:var(--accent);
-    border:1px solid rgba(61,214,160,.35);border-radius:999px;
-    font-family:var(--font-body);font-weight:800;letter-spacing:.01em;
-  }
-  .xp-bar-track{height:6px;border:none;background:rgba(255,255,255,.06);border-radius:999px;}
-  .xp-bar-fill{background:linear-gradient(90deg,var(--accent),var(--accent-hi));border-radius:999px;box-shadow:0 0 10px rgba(61,214,160,.5);}
-
-  /* home hero */
-  .char-aura{
-    width:140px;height:140px;border-radius:40px;
-    background:
-      radial-gradient(circle at 50% 30%, rgba(255,255,255,.06), transparent 60%),
-      linear-gradient(160deg,var(--card-hi),var(--card));
-    border:1px solid color-mix(in srgb, var(--class-color,var(--accent)) 55%, transparent);
-    box-shadow:0 0 0 8px color-mix(in srgb, var(--class-color,var(--accent)) 8%, transparent),
-               0 20px 50px -20px var(--class-color,var(--accent));
-  }
-  .char-title{font-size:21px;font-weight:800;letter-spacing:-.03em;}
-
-  /* section heads */
-  .section-head h2{font-size:17px;font-weight:800;}
-  .section-head h2::before{
-    content:'';display:inline-block;width:6px;height:6px;border-radius:2px;
-    background:var(--accent);margin-right:8px;vertical-align:middle;transform:translateY(-2px) rotate(45deg);
+  /* ---------- Status label (pill → 각진 라벨) ---------- */
+  .pill{
+    border-radius:4px;padding:2px 8px;font-size:12px;font-weight:600;
+    background:var(--bg-raised);color:var(--text-secondary);border:1px solid var(--border-subtle);
   }
 
-  /* cards */
-  .quest-card,.progress-strip,.metric-card{
-    background:linear-gradient(180deg,var(--card),color-mix(in srgb,var(--card) 80%,var(--bg)));
-    border:1px solid var(--border);border-radius:var(--radius-m);
-    box-shadow:var(--shadow-card);
+  /* ---------- Inputs ---------- */
+  input[type=text],input[type=date],textarea,select{
+    background:var(--bg-primary);color:var(--text-primary);
+    border:1px solid var(--border-subtle);border-radius:var(--radius-s);
+    font-size:16px; /* iOS 확대 방지 + 본문 크기 */
   }
-  .quest-card{padding:14px;position:relative;overflow:hidden;}
-  .quest-card:active{transform:scale(.99);}
-  .quest-card.done{opacity:.5;}
-  .quest-check{width:24px;height:24px;border-radius:50%;border:2px solid var(--text-faint);}
-  .quest-card.done .quest-check{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
-  .quest-title{font-weight:700;}
-  .quest-reward{color:var(--accent);}
-  .quest-reward .g{color:var(--gold);}
-  .progress-track{height:8px;background:rgba(255,255,255,.06);border-radius:999px;}
-  .progress-fill{background:linear-gradient(90deg,var(--accent),var(--accent-hi));border-radius:999px;}
-  .empty-note{border-radius:var(--radius-m);background:rgba(255,255,255,.015);}
-
-  /* FAB */
-  .fab{
-    width:56px;height:56px;border-radius:18px;
-    bottom:calc(96px + env(safe-area-inset-bottom));
-    background:linear-gradient(160deg,var(--accent-hi),var(--accent));
-    color:var(--accent-ink);font-size:28px;
-    box-shadow:0 12px 28px -10px rgba(61,214,160,.75), 0 0 0 1px rgba(255,255,255,.12) inset;
+  input[type=text]:focus,input[type=date]:focus,textarea:focus{
+    outline:none;border-color:var(--accent-bronze-light);box-shadow:0 0 0 1px var(--accent-bronze-light);
   }
+  ::placeholder{color:var(--text-muted);}
 
-  /* bottom sheets */
-  .sheet,.bottom-sheet{background:var(--bg-elev);border-radius:28px 28px 0 0;border-color:rgba(255,255,255,.06);}
-  .sheet-overlay,.bottom-sheet-overlay{background:rgba(3,7,9,.6);backdrop-filter:blur(3px);}
-
-  /* floating bottom nav */
-  #bottomnav{
-    bottom:calc(10px + env(safe-area-inset-bottom));
-    width:calc(100% - 24px);max-width:456px;
-    border-radius:22px;
-    background:rgba(18,26,30,.86);
-    backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);
-    border:1px solid rgba(255,255,255,.07);
-    box-shadow:0 16px 40px -12px rgba(0,0,0,.8);
-    padding:6px;
+  /* ---------- Chip / Tab: 선택 상태는 색 + 테두리 + 굵기로 동시 표현 ---------- */
+  .chip,.shop-tab{
+    min-height:40px;border-radius:var(--radius-s);
+    background:var(--bg-panel);color:var(--text-secondary);border:1px solid var(--border-subtle);
   }
-  .nav-item{border-radius:16px;min-height:52px;color:var(--text-faint);transition:background .15s,color .15s;}
-  .nav-item .ic{filter:grayscale(.85) opacity(.7);transition:filter .15s,transform .15s;}
-  .nav-item.active{color:var(--accent);background:var(--accent-soft);}
-  .nav-item.active .ic{filter:none;transform:translateY(-1px) scale(1.08);}
-  .screen{padding-bottom:calc(120px + env(safe-area-inset-bottom));}
-
-  /* selection states → jade */
   .chip.active,.shop-tab.active,.diary-filter-opt.active{
-    background:var(--accent);border-color:var(--accent);color:var(--accent-ink);
-    box-shadow:0 6px 14px -8px rgba(61,214,160,.8);
+    background:var(--bg-raised);color:var(--accent-bronze-light);
+    border-color:var(--accent-bronze-light);font-weight:700;box-shadow:none;
   }
-  .chip,.shop-tab{border-radius:999px;}
-  .stat-fill{background:linear-gradient(90deg,var(--accent),var(--accent-hi));border-radius:999px;}
-  .evo-item.reached::before{background:var(--accent);}
+
+  /* ---------- Panel (카드 기본값: 1px 테두리 + 명도차, 그림자 없음) ---------- */
+  .quest-card,.progress-strip,.metric-card{
+    background:var(--bg-panel);border:1px solid var(--border-subtle);
+    border-radius:var(--radius-m);box-shadow:none;
+  }
+  .empty-note{border:1px dashed var(--border-subtle);border-radius:var(--radius-m);color:var(--text-secondary);}
+
+  /* ---------- Progress bar (발광·그라데이션 제거) ---------- */
+  .progress-track,.xp-bar-track{background:var(--bg-primary);border:1px solid var(--border-subtle);border-radius:3px;}
+  .progress-fill{background:var(--success);border-radius:2px;}
+  .xp-bar-fill{background:var(--accent-bronze-light);border-radius:2px;box-shadow:none;}
+  .stat-fill{background:var(--accent-bronze-light);border-radius:2px;}
+  .evo-item.reached::before{background:var(--accent-bronze-light);}
+
+  /* ---------- Top bar ---------- */
+  #topbar{
+    background:var(--bg-panel);backdrop-filter:none;-webkit-backdrop-filter:none;
+    border-bottom:1px solid var(--border-subtle);
+  }
+  .tb-name{font-size:15px;font-weight:700;}
+  .tb-title{font-size:12px;color:var(--text-secondary);}
+  .tb-gold{font-size:15px;color:var(--accent-bronze-light);font-variant-numeric:tabular-nums;}
+  .tb-settings-btn{
+    width:44px !important;height:44px !important;flex-basis:44px !important;
+    border-radius:var(--radius-s);background:var(--bg-raised);border:1px solid var(--border-subtle);
+  }
+  .tb-settings-btn:active{transform:none;}
+  .lv-badge{
+    background:transparent;color:var(--accent-bronze-light);
+    border:1px solid var(--accent-bronze);border-radius:4px;
+    font-family:var(--font-display);font-size:13px;
+  }
+  .xp-num{font-size:12px;color:var(--text-secondary);}
+
+  /* ---------- Modal / Sheet: 앞에 뜨는 요소에만 그림자 ---------- */
+  .sheet-overlay,.bottom-sheet-overlay{background:rgba(12,14,11,.66);}
+  .sheet,.bottom-sheet{
+    background:var(--bg-panel);border:1px solid var(--border-subtle);border-bottom:none;
+    border-radius:var(--radius-l) var(--radius-l) 0 0;
+    box-shadow:0 -12px 32px rgba(0,0,0,.45);
+    transition-duration:var(--dur-sheet);
+  }
+
+  /* ---------- Quick add (거대한 원형 FAB → 절제된 사각 버튼) ---------- */
+  .fab{
+    width:48px;height:48px;border-radius:var(--radius-m);
+    bottom:calc(84px + env(safe-area-inset-bottom));
+    background:var(--accent-bronze);color:var(--cta-text);
+    border:1px solid #96744A;font-size:24px;
+    box-shadow:0 4px 12px rgba(0,0,0,.4);
+  }
+
+  /* ---------- Bottom nav: 고정형, 48px 터치 영역, 활성 상태는 상단 막대 + 색 ---------- */
+  #bottomnav{
+    background:var(--bg-panel);backdrop-filter:none;-webkit-backdrop-filter:none;
+    border-top:1px solid var(--border-subtle);
+  }
+  .nav-item{
+    position:relative;min-height:56px;font-size:12px;color:var(--text-muted);
+    border-radius:0;background:none;
+  }
+  .nav-item .ic{filter:grayscale(1) opacity(.65);}
+  .nav-item.active{color:var(--accent-bronze-light);font-weight:700;}
+  .nav-item.active .ic{filter:none;}
+  .nav-item.active::before{
+    content:'';position:absolute;top:-7px;left:22%;right:22%;height:2px;background:var(--accent-bronze-light);
+  }
+
+  /* ---------- Motion: prefers-reduced-motion 존중 ---------- */
+  @media (prefers-reduced-motion: reduce){
+    .btn,.chip,.sheet,.bottom-sheet,.sheet-overlay,.bottom-sheet-overlay,.progress-fill,.xp-bar-fill,.stat-fill{
+      transition:none !important;
+    }
+  }
 </style>
 </head>
 <body>
