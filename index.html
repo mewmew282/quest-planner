@@ -2178,6 +2178,111 @@
   /* 분류 필터: 한 줄 가로 스크롤 (페이지 가로 스크롤은 생기지 않음) */
   .chip-row-scroll{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-left:-16px;margin-right:-16px;padding:0 16px;}
   .chip-row-scroll .chip{flex:0 0 auto;}
+
+  /* ================================================================
+     GUILD ARCHIVE — 3단계: 장비 / 상점 / 암시장 (명세서 5.4, 5.5)
+     ================================================================ */
+  /* 진열대: 2열 카드 → 한 열 장부 행 (아이콘 · 이름/상태 · 효과/비교 · 가격 · 구매) */
+  #shop-list,#shop-screen-list,#bm-shop-panel{display:flex;flex-direction:column;gap:0;}
+  #shop-screen-list:has(.shop-item),#shop-list:has(.shop-item){
+    background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:var(--radius-m);overflow:hidden;
+  }
+  .shop-shelf-label{
+    font-size:13px;font-weight:700;color:var(--text-secondary);margin:0;padding:10px 14px;
+    background:var(--bg-raised);border-bottom:1px solid var(--border-subtle);
+  }
+  .shop-item{
+    display:grid;grid-template-columns:48px minmax(0,1fr);grid-template-areas:"ic info" "ic act";
+    column-gap:12px;row-gap:8px;align-items:start;
+    background:transparent;border:none;border-radius:0;padding:12px 14px;margin:0;box-shadow:none;animation:none;
+  }
+  .shop-item + .shop-item{border-top:1px solid var(--border-subtle);}
+  .shop-item.owned{border-color:var(--border-subtle);}
+  .shop-item .ic{
+    grid-area:ic;width:48px;height:48px;font-size:28px;line-height:1;display:flex;align-items:center;justify-content:center;
+    background:var(--bg-primary);border:1px solid var(--border-subtle);border-radius:var(--radius-s);
+  }
+  .shop-item .ic img.ui-ico{width:36px;height:36px;vertical-align:0;}
+  .shop-item .info{grid-area:info;text-align:left;}
+  .shop-item .info .nm{font-size:15px;justify-content:flex-start;gap:6px;}
+  .shop-item .info .sub{font-size:13px;color:var(--text-secondary);-webkit-line-clamp:unset;display:block;margin-top:2px;}
+  .shop-item .info .price{font-size:14px;color:var(--accent-bronze-light);margin-top:4px;font-variant-numeric:tabular-nums;}
+  .shop-item .item-action{grid-area:act;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .shop-item .item-buy{width:auto;min-height:44px;padding:8px 14px;font-size:14px;flex:0 0 auto;}
+  .shop-item button:disabled{opacity:.55;}
+  .item-after{font-size:12px;color:var(--text-secondary);}
+  .item-after.short{color:var(--danger);}
+  .item-compare{font-size:12px;color:var(--text-secondary);margin-top:4px;display:flex;flex-wrap:wrap;gap:2px 8px;}
+  .item-compare .up{color:var(--success);font-weight:700;}
+  .item-compare .down{color:var(--danger);font-weight:700;}
+  .shop-badge{font-size:11.5px;border-radius:4px;padding:1px 6px;border:1px solid currentColor;background:none;}
+  .shop-badge.equipped{color:var(--accent-bronze-light);background:none;}
+  .shop-badge.owned{color:var(--text-secondary);background:none;}
+  .shop-screen-gold .value{font-variant-numeric:tabular-nums;}
+
+  /* 장비 슬롯: 장착/빈 슬롯/미보유를 글자 + 테두리로 함께 구분 */
+  .equip-card{
+    background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:var(--radius-m);box-shadow:none;min-height:150px;
+  }
+  .equip-card.equipped{border-color:var(--accent-bronze-light);box-shadow:none;}
+  .equip-card:not(.equipped){border-style:dashed;}
+  .equip-card .slot-label{font-size:12px;color:var(--text-secondary);}
+  .equip-card .nm{font-size:13px;}
+  .equip-card .eff{font-size:12px;color:var(--text-secondary);}
+  .equip-card .equip-status{border-radius:4px;font-size:11.5px;}
+  .equip-card .equip-status.on{background:none;color:var(--accent-bronze-light);border:1px solid var(--accent-bronze-light);}
+  .equip-card .equip-status.empty,.equip-card .equip-status.none{background:none;color:var(--text-muted);border:1px dashed var(--border-subtle);}
+  .equip-pick-row .item-compare{margin-top:2px;}
+
+  /* 상태 메시지(토스트) 통일: 왼쪽 막대 + 아이콘으로 성공/오류 구분 */
+  .toast{
+    background:var(--bg-raised);border:1px solid var(--border-subtle);border-left:4px solid var(--accent-bronze-light);
+    border-radius:var(--radius-s);color:var(--text-primary);font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.45);
+  }
+  .toast.toast-success{border-left-color:var(--success);}
+  .toast.toast-error{border-left-color:var(--danger);}
+  .toast.toast-success::before{content:'✓ ';color:var(--success);font-weight:700;}
+  .toast.toast-error::before{content:'! ';color:var(--danger);font-weight:700;}
+
+  /* 암시장: 일반 상점과 구분되는 적갈색·먹색 테마 (본문 대비 유지) */
+  #bm-overlay{
+    --bm-ink:#1E1715;--bm-panel:#2B201C;--bm-raised:#362823;--bm-line:#5A3F35;--bm-accent:#D9A88A;--bm-cta:#7A3B2E;
+  }
+  #bm-overlay .sheet.bm-sheet{background:var(--bm-ink);border-color:var(--bm-line) !important;}
+  #bm-overlay h3{color:#F0E5D0;}
+  #bm-overlay .hint{color:#C9B6A8;}
+  .bm-tabs{gap:6px;}
+  .bm-tab{
+    min-height:44px;border-radius:var(--radius-s);background:var(--bm-panel);color:#C9B6A8;border:1px solid var(--bm-line);
+  }
+  .bm-tab.active{background:var(--bm-raised);color:var(--bm-accent);border-color:var(--bm-accent);font-weight:700;}
+  .btn-bm{background:var(--bm-cta,#7A3B2E);color:#F6EEDC;border:1px solid #965040;}
+  .btn-bm:active{background:#652F24;}
+  .btn-duel{background:#8E3A30;color:#F6EEDC;border:1px solid #A9483C;}
+  #bm-shop-panel:has(.shop-item){background:var(--bm-panel);border:1px solid var(--bm-line);border-radius:var(--radius-m);overflow:hidden;}
+  #bm-overlay .shop-item + .shop-item{border-top-color:var(--bm-line);}
+  #bm-overlay .shop-item .ic{background:var(--bm-ink);border-color:var(--bm-line);}
+  #bm-overlay .shop-item .info .price{color:var(--bm-accent);}
+  #bm-overlay .bm-shelf-note,#bm-overlay .mg-daily-note{
+    background:none;border:none;border-left:3px solid var(--bm-line);border-radius:0;padding:6px 10px;color:#C9B6A8;font-size:13px;
+  }
+  .duel-card,.mg-game-card{background:var(--bm-panel);border:1px solid var(--bm-line);border-radius:var(--radius-m);box-shadow:none;}
+  .duel-card.selected{border-color:var(--bm-accent);background:var(--bm-raised);}
+  .duel-bet-btn{min-height:44px;border-radius:var(--radius-s);}
+  .duel-bet-btn.selected{border-color:var(--bm-accent);color:var(--bm-accent);}
+  .duel-result-card,.mg-result-card{border-radius:var(--radius-m);box-shadow:none;}
+
+  /* 게임 시작 전 정보 / 결과의 증감·잔액 */
+  .game-brief{display:grid;grid-template-columns:repeat(3,1fr);margin:0 0 8px;border:1px solid var(--bm-line,var(--border-subtle));border-radius:var(--radius-s);}
+  .game-brief > div{padding:8px 4px;text-align:center;min-width:0;}
+  .game-brief > div + div{border-left:1px solid var(--bm-line,var(--border-subtle));}
+  .game-brief dt{font-size:12px;color:#C9B6A8;}
+  .game-brief dd{margin:2px 0 0;font-size:14px;font-weight:700;color:#F0E5D0;font-variant-numeric:tabular-nums;}
+  .game-expect{font-size:13px;color:#E3CFC0;margin:0 0 10px;}
+  .result-gold{font-size:22px;font-weight:800;margin-top:8px;font-variant-numeric:tabular-nums;}
+  .result-gold.up{color:var(--success);}
+  .result-gold.down{color:var(--danger);}
+  .result-balance{font-size:13px;color:var(--text-secondary);margin-top:2px;}
   /* ---------- Motion: prefers-reduced-motion 존중 ---------- */
   @media (prefers-reduced-motion: reduce){
     .btn,.chip,.sheet,.bottom-sheet,.sheet-overlay,.bottom-sheet-overlay,.progress-fill,.xp-bar-fill,.stat-fill,.quest-check .qc-box{
@@ -4479,11 +4584,16 @@ async function maybeShowLevelUp(beforeLevel){
   }
 }
 
-function toast(msg){
+/* kind: 'success' | 'error' | 'info'(기본). 상점·장착·베팅 등 상태 메시지를 같은 모양으로 보여준다 */
+function toast(msg, kind){
   const t = document.getElementById('toast');
   t.textContent = msg;
+  t.classList.remove('toast-success','toast-error');
+  if(kind==='success' || kind==='error') t.classList.add('toast-'+kind);
+  t.setAttribute('role', kind==='error' ? 'alert' : 'status');
   t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 1800);
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>t.classList.remove('show'), 1800);
 }
 
 let _achvFxTimer = null;
@@ -4637,7 +4747,7 @@ let equipPickerSlot = null;
 function openEquipPicker(slot){
   const owned = state.inventory.filter(id=>{ const it=ALL_ITEMS.find(i=>i.id===id); return it && it.slot===slot; });
   if(owned.length===0){
-    toast('보유한 장비가 없어요. 상점에서 구매해보세요!');
+    toast('보유한 장비가 없어요. 상점에서 구매해보세요!', 'error');
     return;
   }
   equipPickerSlot = slot;
@@ -4662,7 +4772,7 @@ function renderEquipPicker(){
     const active = id===curId;
     return `<div class="equip-pick-row${active?' active':''}" onclick="selectEquipItem('${slot}', '${id}')">
       <span class="ic">${it.icon}</span>
-      <div class="nm-wrap"><div class="nm">${it.name}</div><div class="eff">${it.desc}</div></div>
+      <div class="nm-wrap"><div class="nm">${it.name}</div><div class="eff">${it.desc}</div>${active?'':equipCompareHTML(it)}</div>
       ${active?'<span class="equip-status">착용 중</span>':''}
     </div>`;
   }).join('');
@@ -4676,7 +4786,7 @@ async function selectEquipItem(slot, itemId){
   renderEquipSlots();
   renderCharacterScreen();
   const item = ALL_ITEMS.find(i=>i.id===itemId);
-  toast(item ? `${item.icon} ${item.name} 장착!` : '장비를 해제했어요.');
+  toast(item ? `${item.icon} ${item.name} 장착 완료` : '장비를 해제했어요.', 'success');
 }
 function closeEquipPicker(){ document.getElementById('equip-picker-overlay').classList.remove('show'); equipPickerSlot = null; }
 
@@ -4718,25 +4828,49 @@ function setShopCategory(cat){
   renderShop();
   renderShopScreen();
 }
-function renderShopItemCard(it){
+/* 장착 시 현재 장비 대비 변화 (명세 5.4: 비교 수치 표시). 실제 효과 필드(xpBonus/goldBonus/duelBonus)만 사용 */
+const EQUIP_STAT_FIELDS = [['xpBonus','XP'],['goldBonus','골드'],['duelBonus','결투 승률']];
+function equipCompareHTML(it){
+  if(!SLOT_META[it.slot]) return ''; // 티켓 등 장착 불가 아이템
+  const curId = state.equipped[it.slot];
+  if(curId===it.id) return '';
+  const cur = ALL_ITEMS.find(i=>i.id===curId);
+  const diffs = EQUIP_STAT_FIELDS.map(([k,label])=>{
+    const d = Math.round(((it[k]||0)-(cur&&cur[k]||0))*100);
+    if(!d) return '';
+    return `<span class="${d>0?'up':'down'}">${label} ${d>0?'▲ +':'▼ −'}${Math.abs(d)}%p</span>`;
+  }).filter(Boolean);
+  const base = cur ? `현재 ${cur.name} 대비` : '빈 슬롯에 장착 시';
+  return `<div class="item-compare">${base} ${diffs.length?diffs.join(' '):'<span>변화 없음</span>'}</div>`;
+}
+/* 상점·암시장 공용 진열 행: 아이콘 → 이름/상태 → 효과 → 비교 → 가격과 구매 후 잔액 */
+function shopItemRowHTML(it, opt={}){
   const owned = state.inventory.includes(it.id);
-  const equipped = state.equipped[it.slot]===it.id;
-  const badge = equipped
-    ? `<span class="shop-badge equipped">★ 장착 중</span>`
-    : (owned ? `<span class="shop-badge owned">보유중</span>` : '');
+  const equipped = it.slot!=='ticket' && state.equipped[it.slot]===it.id;
+  const badge = equipped ? `<span class="shop-badge equipped">장착 중</span>` : (owned ? `<span class="shop-badge owned">보유</span>` : '');
   const canAfford = state.gold >= it.price;
-  return `<div class="shop-item${owned?' owned':''}">
+  const after = state.gold - it.price;
+  const btnCls = opt.bm ? 'btn btn-bm' : 'btn btn-gold';
+  const btnId = opt.bm ? ` id="bm-buy-${it.id}"` : '';
+  const onBuy = opt.bm ? `buyBmItem('${it.id}')` : `buyItem('${it.id}')`;
+  let action;
+  if(owned) action = `<button class="btn btn-ghost item-buy" disabled>보유 중</button>`;
+  else if(canAfford) action = `<button class="${btnCls} item-buy"${btnId} onclick="${onBuy}">구매하기 · ${it.price.toLocaleString()} G</button>
+      <div class="item-after">구매 후 잔액 ${after.toLocaleString()} G</div>`;
+  else action = `<button class="${btnCls} item-buy"${btnId} disabled>골드 부족 · ${it.price.toLocaleString()} G</button>
+      <div class="item-after short">${(it.price-state.gold).toLocaleString()} G 더 필요</div>`;
+  return `<div class="shop-item${owned?' owned':''}${opt.extraCls||''}"${opt.bm?` id="bm-item-${it.id}"`:''}${opt.style?` style="${opt.style}"`:''}>
       <span class="ic">${it.icon}</span>
       <div class="info">
         <div class="nm">${it.name}${badge}</div>
         <div class="sub">${it.desc}</div>
-        <div class="price">🪙 ${it.price}</div>
+        ${owned?'':equipCompareHTML(it)}
+        <div class="price">🪙 ${it.price.toLocaleString()} G</div>
       </div>
-      ${owned
-        ? `<button class="btn btn-ghost" disabled>보유중</button>`
-        : `<button class="btn btn-gold" onclick="buyItem('${it.id}')" ${canAfford?'':'disabled'}>${canAfford?'구매':'부족'}</button>`}
+      <div class="item-action">${action}</div>
     </div>`;
 }
+function renderShopItemCard(it){ return shopItemRowHTML(it); }
 function getShopMarkup(){
   const cats = [shopCategory];
   return cats.map(cat=>{
@@ -4814,7 +4948,7 @@ async function buyItem(itemId){
   renderShop();
   renderShopScreen();
   playSound('gold');
-  toast(`${item.icon} ${item.name} 구매 완료!`);
+  toast(`${item.icon} ${item.name} 구매 완료 · 잔액 ${state.gold.toLocaleString()} G`, 'success');
 }
 function openShop(){
   closeEquip();
@@ -5110,22 +5244,9 @@ function renderBmShop(){
   wrap.innerHTML = `<div class="bm-shelf-note">오늘 밤에만 진열되는 특수 장비예요. 결투 승률 보너스가 붙어있어요. (${items.length}종 진열 중)</div>` +
     items.map((it,i)=>{
       const owned = state.inventory.includes(it.id);
-      const equipped = it.slot!=='ticket' && state.equipped[it.slot]===it.id;
-      const badge = equipped ? `<span class="shop-badge equipped">★ 장착 중</span>` : (owned ? `<span class="shop-badge owned">보유중</span>` : '');
-      const canAfford = state.gold >= it.price;
       const legendary = !owned && BM_LEGENDARY_IDS.includes(it.id);
       const ticket = it.slot==='ticket';
-      return `<div class="shop-item bm${owned?' owned':''}${legendary?' legendary':''}${ticket?' ticket-item':''}" id="bm-item-${it.id}" style="animation-delay:${i*70}ms">
-        <span class="ic">${it.icon}</span>
-        <div class="info">
-          <div class="nm">${it.name}${badge}</div>
-          <div class="sub">${it.desc}</div>
-          <div class="price">🪙 ${it.price}</div>
-        </div>
-        ${owned
-          ? `<button class="btn btn-ghost" disabled>보유중</button>`
-          : `<button class="btn btn-bm" id="bm-buy-${it.id}" onclick="buyBmItem('${it.id}')" ${canAfford?'':'disabled'}>${canAfford?'구매':'부족'}</button>`}
-      </div>`;
+      return shopItemRowHTML(it, {bm:true, extraCls:` bm${legendary?' legendary':''}${ticket?' ticket-item':''}`, style:`animation-delay:${i*70}ms`});
     }).join('');
 }
 function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
@@ -5205,7 +5326,7 @@ async function buyBmItem(itemId){
   if(btn) btn.textContent = '구매 완료';
   if(card){ card.classList.add('purchased'); spawnBmParticles(card); }
   animateGoldPill(document.getElementById('bm-gold-pill'), goldBefore, state.gold, 400);
-  toast(`${item.icon} ${item.name} 구매 완료!`);
+  toast(`${item.icon} ${item.name} 구매 완료 · 잔액 ${state.gold.toLocaleString()} G`, 'success');
   await sleep(420); // 결과가 최소 500ms 이상 머물도록
   renderAll();
   renderBmShop();
@@ -5223,10 +5344,15 @@ function renderBmDuel(){
   let resultHtml = '';
   if(bm.duelResult){
     const r = bm.duelResult;
+    // 증감은 저장된 결과(베팅액·상대)와 상대 배율로 계산한다 (startDuel의 지급식과 동일)
+    const op = DUEL_OPPONENTS.find(o=>o.id===r.opponentId);
+    const net = r.won ? (op ? Math.round(r.bet*op.multiplier)-r.bet : null) : -r.bet;
     resultHtml = `<div class="duel-result-card ${r.won?'win':'lose'}">
       <div class="dr-ic">${r.won?'🏆':'💀'}</div>
       <div class="dr-title">결투 ${r.won?'승리':'패배'} · ${r.opponentName}</div>
       <div class="dr-sub">베팅 ${r.bet}G · 당시 예상 승률 ${r.winRatePct}%</div>
+      ${net===null?'':`<div class="result-gold ${net>=0?'up':'down'}">${net>=0?'+':'−'}${Math.abs(net).toLocaleString()} G</div>`}
+      <div class="result-balance">현재 보유 ${Number(state.gold).toLocaleString()} G</div>
     </div>`;
   }
   if(bm.duelDone){
@@ -5249,7 +5375,15 @@ function renderBmDuel(){
     return `<button class="duel-bet-btn${bmSelectedBet===b?' selected':''}${afford?'':' insufficient'}" onclick="selectDuelBet(${b}, this)">${b}G</button>`;
   }).join('');
   const canStart = bmSelectedOpponent && bmSelectedBet && state.gold>=bmSelectedBet;
+  const pickOp = DUEL_OPPONENTS.find(o=>o.id===bmSelectedOpponent);
+  const expect = (pickOp && bmSelectedBet) ? `승리 시 +${(Math.round(bmSelectedBet*pickOp.multiplier)-bmSelectedBet).toLocaleString()} G · 패배 시 −${bmSelectedBet.toLocaleString()} G` : '상대와 베팅액을 고르면 예상 증감이 표시됩니다';
   wrap.innerHTML = resultHtml +
+    `<dl class="game-brief">
+      <div><dt>보유 골드</dt><dd>${Number(state.gold).toLocaleString()} G</dd></div>
+      <div><dt>베팅액</dt><dd>${Math.min(...DUEL_BETS)}~${Math.max(...DUEL_BETS)} G</dd></div>
+      <div><dt>남은 결투</dt><dd>오늘 1회</dd></div>
+    </dl>` +
+    `<div class="game-expect">${expect}</div>` +
     `<div class="bm-shelf-note">상대를 고르고 베팅액을 선택하세요. 결투는 하루 한 번만 가능해요.</div>` +
     `<div class="bm-duel-cards${bmSelectedOpponent?' has-pick':''}">${cardsHtml}</div>` +
     `<div class="duel-bet-row">${betHtml}</div>` +
@@ -5259,7 +5393,7 @@ function selectDuelOpponent(id){ bmSelectedOpponent = id; renderBmDuel(); }
 function selectDuelBet(amt, btnEl){
   if(state.gold < amt){
     if(btnEl){ btnEl.classList.remove('shake'); void btnEl.offsetWidth; btnEl.classList.add('shake'); }
-    toast('골드가 부족해요.');
+    toast('골드가 부족해요.', 'error');
     return;
   }
   bmSelectedBet = amt;
@@ -5381,7 +5515,7 @@ async function startDuel(){
   await saveState();
   renderAll();
   document.getElementById('bm-gold-pill').textContent = `🪙${state.gold}`;
-  toast(won ? `🏆 결투 승리! 🪙+${Math.round(bmSelectedBet*opponent.multiplier)-bmSelectedBet}` : `💀 결투 패배... 🪙-${bmSelectedBet}`);
+  toast(won ? `🏆 결투 승리! 🪙+${Math.round(bmSelectedBet*opponent.multiplier)-bmSelectedBet}` : `💀 결투 패배... 🪙-${bmSelectedBet}`, won?'success':'error');
   bmSelectedOpponent = null; bmSelectedBet = null;
   renderBmDuel();
 }
@@ -5495,7 +5629,9 @@ function renderMgResultCard(win, title, sub, gameKey){
       <div class="mg-result-card ${win?'win':'lose'}">
         <div class="mg-r-ic">${win?'✨':'💥'}</div>
         <div class="mg-r-title">${title}</div>
-        <div class="mg-r-sub">${sub}<br>현재 보유 🪙${Number(state.gold)||0}G</div>
+        <div class="mg-r-sub">${sub}</div>
+        ${typeof mg.goldBefore==='number'?(()=>{ const net=(Number(state.gold)||0)-mg.goldBefore; return `<div class="result-gold ${net>=0?'up':'down'}">${net>=0?'+':'−'}${Math.abs(net).toLocaleString()} G</div>`; })():''}
+        <div class="result-balance">현재 보유 ${(Number(state.gold)||0).toLocaleString()} G</div>
       </div>
       <div class="mg-retry-grid">
         <button class="btn btn-bm" onclick="retryMg('${gameKey}')">배팅 다시하기</button>
@@ -5521,13 +5657,18 @@ function retryMgSame(gameKey){
 
 function renderMgList(wrap){
   const closed=state.blackMarket.closedGames||{};
+  // 베팅·보상 범위는 게임 상수에서 그대로 계산해 시작 전에 보여준다 (명세 5.5)
+  const range = arr => `${Math.min(...arr)}~${Math.max(...arr)}G`;
+  const shellMults = Object.values(MG_SHELL_MODES).map(m=>m.mult);
+  const slotMults = Object.values(MG_SLOT_PAYOUT).concat(MG_SLOT_PAIR_MULT);
   const cards=[
-    ['evenOdd','🪙','홀짝','50 : 50 · FAIR RANDOM'],
-    ['slot','🎰','슬롯머신','완전 랜덤 · MAX ×20 JACKPOT'],
-    ['shell','🥤','야바위','FIND THE COIN · 공정 셔플']
+    ['evenOdd','🪙','홀짝',`50 : 50 · FAIR RANDOM<br>베팅 ${range(MG_EO_BETS)} · 적중 시 ×1.9`],
+    ['slot','🎰','슬롯머신',`완전 랜덤 · MAX ×20 JACKPOT<br>베팅 ${range(MG_SLOT_BETS)} · 보상 ×${Math.min(...slotMults)}~×${Math.max(...slotMults)}`],
+    ['shell','🥤','야바위',`FIND THE COIN · 공정 셔플<br>베팅 ${range(MG_SHELL_BETS)} · 적중 시 ×${Math.min(...shellMults)}~×${Math.max(...shellMults)}`]
   ];
   wrap.innerHTML = `
     <div class="mg-daily-note">ILLEGAL GAMES · 완전 랜덤 또는 공정 셔플로 결과가 확정돼요. 신중하게 베팅하세요.</div>
+    <div class="game-expect">보유 ${Number(state.gold).toLocaleString()} G · 수익 한도를 넘긴 게임은 폐업돼요</div>
     <div class="mg-game-list">${cards.map((c,i)=>closed[c[0]]
       ? `<div class="mg-game-card mg-game-closed"><span class="ic">🚫</span><div class="info"><div class="nm">${c[2]} · 폐업</div><div class="sub">암시장 수익 한도 초과 · CLOSED</div></div><span class="arrow">×</span></div>`
       : `<div class="mg-game-card" style="animation-delay:${i*70}ms" onclick="openMiniGame('${c[0]}')"><span class="ic">${c[1]}</span><div class="info"><div class="nm">${c[2]}</div><div class="sub">${c[3]}</div></div><span class="arrow">›</span></div>`).join('')}</div>`;
@@ -5535,12 +5676,13 @@ function renderMgList(wrap){
 
 /* ---------- ① 홀짝 (완전 랜덤) ---------- */
 function mgSelectEoBet(amt, btnEl){
-  if(state.gold<amt){ if(btnEl){btnEl.classList.remove('shake'); void btnEl.offsetWidth; btnEl.classList.add('shake');} toast('골드가 부족해요.'); return; }
+  if(state.gold<amt){ if(btnEl){btnEl.classList.remove('shake'); void btnEl.offsetWidth; btnEl.classList.add('shake');} toast('골드가 부족해요.', 'error'); return; }
   mg.bet = amt; renderBmGame();
 }
 function mgSelectEoChoice(c){ if(mg.spinning||mg.done) return; mg.choice = c; renderBmGame(); }
 async function startMgEvenOdd(){
   if(!mg.bet || !mg.choice || state.gold<mg.bet || mg.spinning || mg.done) return;
+  mg.goldBefore = state.gold; // 결과 화면의 증감 표시용 (표시 전용, 저장하지 않음)
   mg.spinning = true;
   renderBmGame();
   const coinEl = document.getElementById('mg-eo-coin');
@@ -5595,7 +5737,7 @@ function renderMgEvenOdd(wrap){
 
 /* ---------- ② 슬롯머신 (3릴 · 완전 랜덤 · 결과는 회전 전 확정) ---------- */
 function mgSelectSlotBet(amt, btnEl){
-  if(state.gold<amt){ if(btnEl){btnEl.classList.remove('shake'); void btnEl.offsetWidth; btnEl.classList.add('shake');} toast('골드가 부족해요.'); return; }
+  if(state.gold<amt){ if(btnEl){btnEl.classList.remove('shake'); void btnEl.offsetWidth; btnEl.classList.add('shake');} toast('골드가 부족해요.', 'error'); return; }
   mg.bet = amt; renderBmGame();
 }
 function mgSlotOutcome(result){
@@ -5605,6 +5747,7 @@ function mgSlotOutcome(result){
 }
 function startMgSlot(){
   if(!mg.bet || state.gold<mg.bet || mg.spinning || mg.done) return;
+  mg.goldBefore = state.gold;
   mg.spinning = true; mg.lever = true;
   renderBmGame();
   // 결과는 릴이 돌기 전에 이미 확정 -- 회전 프레임이나 클릭 타이밍으로 바뀌지 않는다
@@ -5724,13 +5867,14 @@ function renderMgSlot(wrap){
 
 /* ---------- ③ 야바위 (컵 셔플 · 결과는 셔플 전 확정) ---------- */
 function mgSelectShellBet(amt, btnEl){
-  if(state.gold<amt){ if(btnEl){btnEl.classList.remove('shake'); void btnEl.offsetWidth; btnEl.classList.add('shake');} toast('골드가 부족해요.'); return; }
+  if(state.gold<amt){ if(btnEl){btnEl.classList.remove('shake'); void btnEl.offsetWidth; btnEl.classList.add('shake');} toast('골드가 부족해요.', 'error'); return; }
   mg.bet = amt; renderBmGame();
 }
 function mgSelectShellMode(key){ if(mg.spinning||mg.done) return; mg.mode = key; renderBmGame(); }
 function startMgShell(){
   if(!mg.bet || !mg.mode || state.gold<mg.bet || mg.spinning || mg.done) return;
   const cfg = MG_SHELL_MODES[mg.mode];
+  mg.goldBefore = state.gold;
   mg.spinning = true;
   mg.order = Array.from({length:cfg.cups}, (_,i)=>i); // order[슬롯] = 컵 id
   mg.winCup = Math.floor(Math.random()*cfg.cups); // 코인 위치는 셔플 시작 전에 확정 (Fisher-Yates 셔플로 위치만 뒤섞음)
@@ -8256,7 +8400,7 @@ const EMOJI_ICON_MAP = {
   '📜':'quest-daily','📅':'quest-dated','🎁':'quest-reward','🏆':'misc-achievement','📈':'misc-stats','📊':'misc-stats',
   '📖':'misc-journal','🗺️':'misc-map','🧭':'misc-explore-start','🏁':'misc-explore-end','⚙️':'misc-settings','💾':'misc-backup',
   '🗝️':'item-key','🧪':'item-potion-stamina','🍖':'item-food',
-  '🔔':'status-bell','⚠️':'status-warning','✅':'status-success','ℹ️':'status-info','🔄':'char-classchange',
+  '🔔':'status-bell','⚠️':'status-warning','✅':'status-success','ℹ️':'status-info','🔄':'char-classchange','🧥':'equip-cape','🥋':'equip-armor',
   '✏️':'vis-writing','🔒':'vis-private','👥':'vis-group'
 };
 const EmojiIcons = (()=>{
