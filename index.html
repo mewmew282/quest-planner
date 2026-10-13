@@ -7630,11 +7630,12 @@ async function changeNickname(){
 
 async function changeClass(){
   if(!selectedSetClass || selectedSetClass===state.character.cls) return;
-  state.character.cls = selectedSetClass;
+  const newCls = selectedSetClass; // renderSettings()가 selectedSetClass를 비우므로 먼저 보관
+  state.character.cls = newCls;
   await saveState();
   renderAll();
   renderSettings();
-  toast(`보직이 ${CLASSES[selectedSetClass].name}(으)로 변경되었습니다`);
+  toast(`보직이 ${CLASSES[newCls].name}(으)로 변경되었습니다`, 'success');
 }
 
 function openRegressConfirm(){
