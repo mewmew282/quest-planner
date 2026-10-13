@@ -3116,11 +3116,11 @@
 
     <!-- 하단 내비 (명세 4장): 핵심 목적지 4개 + 더보기. 나머지 화면은 '더보기'에서 진입 -->
     <nav id="bottomnav" aria-label="주요 메뉴">
-      <button class="nav-item active" data-tab="home" onclick="switchTab('home')"><span class="ic"><img class="ui-ico" src="icons/ui/nav-home.png" alt="" data-fb="🏠" width="28" height="28"></span>홈</button>
-      <button class="nav-item" data-tab="quest" onclick="switchTab('quest')"><span class="ic"><img class="ui-ico" src="icons/ui/nav-quest.png" alt="" data-fb="📜" width="28" height="28"></span>퀘스트</button>
-      <button class="nav-item" data-tab="growth" onclick="switchTab('growth')"><span class="ic"><img class="ui-ico" src="icons/ui/nav-diary.png" alt="" data-fb="📖" width="28" height="28"></span>모험일지</button>
-      <button class="nav-item" data-tab="world" onclick="switchTab('world')"><span class="ic"><img class="ui-ico" src="icons/ui/nav-explore.png" alt="" data-fb="🗺️" width="28" height="28"></span>탐험</button>
-      <button class="nav-item" data-tab="more" onclick="switchTab('more')"><span class="ic"><img class="ui-ico" src="icons/ui/nav-more.png" alt="" data-fb="⋯" width="28" height="28"></span>더보기</button>
+      <button class="nav-item active" data-tab="home" onclick="switchTab('home')"><span class="ic"><img class="ui-ico" src="icons/ui/nav-home.svg" alt="" data-fb="🏠" width="28" height="28"></span>홈</button>
+      <button class="nav-item" data-tab="quest" onclick="switchTab('quest')"><span class="ic"><img class="ui-ico" src="icons/ui/nav-quest.svg" alt="" data-fb="📜" width="28" height="28"></span>퀘스트</button>
+      <button class="nav-item" data-tab="growth" onclick="switchTab('growth')"><span class="ic"><img class="ui-ico" src="icons/ui/nav-diary.svg" alt="" data-fb="📖" width="28" height="28"></span>모험일지</button>
+      <button class="nav-item" data-tab="world" onclick="switchTab('world')"><span class="ic"><img class="ui-ico" src="icons/ui/nav-explore.svg" alt="" data-fb="🗺️" width="28" height="28"></span>탐험</button>
+      <button class="nav-item" data-tab="more" onclick="switchTab('more')"><span class="ic"><img class="ui-ico" src="icons/ui/nav-more.svg" alt="" data-fb="⋯" width="28" height="28"></span>더보기</button>
     </nav>
   </div>
 
@@ -8978,12 +8978,12 @@ function renderAll(){
 /* 화면의 이모지를 일러스트 아이콘으로 바꿔 보여준다.
    - 데이터·문구 원본은 그대로 두고, DOM에 그려진 텍스트만 바꾼다 (alt에 원래 이모지 보존)
    - 사용자가 직접 쓴 글(퀘스트 제목, 일기, 채팅, 닉네임)과 입력창은 건드리지 않는다 */
-const UI_ICON_BASE = 'icons/ui/'; // 아이콘 파일 경로는 여기 한 곳에서만 지정한다 (파일명 규칙: <분류>-<이름>.png)
+const UI_ICON_BASE = 'icons/ui/'; // 아이콘 파일 경로는 여기 한 곳에서만 지정한다 (파일명 규칙: <분류>-<이름>.svg)
 /* 이미지가 없거나 불러오지 못했을 때 보여줄 기본 이모지 (아이콘 이름 → 이모지) */
 const ICON_FALLBACK = {};
 function uiIcon(name, alt='', fb){
   const f = fb || ICON_FALLBACK[name] || '';
-  return `<img class="ui-ico" src="${UI_ICON_BASE}${name}.png" alt="${alt}" data-fb="${f}" draggable="false">`;
+  return `<img class="ui-ico" src="${UI_ICON_BASE}${name}.svg" alt="${alt}" data-fb="${f}" draggable="false">`;
 }
 /* 로드 실패 대체: 깨진 이미지 대신 기본 이모지(없으면 대체 글자)를 보여 준다 */
 document.addEventListener('error', e=>{
@@ -9035,7 +9035,7 @@ const EmojiIcons = (()=>{
       if(m.index > last) frag.appendChild(document.createTextNode(txt.slice(last, m.index)));
       const img = document.createElement('img');
       img.className = 'ui-ico'; img.alt = m[0]; img.dataset.fb = m[0]; img.draggable = false;
-      img.src = UI_ICON_BASE + lookup[m[0].replace(/️/g,'')] + '.png';
+      img.src = UI_ICON_BASE + lookup[m[0].replace(/️/g,'')] + '.svg';
       frag.appendChild(img); last = m.index + m[0].length;
     }
     if(last < txt.length) frag.appendChild(document.createTextNode(txt.slice(last)));
