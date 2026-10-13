@@ -2063,6 +2063,13 @@
     content:'';position:absolute;top:-7px;left:22%;right:22%;height:2px;background:var(--accent-bronze-light);
   }
 
+
+  /* 하단 내비: 일러스트 아이콘 (리소스 가이드) — 비활성은 채도·명도를 낮추고 활성만 원색 */
+  .nav-item .ic{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;font-size:0;line-height:1;}
+  .nav-item .ic img{width:28px;height:28px;display:block;object-fit:contain;}
+  .nav-item .ic,.nav-item.active .ic{filter:none;} /* 알림 점(::after)은 원색 유지 */
+  .nav-item .ic img{filter:grayscale(.45) brightness(.92);transition:filter var(--dur-fast) ease;}
+  .nav-item.active .ic img{filter:none;}
   /* ---------- Motion: prefers-reduced-motion 존중 ---------- */
   @media (prefers-reduced-motion: reduce){
     .btn,.chip,.sheet,.bottom-sheet,.sheet-overlay,.bottom-sheet-overlay,.progress-fill,.xp-bar-fill,.stat-fill{
@@ -2585,11 +2592,11 @@
     <div class="fab" onclick="openAddSheet()">+</div>
 
     <div id="bottomnav">
-      <button class="nav-item" data-tab="growth" onclick="switchTab('growth')"><span class="ic">📖</span>일기</button>
-      <button class="nav-item" data-tab="calendar" onclick="switchTab('calendar')"><span class="ic">📅</span>캘린더</button>
-      <button class="nav-item active" data-tab="home" onclick="switchTab('home')"><span class="ic">🏠</span>홈</button>
-      <button class="nav-item" data-tab="world" onclick="switchTab('world')"><span class="ic">🗺️</span>월드맵</button>
-      <button class="nav-item" data-tab="shop" onclick="switchTab('shop')"><span class="ic">🛒</span>상점</button>
+      <button class="nav-item" data-tab="growth" onclick="switchTab('growth')"><span class="ic"><img src="icons/ui/nav-diary.png" alt="" width="28" height="28"></span>일기</button>
+      <button class="nav-item" data-tab="calendar" onclick="switchTab('calendar')"><span class="ic"><img src="icons/ui/nav-calendar.png" alt="" width="28" height="28"></span>캘린더</button>
+      <button class="nav-item active" data-tab="home" onclick="switchTab('home')"><span class="ic"><img src="icons/ui/nav-home.png" alt="" width="28" height="28"></span>홈</button>
+      <button class="nav-item" data-tab="world" onclick="switchTab('world')"><span class="ic"><img src="icons/ui/nav-explore.png" alt="" width="28" height="28"></span>월드맵</button>
+      <button class="nav-item" data-tab="shop" onclick="switchTab('shop')"><span class="ic"><img src="icons/ui/nav-shop.png" alt="" width="28" height="28"></span>상점</button>
     </div>
   </div>
 
