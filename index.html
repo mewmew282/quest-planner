@@ -2526,6 +2526,11 @@
   #screen-social .soc-row .rk{color:var(--accent-bronze-light);}
   .soc-msg{border-radius:var(--radius-m);}
   .soc-prof-card{border-radius:var(--radius-l);background:var(--bg-panel);}
+
+  /* 일기 저장 직후: 목록에서 방금 쓴 글 강조, 서버 동기화 실패 안내 */
+  .diary-entry.just-saved{outline:2px solid var(--accent-bronze-light);outline-offset:2px;}
+  .diary-autosave-indicator .sync-fail{color:var(--danger);}
+  .diary-autosave-indicator .link-btn{background:none;border:none;color:inherit;text-decoration:underline;font-size:inherit;min-height:32px;padding:0 4px;}
   /* ---------- Motion: prefers-reduced-motion 존중 ---------- */
   @media (prefers-reduced-motion: reduce){
     #explore-weather-fx *{animation:none !important;}
@@ -6898,6 +6903,7 @@ function questsCompletedOn(date){
   return (state.quests||[]).filter(q=> q.type==='daily' ? q.lastDoneDate===date : (q.status==='done' && q.completedDate===date));
 }
 let diaryPane = 'write'; // 'write'=기록 쓰기, 'list'=나의 기록 (명세 5.6: 읽기와 쓰기 분리)
+let diaryJustSaved = null; // 방금 저장한 글의 날짜 -- 목록에서 잠깐 강조
 function setDiaryPane(pane){
   diaryPane = pane;
   renderDiaryPane();
@@ -6906,6 +6912,7 @@ function setDiaryPane(pane){
 function renderDiaryPane(){
   const w = document.getElementById('diary-write-pane'), l = document.getElementById('diary-list-pane');
   if(!w || !l) return;
+  if(diaryJustSaved && diaryPane==='list') setTimeout(()=>{ diaryJustSaved = null; document.querySelectorAll('.diary-entry.just-saved').forEach(e=>e.classList.remove('just-saved')); }, 3500);
   w.classList.toggle('hidden', diaryPane!=='write');
   l.classList.toggle('hidden', diaryPane!=='list');
   const wb = document.getElementById('diary-pane-write-btn'), lb = document.getElementById('diary-pane-list-btn');
@@ -7128,8 +7135,14 @@ function renderDiaryAutosaveIndicator(){
   const t = diaryEditingDate || todayStr();
   const draft = (state.diaryDrafts||{})[t];
   const existing = (state.diary||[]).find(d=>d.date===t);
-  el.textContent = (draft && (!existing || draft.savedAt > existing.updatedAt))
-    ? `💾 임시 저장됨 · ${diaryRelativeTime(draft.savedAt)}` : '';
+  const draftTxt = (draft && (!existing || draft.savedAt > existing.updatedAt)) ? `💾 임시 저장됨 · ${diaryRelativeTime(draft.savedAt)}` : '';
+  // 로그인 상태에서는 서버 저장 결과도 보여준다 (사진은 이 기기에만 저장되고 서버로 올라가지 않음)
+  const logged = window.socLoggedIn && window.socLoggedIn(), sy = window.diarySyncStatus;
+  let syncHtml = '';
+  if(logged && sy==='syncing') syncHtml = '<span>☁ 서버에 저장 중…</span>';
+  else if(logged && sy==='ok') syncHtml = '<span>☁ 서버에도 저장됨 (글만, 사진은 이 기기에만)</span>';
+  else if(logged && sy==='fail') syncHtml = '<span class="sync-fail">☁ 서버 저장 실패 · 이 기기에는 저장됐어요 <button type="button" class="link-btn" onclick="retryDiarySync()">다시 시도</button></span>';
+  el.innerHTML = [draftTxt?`<span>${draftTxt}</span>`:'', syncHtml].filter(Boolean).join(' · ');
 }
 function diaryRelativeTime(ts){
   const sec = Math.max(0, Math.floor((Date.now()-ts)/1000));
@@ -7164,6 +7177,7 @@ async function saveDiaryEntry(){
     await maybeShowLevelUp(beforeLevel);
   }
   state.diary.sort((a,b)=> b.date<a.date?-1:1);
+  clearTimeout(diaryAutosaveTimer); // 대기 중이던 임시저장이 저장 직후 같은 내용을 다시 쓰지 않도록 취소
   if(state.diaryDrafts && state.diaryDrafts[t]) delete state.diaryDrafts[t];
   setDiarySaveBtnState('saving');
   const saved = await saveState();
@@ -7175,8 +7189,10 @@ async function saveDiaryEntry(){
   }
   if(typeof queueDiarySync==='function') queueDiarySync();
   diaryEditingDate = null; // 저장하면 오늘 글 작성 화면으로 돌아간다
+  diaryPane = 'list'; diaryJustSaved = t; // 저장한 글을 목록에서 바로 확인할 수 있게 목록 탭으로 이동
   renderAll();
   setDiarySaveBtnState('saved');
+  window.scrollTo(0, 0);
   playDiarySaveXpFx(gainedXp);
   toast(gainedXp>0 ? `📖 모험 일지 기록 완료! (+${gainedXp}XP)` : (t===todayStr() ? '📖 모험 일지를 고쳤어요' : '📖 지난 기록을 고쳤어요'), 'success');
   if(milestoneMsg) setTimeout(()=>toast(milestoneMsg), 900);
@@ -7305,7 +7321,7 @@ function renderDiaryList(){
         const linked = questsCompletedOn(e.date);
         const linkedHtml = linked.length ? `<div class="diary-entry-linked"><span aria-hidden="true">⚔️</span> 완료 퀘스트 ${linked.length}개</div>` : '';
         const dateLabel = escapeHtml(formatDiaryDate(e.date));
-        return `<div class="diary-entry" role="button" tabindex="0" aria-label="${dateLabel} 기록 보기" onclick="openDiaryDetail('${e.date}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDiaryDetail('${e.date}')}"><div class="diary-date">${mood?`<span aria-hidden="true">${mood.ic}</span> `:''}${formatDiaryDate(e.date)}${e.date===todayStr()?'<span class="diary-today-badge">오늘</span>':''}</div>${e.title?`<div class="diary-entry-title">${escapeHtml(e.title)}</div>`:''}<div class="diary-text">${escapeHtml(e.text)}</div>${photos}${tags}${linkedHtml}<div class="diary-entry-actions"><button type="button" class="diary-edit-btn" onclick="event.stopPropagation();editDiaryEntry('${e.date}')" aria-label="${dateLabel} 기록 수정">✏️ 수정</button><button type="button" class="diary-edit-btn diary-del-btn" onclick="event.stopPropagation();deleteDiaryEntry('${e.date}')" aria-label="${dateLabel} 기록 삭제">🗑️ 삭제</button></div></div>`;
+        return `<div class="diary-entry${e.date===diaryJustSaved?' just-saved':''}" role="button" tabindex="0" aria-label="${dateLabel} 기록 보기" onclick="openDiaryDetail('${e.date}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDiaryDetail('${e.date}')}"><div class="diary-date">${mood?`<span aria-hidden="true">${mood.ic}</span> `:''}${formatDiaryDate(e.date)}${e.date===todayStr()?'<span class="diary-today-badge">오늘</span>':''}</div>${e.title?`<div class="diary-entry-title">${escapeHtml(e.title)}</div>`:''}<div class="diary-text">${escapeHtml(e.text)}</div>${photos}${tags}${linkedHtml}<div class="diary-entry-actions"><button type="button" class="diary-edit-btn" onclick="event.stopPropagation();editDiaryEntry('${e.date}')" aria-label="${dateLabel} 기록 수정">✏️ 수정</button><button type="button" class="diary-edit-btn diary-del-btn" onclick="event.stopPropagation();deleteDiaryEntry('${e.date}')" aria-label="${dateLabel} 기록 삭제">🗑️ 삭제</button></div></div>`;
       }).join('')
     : (diaryHasActiveFilters()
         ? `<div class="diary-empty"><span class="diary-empty-ic" aria-hidden="true">🔍</span>아직 발견하지 못한 모험입니다.<br><button type="button" class="btn btn-ghost" style="margin-top:14px;" onclick="clearDiaryFilters()">검색 조건 초기화</button></div>`
@@ -8133,6 +8149,7 @@ function closeNotifLog(){ document.getElementById('notif-log-overlay').classList
 
 /* ===================== 업데이트 내역 ===================== */
 const APP_CHANGELOG = [
+  { date:'2026-10-14', items:['일기를 저장하면 "나의 기록" 목록으로 이동해 방금 쓴 글을 바로 확인','로그인 상태에서 일기가 서버에 저장됐는지 표시하고, 실패하면 다시 시도 버튼 제공','글을 쓰고 바로 저장할 때 같은 내용이 임시저장으로 한 번 더 남던 문제 수정'] },
   { date:'2026-10-13', items:['길드 기록실 콘셉트로 전체 화면 디자인 개편 (색상·글꼴·아이콘)','하단 메뉴를 홈·퀘스트·모험일지·탐험·더보기로 정리, PC에서는 왼쪽 메뉴','퀘스트 완료를 취소하면 실제로 받은 보상(보너스 포함)을 정확히 회수','장비 등급 표시, 현재 장비와 비교, 구매 후 잔액 표시','활동 리포트에 7·30·90일 그래프 추가','일기 저장 중·완료·실패 상태 표시, 탐험 GPS 상태 표시','퀘스트 클리어·레벨업 알림이 화면을 가리지 않도록 변경','요일 반복 퀘스트를 캘린더 파일로 내보낼 때 해당 요일에만 반복되도록 수정','보직 변경 후 완료 알림이 뜨지 않던 문제 수정'] },
   { date:'2026-10-12', items:['설정 화면을 접이식 리스트로 정리해 스크롤을 줄임','유튜브 링크로 배경음악(BGM)을 틀 수 있는 기능 추가','업적·이스터에그 달성 알림을 카드형 팝업으로 교체','새 버전이 나오면 업데이트 알림 토스트 표시','그룹 일기에 메모·스티커가 달리면 푸시 알림 전송','앱 아이콘과 알림 뱃지 아이콘을 새 디자인으로 교체'] },
   { date:'2026-10-11', items:['그룹 일기를 실시간 폴링으로 자동 새로고침','모험일지와 그룹일기를 상단 탭으로 분리','그룹 일기에 메모 남기기·스티커 꾸미기 기능 추가','친구 코드로 참여하는 공유 일기장(그룹 일기) 도입'] },
