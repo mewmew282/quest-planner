@@ -2070,9 +2070,117 @@
   .nav-item .ic,.nav-item.active .ic{filter:none;} /* 알림 점(::after)은 원색 유지 */
   .nav-item .ic img{filter:grayscale(.45) brightness(.92);transition:filter var(--dur-fast) ease;}
   .nav-item.active .ic img{filter:none;}
+
+  /* ---------- UI 아이콘: 글자 크기에 맞춰 이모지 자리에 들어간다 ---------- */
+  img.ui-ico{
+    width:1.3em;height:1.3em;object-fit:contain;vertical-align:-.3em;
+    display:inline-block;flex-shrink:0;user-select:none;-webkit-user-drag:none;
+  }
+
+  /* ================================================================
+     GUILD ARCHIVE — 2단계: 홈 / 퀘스트 (명세서 5.1, 5.2)
+     ================================================================ */
+  /* 홈: 프로필 + 오늘 요약 + 진행도를 하나의 기록 패널로 묶는다 */
+  .home-profile{
+    background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:var(--radius-m);
+    padding:14px;margin-top:4px;
+  }
+  .home-profile .char-stage{
+    flex-direction:row;align-items:center;gap:14px;padding:0;min-height:72px;
+  }
+  .home-profile .char-aura{
+    width:72px;height:72px;flex:0 0 72px;border-radius:var(--radius-m);font-size:40px;
+    background:var(--bg-raised);border:1px solid var(--class-color,var(--border-subtle));box-shadow:none;
+  }
+  .home-profile .char-aura > span{line-height:1;}
+  .home-profile .char-info{flex:1;min-width:0;}
+  .home-profile .char-title{font-size:19px;margin:0;text-align:left;max-width:none;}
+  .home-profile .char-sub{font-size:13px;margin-top:2px;text-align:left;max-width:none;color:var(--text-secondary);}
+  .home-profile .char-badges{margin-top:6px;min-height:0;gap:4px;}
+  .home-profile .char-badges:empty{display:none;}
+  .home-profile .char-go{font-size:22px;color:var(--text-muted);flex-shrink:0;}
+
+  .home-summary{
+    display:grid;grid-template-columns:repeat(3,1fr);margin:14px 0 0;
+    border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);
+  }
+  .home-summary > div{padding:10px 4px;text-align:center;min-width:0;}
+  .home-summary > div + div{border-left:1px solid var(--border-subtle);}
+  .home-summary dt{font-size:12px;color:var(--text-secondary);}
+  .home-summary dd{
+    margin:2px 0 0;font-size:17px;font-weight:700;color:var(--text-primary);
+    font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+  .home-summary dd img.ui-ico{width:1.05em;height:1.05em;vertical-align:-.15em;margin-right:2px;}
+  .home-profile .progress-strip{background:none;border:none;border-radius:0;padding:12px 0 0;margin:0;}
+  .home-profile .streak-row{margin-top:12px;}
+  .home-profile #checkin-btn{min-height:44px;padding:8px 16px;font-size:14px;}
+  .home-profile .npc-bubble{margin:12px 0 0;}
+
+  /* 퀘스트 목록: 카드 나열 대신 하나의 장부(패널) 안에 구분선으로 나눈 행 */
+  .quest-list:has(.quest-card){
+    background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:var(--radius-m);overflow:hidden;
+  }
+  .quest-list > .quest-card{
+    margin:0;border:none;border-radius:0;background:transparent;box-shadow:none;
+    padding:8px 4px 8px 0;gap:6px;align-items:center;min-height:64px;
+  }
+  .quest-list > .quest-card + .quest-card{border-top:1px solid var(--border-subtle);}
+  .quest-card.done{opacity:1;}
+  .quest-card.done .quest-title{color:var(--text-secondary);text-decoration:line-through;text-decoration-color:var(--text-muted);}
+  .quest-card.done .quest-type,.quest-card.done .quest-diff,.quest-card.done .pill,.quest-card.done .quest-reward{opacity:.6;}
+
+  /* 완료 버튼: 시각 24px, 터치 영역 48px */
+  .quest-check{
+    width:48px;height:48px;flex:0 0 48px;border:none;border-radius:var(--radius-s);background:none;padding:0;
+    display:flex;align-items:center;justify-content:center;margin:0;
+  }
+  .quest-check .qc-box{
+    width:24px;height:24px;border-radius:6px;border:2px solid var(--text-muted);
+    display:flex;align-items:center;justify-content:center;
+    transition:background var(--dur-fast) ease,border-color var(--dur-fast) ease;
+  }
+  .quest-card.done .quest-check{background:none;border:none;}
+  .quest-card.done .quest-check .qc-box{background:var(--success);border-color:var(--success);}
+  .quest-card.done .quest-check .qc-box::after{
+    content:'';width:6px;height:11px;border:solid var(--bg-primary);border-width:0 2.5px 2.5px 0;
+    transform:translateY(-1px) rotate(45deg);
+  }
+  .quest-body{cursor:pointer;padding:2px 0;}
+  .quest-title{font-size:15px;font-weight:600;line-height:1.4;word-break:keep-all;overflow-wrap:anywhere;}
+  .quest-meta{margin-top:4px;gap:4px 8px;font-size:12px;color:var(--text-secondary);flex-wrap:wrap;align-items:center;}
+  .quest-meta .pill{font-size:11.5px;}
+  .quest-type,.quest-diff{display:inline-flex;align-items:center;gap:3px;white-space:nowrap;}
+  .quest-type img.ui-ico,.quest-diff img.ui-ico{width:16px;height:16px;vertical-align:0;}
+  .quest-status-done{
+    display:inline-flex;align-items:center;font-size:11.5px;font-weight:700;color:var(--success);
+    border:1px solid var(--success);border-radius:4px;padding:0 6px;
+  }
+  .quest-reward{
+    font-size:13px;font-weight:700;color:var(--accent-bronze-light);line-height:1.35;
+    align-items:flex-end;gap:2px;font-variant-numeric:tabular-nums;
+  }
+  .quest-reward .g{color:var(--accent-bronze-light);font-size:12px;display:inline-flex;align-items:center;gap:2px;}
+  .quest-reward .g img.ui-ico{width:14px;height:14px;vertical-align:0;}
+  .quest-actions{display:flex;flex-direction:column;flex-shrink:0;}
+  .quest-edit,.quest-del{
+    width:40px;height:32px;padding:0;border-radius:var(--radius-s);font-size:15px;color:var(--text-muted);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .quest-del:hover,.quest-del:focus-visible{color:var(--danger);}
+
+  /* 빈 상태 */
+  .quest-empty{display:flex;flex-direction:column;align-items:center;gap:8px;padding:22px 16px;}
+  .quest-empty img.ui-ico{width:44px;height:44px;opacity:.85;}
+  .quest-empty p{margin:0;font-size:14px;color:var(--text-secondary);}
+  .quest-empty .btn{margin-top:4px;min-width:140px;}
+
+  /* 분류 필터: 한 줄 가로 스크롤 (페이지 가로 스크롤은 생기지 않음) */
+  .chip-row-scroll{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-left:-16px;margin-right:-16px;padding:0 16px;}
+  .chip-row-scroll .chip{flex:0 0 auto;}
   /* ---------- Motion: prefers-reduced-motion 존중 ---------- */
   @media (prefers-reduced-motion: reduce){
-    .btn,.chip,.sheet,.bottom-sheet,.sheet-overlay,.bottom-sheet-overlay,.progress-fill,.xp-bar-fill,.stat-fill{
+    .btn,.chip,.sheet,.bottom-sheet,.sheet-overlay,.bottom-sheet-overlay,.progress-fill,.xp-bar-fill,.stat-fill,.quest-check .qc-box{
       transition:none !important;
     }
   }
@@ -2133,12 +2241,21 @@
 
     <!-- HOME -->
     <div class="screen" id="screen-home">
+      <section class="home-profile" aria-label="오늘의 모험가 현황">
       <div class="char-stage" id="home-char-stage" role="button" tabindex="0" style="cursor:pointer" aria-label="캐릭터 정보 보기" onclick="openCharacterFromHome()">
         <div class="char-aura" id="home-char-aura"><span id="home-char-emoji">🧍</span></div>
-        <div class="char-badges" id="home-char-badges"></div>
-        <div class="char-title" id="home-char-title">훈련병</div>
-        <div class="char-sub" id="home-char-sub"></div>
+        <div class="char-info">
+          <div class="char-title" id="home-char-title">훈련병</div>
+          <div class="char-sub" id="home-char-sub"></div>
+          <div class="char-badges" id="home-char-badges"></div>
+        </div>
+        <span class="char-go" aria-hidden="true">›</span>
       </div>
+      <dl class="home-summary">
+        <div><dt>오늘 완료</dt><dd id="home-sum-done">0/0</dd></div>
+        <div><dt>오늘 획득</dt><dd id="home-sum-xp">0 XP</dd></div>
+        <div><dt>보유 골드</dt><dd id="home-sum-gold">0 G</dd></div>
+      </dl>
 
       <div class="npc-bubble hidden" id="home-npc-bubble" onclick="dismissNpcBubble()">
         <span class="npc-ic">🧙</span>
@@ -2152,14 +2269,15 @@
         <div class="streak-row">
           <span class="streak-flame">🔥</span>
           <span class="streak-text"><b id="streak-num">0</b>일 연속 출석</span>
-          <button class="btn btn-gold" style="margin-left:auto;padding:7px 12px;font-size:12px;" id="checkin-btn" onclick="doCheckIn()">출석 체크</button>
+          <button class="btn btn-gold" style="margin-left:auto;" id="checkin-btn" onclick="doCheckIn()">출석 체크</button>
         </div>
       </div>
+      </section>
 
       <div id="bm-home-alert"></div>
-      <div class="section-head"><h2>오늘의 퀘스트</h2><span class="meta" id="home-date"></span></div>
-      <div id="today-quest-list"></div>
-      <button class="btn btn-ghost btn-block hidden" id="home-quest-more-btn" style="margin-top:4px;" onclick="switchTab('quest')">전체 보기</button>
+      <div class="section-head"><h2>오늘의 의뢰</h2><span class="meta" id="home-date"></span></div>
+      <div id="today-quest-list" class="quest-list"></div>
+      <button class="btn btn-ghost btn-block hidden" id="home-quest-more-btn" style="margin-top:8px;" onclick="switchTab('quest')">전체 의뢰 보기</button>
 
       <div id="dungeon-card"></div>
 
@@ -2174,8 +2292,8 @@
 
     <!-- QUEST LIST -->
     <div class="screen hidden" id="screen-quest">
-      <div class="section-head"><h2>전체 퀘스트</h2><span class="meta" id="quest-count-meta"></span></div>
-      <div class="chip-row" id="quest-filter-row" style="margin-bottom:14px;">
+      <div class="section-head"><h2>전체 의뢰</h2><span class="meta" id="quest-count-meta"></span></div>
+      <div class="chip-row chip-row-scroll" id="quest-filter-row" style="margin-bottom:14px;">
         <button class="chip active" data-val="all" onclick="setQuestFilter(this,'all')">전체</button>
         <button class="chip" data-val="운동" onclick="setQuestFilter(this,'운동')">🏃 운동</button>
         <button class="chip" data-val="공부" onclick="setQuestFilter(this,'공부')">📚 공부</button>
@@ -2184,7 +2302,7 @@
         <button class="chip" data-val="사회" onclick="setQuestFilter(this,'사회')">🤝 사회</button>
         <button class="chip" data-val="기타" onclick="setQuestFilter(this,'기타')">✨ 기타</button>
       </div>
-      <div id="all-quest-list"></div>
+      <div id="all-quest-list" class="quest-list"></div>
     </div>
 
     <!-- CHARACTER -->
@@ -3467,6 +3585,11 @@ function todaysQuests(){
     return false;
   });
 }
+const HOME_QUEST_LIMIT = 5;
+function questEmptyHTML(msg){
+  return `<div class="empty-note quest-empty">${uiIcon('quest-daily')}<p>${msg}</p>`
+    + `<button class="btn btn-gold" onclick="openAddSheet()">첫 의뢰 등록</button></div>`;
+}
 function renderHome(){
   document.getElementById('home-date').textContent = new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
   renderDailyMgHomeCard();
@@ -3475,14 +3598,24 @@ function renderHome(){
   const list = todaysQuests();
   const wrap = document.getElementById('today-quest-list');
   wrap.innerHTML='';
+  const isDoneToday = q=> q.type==='daily' ? q.lastDoneDate===t : q.status==='done';
   if(list.length===0){
-    wrap.innerHTML = `<div class="empty-note">아직 등록된 퀘스트가 없습니다.<br>오른쪽 하단 + 버튼으로 첫 퀘스트를 등록해보세요.</div>`;
+    wrap.innerHTML = questEmptyHTML(state.quests.length===0 ? '아직 받은 의뢰가 없습니다.' : '오늘 처리할 의뢰가 없습니다.');
   } else {
-    list.forEach(q=> wrap.appendChild(questCardEl(q, t)) );
+    // 홈에는 남은 의뢰를 먼저, 최대 HOME_QUEST_LIMIT개만 보여주고 나머지는 '전체 의뢰 보기'로 넘긴다
+    const ordered = [...list.filter(q=>!isDoneToday(q)), ...list.filter(isDoneToday)];
+    ordered.slice(0, HOME_QUEST_LIMIT).forEach(q=> wrap.appendChild(questCardEl(q, t)) );
   }
-  document.getElementById('home-quest-more-btn').classList.toggle('hidden', state.quests.length===0);
-  const done = list.filter(q=> q.type==='daily' ? q.lastDoneDate===t : q.status==='done').length;
+  const moreBtn = document.getElementById('home-quest-more-btn');
+  moreBtn.classList.toggle('hidden', state.quests.length===0);
+  const hiddenCount = Math.max(0, list.length - HOME_QUEST_LIMIT);
+  moreBtn.textContent = hiddenCount ? `전체 의뢰 보기 (+${hiddenCount})` : '전체 의뢰 보기';
+  const done = list.filter(isDoneToday).length;
   const total = list.length;
+  const todayLog = (state.weekLog||[]).find(e=>e.date===t);
+  document.getElementById('home-sum-done').textContent = `${done}/${total}`;
+  document.getElementById('home-sum-xp').textContent = `${(todayLog?todayLog.xp:0).toLocaleString()} XP`;
+  document.getElementById('home-sum-gold').innerHTML = `${uiIcon('stat-gold')}${Number(state.gold).toLocaleString()} G`;
   document.getElementById('today-progress-txt').textContent = `${done}/${total}`;
   document.getElementById('today-progress-fill').style.width = total? (done/total*100)+'%' : '0%';
   document.getElementById('streak-num').textContent = state.streak;
@@ -4006,23 +4139,35 @@ function questCardEl(q, t){
   const isDoneToday = q.type==='daily' ? q.lastDoneDate===t : q.status==='done';
   const div = document.createElement('div');
   div.className = 'quest-card' + (isDoneToday?' done':'');
+  const typeInfo = QUEST_TYPE_INFO[q.type] || QUEST_TYPE_INFO.once;
+  const xpShown = applyXpBonus(q.xp), goldShown = applyGoldBonus(q.gold);
   const isOverdue = q.type==='dated' && q.status!=='done' && q.dueDate && q.dueDate < t;
   const datePill = q.type==='dated' ? `<span class="pill quest-date-pill${isOverdue?' overdue':''}">📅 ${formatDatePill(q.dueDate)}${isOverdue?' 지남':''}</span>` : '';
   const weekdayPill = (q.type==='daily' && q.weekdays && q.weekdays.length>0) ? `<span class="pill">🔁 ${q.weekdays.slice().sort().map(weekdayLabel).join('')}</span>` : '';
+  const titleTxt = escapeHtml(q.title);
   div.innerHTML = `
-    <div class="quest-check">${isDoneToday?'✓':''}</div>
+    <button class="quest-check" type="button" aria-pressed="${isDoneToday}" aria-label="${isDoneToday?'완료 취소':'완료하기'}: ${titleTxt}"><span class="qc-box" aria-hidden="true"></span></button>
     <div class="quest-body">
-      <div class="quest-title">${escapeHtml(q.title)}</div>
-      <div class="quest-meta"><span class="pill">${catIcon(q.category)} ${q.category}</span><span>${diffLabel(q.difficulty)}</span>${datePill}${weekdayPill}</div>
+      <div class="quest-title">${titleTxt}</div>
+      <div class="quest-meta">
+        ${isDoneToday?'<span class="quest-status-done">완료</span>':''}
+        <span class="quest-type">${uiIcon(typeInfo.icon)}${typeInfo.label}</span>
+        <span class="pill">${catIcon(q.category)} ${q.category}</span>
+        <span class="quest-diff">${uiIcon(DIFF_ICON[q.difficulty]||DIFF_ICON.normal)}${diffLabel(q.difficulty)}</span>${datePill}${weekdayPill}
+      </div>
     </div>
-    <div class="quest-reward">+${q.xp}XP${q.gold>0?`<span class="g">+${q.gold}G</span>`:''}</div>
-    <button class="quest-edit" onclick="event.stopPropagation();openEditQuest('${q.id}')">✎</button>
-    <button class="quest-del" onclick="event.stopPropagation();deleteQuest('${q.id}')">✕</button>
+    <div class="quest-reward" title="장비 보너스 포함 예상 보상"><span class="x">+${xpShown} XP</span>${goldShown>0?`<span class="g">${uiIcon('stat-gold')}+${goldShown} G</span>`:''}</div>
+    <div class="quest-actions">
+      <button class="quest-edit" type="button" aria-label="수정: ${titleTxt}" onclick="event.stopPropagation();openEditQuest('${q.id}')">✎</button>
+      <button class="quest-del" type="button" aria-label="삭제: ${titleTxt}" onclick="event.stopPropagation();deleteQuest('${q.id}')">✕</button>
+    </div>
   `;
   div.querySelector('.quest-check').onclick = ()=> toggleQuest(q.id);
   div.querySelector('.quest-body').onclick = ()=> toggleQuest(q.id);
   return div;
 }
+const QUEST_TYPE_INFO = { daily:{label:'일일',icon:'quest-daily'}, once:{label:'일회성',icon:'quest-once'}, dated:{label:'날짜지정',icon:'quest-dated'} };
+const DIFF_ICON = { easy:'diff-common', normal:'diff-uncommon', hard:'diff-rare', veryhard:'diff-epic' };
 function catIcon(cat){ return {'운동':'🏃','공부':'📚','창작':'🎨','생활':'🧹','사회':'🤝','기타':'✨'}[cat]||'✨'; }
 function diffLabel(d){ return {easy:'쉬움',normal:'보통',hard:'어려움',veryhard:'매우어려움'}[d]||'보통'; }
 function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
@@ -4046,7 +4191,7 @@ function renderAllQuests(){
   let list = [...state.quests].reverse();
   if(questFilterCat!=='all') list = list.filter(q=>q.category===questFilterCat);
   document.getElementById('quest-count-meta').textContent = questFilterCat==='all' ? `총 ${state.quests.length}개` : `${list.length}개`;
-  if(list.length===0){ wrap.innerHTML = `<div class="empty-note">등록된 퀘스트가 없습니다.</div>`; return; }
+  if(list.length===0){ wrap.innerHTML = state.quests.length===0 ? questEmptyHTML('아직 받은 의뢰가 없습니다.') : `<div class="empty-note">이 분류의 의뢰가 없습니다.</div>`; return; }
   const t = todayStr();
   list.forEach(q=> wrap.appendChild(questCardEl(q,t)) );
 }
@@ -8098,8 +8243,70 @@ function renderAll(){
   if(activeTab==='shop') renderShopScreen();
 }
 
+/* ===================== UI 아이콘 (GUILD ARCHIVE 리소스) ===================== */
+/* 화면의 이모지를 일러스트 아이콘으로 바꿔 보여준다.
+   - 데이터·문구 원본은 그대로 두고, DOM에 그려진 텍스트만 바꾼다 (alt에 원래 이모지 보존)
+   - 사용자가 직접 쓴 글(퀘스트 제목, 일기, 채팅, 닉네임)과 입력창은 건드리지 않는다 */
+const UI_ICON_BASE = 'icons/ui/';
+function uiIcon(name, alt=''){ return `<img class="ui-ico" src="${UI_ICON_BASE}${name}.png" alt="${alt}" draggable="false">`; }
+const EMOJI_ICON_MAP = {
+  '🪙':'stat-gold','💰':'shop-buy','⭐':'stat-xp','❤️':'stat-hp','💪':'stat-atk','⚡':'stat-stamina','💧':'stat-mana','🍀':'stat-luck',
+  '⚔️':'shop-duel','🗡️':'equip-weapon','🛡️':'stat-def','💍':'equip-accessory','🎒':'equip-armor',
+  '🛒':'shop-shop','🕶️':'shop-blackmarket','🎲':'shop-minigame',
+  '📜':'quest-daily','📅':'quest-dated','🎁':'quest-reward','🏆':'misc-achievement','📈':'misc-stats','📊':'misc-stats',
+  '📖':'misc-journal','🗺️':'misc-map','🧭':'misc-explore-start','🏁':'misc-explore-end','⚙️':'misc-settings','💾':'misc-backup',
+  '🗝️':'item-key','🧪':'item-potion-stamina','🍖':'item-food',
+  '🔔':'status-bell','⚠️':'status-warning','✅':'status-success','ℹ️':'status-info','🔄':'char-classchange',
+  '✏️':'vis-writing','🔒':'vis-private','👥':'vis-group'
+};
+const EmojiIcons = (()=>{
+  const SKIP = 'script,style,textarea,input,select,option,title,svg,canvas,[contenteditable],[data-no-icon],'
+    + '.quest-title,.tb-name,.soc-msg,.diary-entry-body,.diary-entry-title,.diary-list-item,.diary-room-entry,.ui-ico,.ui-ico-text';
+  const keys = Object.keys(EMOJI_ICON_MAP).sort((a,b)=>b.length-a.length);
+  // 이모지 표현 문자(U+FE0F)가 빠진 형태도 같이 잡는다
+  const esc = k => k.replace(/️/g,'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\uFE0F?';
+  const re = new RegExp(keys.map(esc).join('|'), 'gu');
+  const lookup = {}; keys.forEach(k=>{ lookup[k.replace(/️/g,'')] = EMOJI_ICON_MAP[k]; });
+  function decorateText(node){
+    const txt = node.nodeValue; re.lastIndex = 0;
+    if(!txt || !re.test(txt)) return;
+    const parent = node.parentElement;
+    if(!parent || parent.closest(SKIP)) return;
+    // 하나의 span으로 감싸 flex 부모에서도 원래 텍스트처럼 한 덩어리로 배치되게 한다
+    const frag = document.createElement('span'); frag.className = 'ui-ico-text'; let last = 0; re.lastIndex = 0; let m;
+    while((m = re.exec(txt))){
+      if(m.index > last) frag.appendChild(document.createTextNode(txt.slice(last, m.index)));
+      const img = document.createElement('img');
+      img.className = 'ui-ico'; img.alt = m[0]; img.draggable = false;
+      img.src = UI_ICON_BASE + lookup[m[0].replace(/️/g,'')] + '.png';
+      frag.appendChild(img); last = m.index + m[0].length;
+    }
+    if(last < txt.length) frag.appendChild(document.createTextNode(txt.slice(last)));
+    node.replaceWith(frag);
+  }
+  function decorate(root){
+    if(!root) return;
+    if(root.nodeType === 3){ decorateText(root); return; }
+    if(root.nodeType !== 1 || root.closest(SKIP)) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const nodes = []; while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(decorateText);
+  }
+  function start(){
+    decorate(document.body);
+    new MutationObserver(muts=>{
+      for(const m of muts){
+        if(m.type === 'characterData') decorateText(m.target);
+        else m.addedNodes.forEach(decorate);
+      }
+    }).observe(document.body, {childList:true, subtree:true, characterData:true});
+  }
+  return {start, decorate};
+})();
+
 /* ===================== INIT ===================== */
 async function init(){
+  EmojiIcons.start();
   renderClassGrid();
   setupAchievementDexGestures();
   await loadState();
