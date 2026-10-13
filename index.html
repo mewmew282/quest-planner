@@ -2364,6 +2364,65 @@
   .btn-danger{background:transparent;color:var(--danger);border:1px solid var(--danger);}
   .confirm-card .btn-danger{background:#8E3A30;color:#F6EEDC;border-color:#A9483C;}
   .confirm-detail{display:inline-block;margin-top:6px;font-size:13px;color:var(--text-secondary);}
+
+  /* ================================================================
+     GUILD ARCHIVE — 구조 개편: 연출 · 던전 · 데일리 미니게임 (명세서 5.3, 8)
+     ================================================================ */
+  /* 연출: 화면 전체를 덮고 조작을 막던 카드 → 상단에 잠깐 뜨는 알림 띠 (입력 차단 없음) */
+  .fx-overlay{
+    inset:auto;top:calc(env(safe-area-inset-top) + 76px);left:50%;transform:translateX(-50%);
+    width:min(440px,calc(100% - 24px));background:none;pointer-events:none;
+    display:block;transition:opacity .18s ease;z-index:72;
+  }
+  .fx-overlay.show{pointer-events:none;}
+  .fx-card{
+    display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:12px;align-items:center;text-align:left;
+    min-width:0;padding:12px 14px;border-radius:var(--radius-m);
+    background:var(--bg-raised);border:1px solid var(--border-subtle);border-left:4px solid var(--accent-bronze-light);
+    box-shadow:0 10px 28px rgba(0,0,0,.5);transform:translateY(-8px);transition:transform .18s ease;
+  }
+  .fx-overlay.show .fx-card{transform:translateY(0);}
+  .fx-card > *{grid-column:2;margin:0;}
+  .fx-card > .fx-clear-ic{grid-column:1;grid-row:1 / span 6;font-size:32px;line-height:1;text-align:center;align-self:center;}
+  .fx-clear-title{font-family:var(--font-body);font-size:11.5px;letter-spacing:.12em;color:var(--accent-bronze-light);margin:0 0 2px;}
+  .fx-quest-name{font-size:15px;font-weight:700;color:var(--text-primary);line-height:1.35;}
+  .fx-reward-row{display:flex;justify-content:flex-start;gap:10px;margin-top:4px;font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;}
+  .fx-reward-row .xp{color:var(--accent-bronze-light);}
+  .fx-reward-row .gold{color:var(--warning);}
+  .fx-stat-row{display:flex;justify-content:flex-start;font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+  .fx-stat-row:empty{display:none;}
+  /* 레벨업: 이전 레벨·화살표는 숨기고 새 레벨과 칭호, 스탯 변화만 */
+  #fx-levelup-overlay .lu-lv:not(.new),#fx-levelup-overlay .lu-arrow{display:none;}
+  #fx-levelup-overlay .lu-lv.new{font-family:var(--font-display);font-size:22px;color:var(--text-primary);}
+  #fx-levelup-overlay .lu-unlock{display:none;font-size:12.5px;color:var(--accent-bronze-light);}
+  #fx-levelup-overlay.evolution .lu-unlock{display:block;}
+  #fx-levelup-overlay .lu-new-title{font-size:14px;font-weight:700;color:var(--accent-bronze-light);}
+  #fx-levelup-overlay .lu-new-title:empty{display:none;}
+  #fx-levelup-overlay .lu-stat-gain{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:4px;margin-top:4px;}
+  #fx-levelup-overlay .lu-stat-chip{font-size:12px;padding:1px 6px;border:1px solid var(--border-subtle);border-radius:4px;background:none;}
+  /* 진화(칭호 변경)는 브론즈 테두리로만 강조 -- 발광 없음 */
+  .fx-overlay.evolution .fx-card{border-color:var(--accent-bronze-light);box-shadow:0 10px 28px rgba(0,0,0,.5);}
+  /* 업적 알림만 눌러서 닫을 수 있게 카드에 한해 포인터 허용 */
+  #fx-achv-overlay.show .fx-card{pointer-events:auto;cursor:pointer;}
+  .fx-achv-desc{font-size:12.5px;color:var(--text-secondary);}
+  .fx-achv-reward-tag{font-size:12.5px;font-weight:700;color:var(--accent-bronze-light);}
+  /* 화면 전체 번쩍임 제거 (명세 8: 짧고 기능적인 연출) */
+  .fx-flash{display:none !important;}
+  .fx-particle{background:var(--accent-bronze-light);}
+
+  /* 데일리 미니게임 홈 카드: 게임별 한 줄 */
+  .dmg-home-card{background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:var(--radius-m);padding:14px;margin-top:12px;box-shadow:none;}
+  .dmg-home-title{font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--text-primary);}
+  .dmg-home-sub{font-size:12.5px;color:var(--text-secondary);margin:2px 0 8px;}
+  .dmg-row{display:flex;align-items:center;gap:12px;padding:10px 0;}
+  .dmg-row + .dmg-row{border-top:1px solid var(--border-subtle);}
+  .dmg-row-ic{width:40px;height:40px;flex:0 0 40px;display:flex;align-items:center;justify-content:center;font-size:24px;
+    background:var(--bg-primary);border:1px solid var(--border-subtle);border-radius:var(--radius-s);}
+  .dmg-row-info{flex:1;min-width:0;}
+  .dmg-row-info .nm{font-size:15px;font-weight:700;}
+  .dmg-row-info .sub{font-size:12.5px;color:var(--accent-bronze-light);margin-top:1px;}
+  .dmg-row.done .dmg-row-info .sub{color:var(--success);}
+  .dmg-row .btn{min-width:76px;min-height:44px;}
   /* ---------- Motion: prefers-reduced-motion 존중 ---------- */
   @media (prefers-reduced-motion: reduce){
     .btn,.chip,.sheet,.bottom-sheet,.sheet-overlay,.bottom-sheet-overlay,.progress-fill,.xp-bar-fill,.stat-fill,.quest-check .qc-box{
@@ -3084,7 +3143,7 @@
   </div>
 
   <!-- QUEST CLEAR FX -->
-  <div class="fx-overlay" id="fx-clear-overlay">
+  <div class="fx-overlay" id="fx-clear-overlay" role="status" aria-live="polite">
     <div class="fx-card">
       <div class="fx-clear-ic">⚔️</div>
       <div class="fx-clear-title">QUEST CLEAR</div>
@@ -3098,7 +3157,7 @@
   </div>
 
   <!-- LEVEL UP FX -->
-  <div class="fx-overlay" id="fx-levelup-overlay">
+  <div class="fx-overlay" id="fx-levelup-overlay" role="status" aria-live="polite">
     <div class="fx-card">
       <div class="fx-clear-ic">✨</div>
       <div class="fx-clear-title">LEVEL UP</div>
@@ -3112,7 +3171,7 @@
   </div>
 
   <!-- COIN FOUND FX -->
-  <div class="fx-overlay" id="fx-coin-overlay">
+  <div class="fx-overlay" id="fx-coin-overlay" role="status" aria-live="polite">
     <div class="fx-card">
       <div class="fx-clear-ic" id="fx-coin-ic">🪙</div>
       <div class="fx-clear-title">COIN FOUND</div>
@@ -3123,7 +3182,7 @@
   </div>
 
   <!-- ACHIEVEMENT UNLOCK FX -->
-  <div class="fx-overlay" id="fx-achv-overlay" onclick="hideAchvFx()">
+  <div class="fx-overlay" id="fx-achv-overlay" role="status" aria-live="polite" onclick="hideAchvFx()">
     <div class="fx-card">
       <div class="fx-clear-ic" id="fx-achv-ic">🏆</div>
       <div class="fx-clear-title">ACHIEVEMENT UNLOCKED</div>
@@ -5079,14 +5138,23 @@ function closeShop(){ const overlay=document.getElementById('shop-overlay'); if(
 function renderDailyMgHomeCard(){
   const card = document.getElementById('dmg-home-card');
   if(!card) return;
-  const cardDone = !dmgRewardAvailable('card');
-  const vaultDone = !dmgRewardAvailable('vault');
   card.innerHTML = `
     <div class="dmg-home-title">🎮 오늘의 데일리 미니게임</div>
-    <div class="dmg-home-sub">가볍게 즐기고 골드・XP를 챙기세요 · 하루 1회 보상</div>
-    <div class="dmg-home-btns">
-      <button class="btn btn-gold${cardDone?' done':''}" onclick="openDailyMiniGame('card')">🃏 카드 뒤집기${cardDone?' ✓':''}</button>
-      <button class="btn btn-gold${vaultDone?' done':''}" onclick="openDailyMiniGame('vault')">🔐 금고 열기${vaultDone?' ✓':''}</button>
+    <div class="dmg-home-sub">하루 1회 보상 · 보상을 받은 뒤에는 연습 모드</div>
+    <div class="dmg-rows">${DMG_GAMES.map(dmgGameRowHTML).join('')}</div>`;
+}
+/* 데일리 미니게임 목록 정보: 보상 범위는 난이도 상수에서 계산 (명세 5.5: 시작 전 보상 범위 표시) */
+const DMG_GAMES = [
+  {key:'card', icon:'🃏', name:'카드 뒤집기', desc:'기억력 · 쉬움/보통/어려움', rewards:()=>Object.values(MG_CARD_DIFF).map(d=>d.reward)},
+  {key:'vault', icon:'🔐', name:'금고 열기', desc:'기억력·순발력 · 3단계', rewards:()=>Object.values(MG_VAULT_LEVELS).map(l=>l.reward)},
+];
+function dmgGameRowHTML(g){
+  const avail = dmgRewardAvailable(g.key), r = g.rewards();
+  return `<div class="dmg-row${avail?'':' done'}">
+      <span class="dmg-row-ic">${g.icon}</span>
+      <div class="dmg-row-info"><div class="nm">${g.name}</div>
+        <div class="sub">${avail?`보상 ${Math.min(...r)}~${Math.max(...r)} G`:'✓ 오늘 보상 받음 · 연습 가능'}</div></div>
+      <button class="btn ${avail?'btn-gold':'btn-ghost'}" onclick="openDailyMiniGame('${g.key}')">${avail?'플레이':'연습'}</button>
     </div>`;
 }
 function renderBlackMarketHomeCard(){
@@ -6195,12 +6263,12 @@ function renderDmgList(wrap){
     <div class="mg-game-list">
       <div class="mg-game-card" style="animation-delay:0ms" onclick="openDailyMiniGame('card')">
         <span class="ic">🃏</span>
-        <div class="info"><div class="nm">카드 뒤집기${cardDone?' · 완료':''}</div><div class="sub">EASY / NORMAL / HARD · 기억력 게임</div></div>
+        <div class="info"><div class="nm">카드 뒤집기${cardDone?' · 완료':''}</div><div class="sub">EASY / NORMAL / HARD · 기억력 게임<br>${cardDone?'오늘 보상 받음 · 연습 모드':`보상 ${Math.min(...DMG_GAMES[0].rewards())}~${Math.max(...DMG_GAMES[0].rewards())} G`}</div></div>
         <span class="arrow">›</span>
       </div>
       <div class="mg-game-card" style="animation-delay:70ms" onclick="openDailyMiniGame('vault')">
         <span class="ic">🔐</span>
-        <div class="info"><div class="nm">금고 열기${vaultDone?' · 완료':''}</div><div class="sub">Quest Reward Vault · 기억력·순발력</div></div>
+        <div class="info"><div class="nm">금고 열기${vaultDone?' · 완료':''}</div><div class="sub">Quest Reward Vault · 기억력·순발력<br>${vaultDone?'오늘 보상 받음 · 연습 모드':`보상 ${Math.min(...DMG_GAMES[1].rewards())}~${Math.max(...DMG_GAMES[1].rewards())} G`}</div></div>
         <span class="arrow">›</span>
       </div>
     </div>`;
