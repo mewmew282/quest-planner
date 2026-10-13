@@ -103,7 +103,7 @@ async function openProfile(nick){
     card.querySelector('[data-x]').onclick = ()=>box.remove();
   }
 }
-const clsIcon = (c)=> (typeof CLASSES!=="undefined" && CLASSES[c] && CLASSES[c].icon) || '🧑';
+const clsIcon = (c)=> (typeof classIconHTML==='function' && typeof CLASSES!=="undefined" && CLASSES[c]) ? classIconHTML(c) : '🧑'; // 직업 이미지 (index.html의 공통 아이콘 헬퍼)
 const esc = (s)=> String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
 /* ---------- 프로필 공유 (랭킹을 보는 모든 사용자에게 공개, 끄면 서버에서 지움) ---------- */
