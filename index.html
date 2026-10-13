@@ -2682,7 +2682,7 @@
       </dl>
 
       <div class="npc-bubble hidden" id="home-npc-bubble" onclick="dismissNpcBubble()">
-        <span class="npc-ic"><img src="assets/guild/npc-shadow.svg" alt="" aria-hidden="true"></span>
+        <span class="npc-ic"><img src="assets/generated/npc-shadow.png" alt="" aria-hidden="true"></span>
         <span class="npc-txt" id="home-npc-txt"></span>
       </div>
 
@@ -4070,7 +4070,7 @@ function renderCharacterVisual(prefix){
     auraEl.style.backgroundColor = 'transparent';
     emojiEl.style.display = 'block';
     const portraitKey = ['warrior','mage','archer','rogue','paladin'].includes(clsKey) ? clsKey : 'mage';
-    emojiEl.innerHTML = `<img class="class-portrait" src="assets/guild/character-${portraitKey}-lv1.svg" alt="${cls.name} 캐릭터 일러스트" draggable="false">`;
+    emojiEl.innerHTML = `<img class="class-portrait" src="assets/generated/character-${portraitKey}-lv1.png" alt="${cls.name} 캐릭터 일러스트" draggable="false">`;
   }
   document.getElementById(prefix+'-char-title').textContent = `Lv.${level} ${stage.title}`;
   if(document.getElementById(prefix+'-char-sub'))
@@ -9040,12 +9040,23 @@ function renderAll(){
 /* 화면의 이모지를 일러스트 아이콘으로 바꿔 보여준다.
    - 데이터·문구 원본은 그대로 두고, DOM에 그려진 텍스트만 바꾼다 (alt에 원래 이모지 보존)
    - 사용자가 직접 쓴 글(퀘스트 제목, 일기, 채팅, 닉네임)과 입력창은 건드리지 않는다 */
-const UI_ICON_BASE = 'icons/ui/'; // 아이콘 파일 경로는 여기 한 곳에서만 지정한다 (파일명 규칙: <분류>-<이름>.svg)
+const UI_ICON_BASE = 'icons/ui/'; // 기존 UI 아이콘 PNG 경로
 /* 이미지가 없거나 불러오지 못했을 때 보여줄 기본 이모지 (아이콘 이름 → 이모지) */
 const ICON_FALLBACK = {};
+const GENERATED_ICON_PATHS = {
+  'quest-walk': 'assets/generated/quest-walk.png',
+  'quest-daily': 'assets/generated/quest-scroll.png',
+  'quest-detail': 'assets/generated/quest-scroll.png',
+  'misc-journal': 'assets/generated/quest-ledger.png',
+  'nav-explore': 'assets/generated/compass.png',
+  'stat-xp': 'assets/generated/stat-star.png',
+  'item-potion-mana': 'assets/generated/potion-blue.png',
+  'shop-blackmarket': 'assets/generated/guild-hall.png'
+};
 function uiIcon(name, alt='', fb){
   const f = fb || ICON_FALLBACK[name] || '';
-  return `<img class="ui-ico" src="${UI_ICON_BASE}${name}.svg" alt="${alt}" data-fb="${f}" draggable="false">`;
+  const iconSrc = GENERATED_ICON_PATHS[name] || `${UI_ICON_BASE}${name}.png`;
+  return `<img class="ui-ico" src="${iconSrc}" alt="${alt}" data-fb="${f}" draggable="false">`;
 }
 /* 로드 실패 대체: 깨진 이미지 대신 기본 이모지(없으면 대체 글자)를 보여 준다 */
 document.addEventListener('error', e=>{
