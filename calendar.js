@@ -6,7 +6,7 @@ const $ = (id)=>document.getElementById(id);
 
 // 가격은 퀘스트 골드(XP÷5: 보통 20G, 하루 5개 약 100G) 기준
 const THEMES = [
-  {id:'kingdom',   name:'기본 왕국',   icon:'🏰', price:0,    accent:'#D5C39A', bg:'#262B24', line:'#4A5045', desc:'성벽과 깃발이 있는 왕국 지도', cls:'th-kingdom'},
+  {id:'kingdom',   name:'기본 왕국',   icon:'🏰', price:0,    accent:'#E7B549', bg:'#1C1740', line:'#3A3170', desc:'성벽과 깃발이 있는 왕국 지도', cls:'th-kingdom'},
   {id:'forest',    name:'숲속 마을',   icon:'🌲', price:300,  accent:'#7BD389', bg:'#14261B', line:'#2F5A3F', desc:'이끼 낀 숲길과 오두막', cls:'th-forest'},
   {id:'winter',    name:'겨울 왕국',   icon:'❄️', price:600,  accent:'#2F8FD6', bg:'#E4F1FA', line:'#B7D7EC', desc:'눈 내리는 밝은 얼음 성', cls:'th-winter'},
   {id:'pirate',    name:'해적 항구',   icon:'🏴‍☠️', price:700,  accent:'#E0B25A', bg:'#3A2817', line:'#6B4A2B', desc:'낡은 항해 지도와 나무 부두', cls:'th-pirate'},
@@ -176,7 +176,7 @@ function renderHomeCond(){
 
 const css = document.createElement('style');
 css.textContent = `
-.cal-scope{--ca:#D5C39A;--cb:#2A3028;--cl:#4A5045;margin-bottom:14px}
+.cal-scope{--ca:#E7B549;--cb:#221C3B;--cl:#372C55;margin-bottom:14px}
 .cal-box{background:var(--cb);border:1px solid var(--cl);border-radius:var(--radius-s,12px);padding:10px}
 .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-weight:800}
 .cal-head button{background:none;border:1px solid var(--cl);color:var(--text);border-radius:8px;min-width:44px;min-height:44px;padding:6px 12px;font-size:17px}
@@ -228,21 +228,20 @@ css.textContent = `
 .th-pirate .cal-head .ttl{font-style:italic;letter-spacing:.08em}
 .th-pirate .cal-panel h3{font-variant:small-caps;letter-spacing:.08em}
 .cal-scope.th-cyber{font-family:ui-monospace,Menlo,Consolas,'Courier New',monospace;--cx:#FF2BD6}
-.th-cyber .cal-box{border:1px solid var(--ca);border-radius:0;background-image:linear-gradient(rgba(0,240,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.07) 1px,transparent 1px);background-size:22px 22px}
+.th-cyber .cal-box{border:1px solid var(--ca);border-radius:0;box-shadow:0 0 14px rgba(0,240,255,.35),inset 0 0 18px rgba(0,240,255,.08);background-image:linear-gradient(rgba(0,240,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.07) 1px,transparent 1px);background-size:22px 22px}
 .th-cyber .cal-panel{border:1px solid var(--cl);border-left:3px solid var(--cx);border-radius:0}
 .th-cyber .cal-day{border-radius:0;background:rgba(0,240,255,.04)}
-.th-cyber .cal-day.today{border-color:var(--cx);box-shadow:inset 0 0 0 1px var(--cx)}
+.th-cyber .cal-day.today{border-color:var(--cx);box-shadow:0 0 8px var(--cx)}
 .th-cyber .cal-day.sel{background:var(--ca);color:#001014}
-.th-cyber .cal-head .ttl{letter-spacing:.14em;text-transform:uppercase}
+.th-cyber .cal-head .ttl{text-shadow:0 0 8px var(--ca);letter-spacing:.14em;text-transform:uppercase}
 .th-cyber .cal-panel h3{text-transform:uppercase;letter-spacing:.14em;color:var(--cx)}
 .th-cyber .cal-row button,.th-cyber .cal-tabs button{border-radius:0}
-/* 기본 왕국(길드 기록실): 장식 무늬 없이 1px 선과 명도차로 구분 */
-.cal-scope.th-kingdom .cal-box{border:1px solid var(--cl);border-radius:10px}
-.th-kingdom .cal-panel{border:1px solid var(--cl);border-radius:10px}
-.th-kingdom .cal-day{border-radius:6px;border-color:transparent;background:rgba(0,0,0,.14)}
-.th-kingdom .cal-day.today{border-color:var(--ca);box-shadow:none}
-.th-kingdom .cal-day.sel{background:var(--bg-raised,#30372D);color:var(--ca);border-color:var(--ca);box-shadow:inset 0 -3px 0 var(--ca)}
-.th-kingdom .cal-head .ttl{font-family:var(--font-display);font-weight:700;letter-spacing:.02em}
+.cal-scope.th-kingdom .cal-box{border:2px solid var(--ca);border-radius:3px;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 22px),repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 1px,transparent 1px 44px)}
+.th-kingdom .cal-panel{border:1px solid var(--cl);border-top:3px solid var(--ca);border-radius:2px}
+.th-kingdom .cal-day{border-radius:2px;border-bottom:3px solid var(--ca);background:rgba(255,255,255,.04)}
+.th-kingdom .cal-day.sel{background:var(--ca);color:#1B1300}
+.th-kingdom .cal-head .ttl{font-weight:800;letter-spacing:.16em;text-shadow:0 1px 0 #000}
+.th-kingdom .cal-panel h3{letter-spacing:.12em}
 .cal-scope.th-forest{font-family:'Trebuchet MS','Malgun Gothic',system-ui,sans-serif}
 .th-forest .cal-box{border:2px dotted var(--ca);border-radius:26px 8px 26px 8px;background-image:radial-gradient(circle at 15% 20%,rgba(123,211,137,.22) 0 14px,transparent 15px),radial-gradient(circle at 85% 75%,rgba(123,211,137,.18) 0 22px,transparent 23px),radial-gradient(circle at 60% 10%,rgba(123,211,137,.12) 0 10px,transparent 11px)}
 .th-forest .cal-panel{border:1px dotted var(--ca);border-radius:18px 6px 18px 6px}
@@ -250,12 +249,12 @@ css.textContent = `
 .th-forest .cal-day.sel{background:var(--ca);color:#0E2415}
 .th-forest .cal-head .ttl{letter-spacing:.04em}
 .cal-scope.th-academy{font-family:'Palatino Linotype','Book Antiqua',Palatino,serif}
-.th-academy .cal-box{border:1px solid var(--ca);border-radius:16px;outline:1px dashed rgba(195,155,255,.55);outline-offset:4px;background-image:radial-gradient(circle at 12% 18%,#fff 0 1px,transparent 2px),radial-gradient(circle at 78% 32%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 40% 70%,#fff 0 1px,transparent 2px),radial-gradient(circle at 90% 88%,#fff 0 1px,transparent 2px);background-size:90px 90px,120px 120px,70px 70px,100px 100px}
-.th-academy .cal-panel{border:1px solid var(--cl);border-radius:14px}
+.th-academy .cal-box{border:1px solid var(--ca);border-radius:16px;outline:1px dashed rgba(195,155,255,.55);outline-offset:4px;box-shadow:0 0 22px rgba(195,155,255,.28);background-image:radial-gradient(circle at 12% 18%,#fff 0 1px,transparent 2px),radial-gradient(circle at 78% 32%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 40% 70%,#fff 0 1px,transparent 2px),radial-gradient(circle at 90% 88%,#fff 0 1px,transparent 2px);background-size:90px 90px,120px 120px,70px 70px,100px 100px}
+.th-academy .cal-panel{border:1px solid var(--cl);border-radius:14px;box-shadow:inset 0 0 18px rgba(195,155,255,.12)}
 .th-academy .cal-day{border-radius:50% 50% 6px 6px;background:rgba(195,155,255,.08);text-align:center;align-items:center}
 .th-academy .cal-day .n{justify-content:center}
 .th-academy .cal-day.sel{background:var(--ca);color:#1B1038}
-.th-academy .cal-head .ttl{font-variant:small-caps;letter-spacing:.12em}
+.th-academy .cal-head .ttl{font-variant:small-caps;letter-spacing:.12em;text-shadow:0 0 10px var(--ca)}
 .th-academy .cal-panel h3{font-variant:small-caps;letter-spacing:.1em}
 /* 홈 펫 */
 .home-pet{position:absolute;right:-14px;bottom:-6px;width:46px;height:46px;border-radius:50%;border:2px solid var(--border);background:var(--card);font-size:26px;line-height:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;cursor:pointer}
@@ -281,7 +280,7 @@ css.textContent = `
 .dg-sub{font-size:12px;color:var(--text-dim);margin-top:6px;line-height:1.5}
 .dg-hp,.dg-bar{display:block;height:6px;border-radius:3px;background:rgba(0,0,0,.3);overflow:hidden;border:1px solid var(--border)}
 .dg-hp i,.dg-bar i{display:block;height:100%;background:var(--success);transition:width .3s}.dg-bar.m i{background:var(--danger)}
-.dg-go{display:block;width:100%;margin-top:12px;min-height:48px;padding:10px;border-radius:8px;border:1px solid #96744A;background:var(--gold-dim);color:#F6EEDC;font-weight:700;font-size:15px}
+.dg-go{display:block;width:100%;margin-top:12px;min-height:48px;padding:10px;border-radius:8px;border:0;background:var(--gold);color:#1B1300;font-weight:700;font-size:15px}
 .dg-go:disabled{opacity:.5;background:transparent;color:var(--text-dim);border-color:var(--border)}
 .dg-modal{position:fixed;inset:0;background:rgba(12,14,11,.72);z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px}
 .dg-box{background:var(--bg-elev);border:1px solid var(--border);border-radius:12px;padding:16px;max-width:360px;width:100%;color:var(--text);box-shadow:0 16px 40px rgba(0,0,0,.5)}

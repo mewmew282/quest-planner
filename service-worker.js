@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quest-planner-v26';
+const CACHE_NAME = 'quest-planner-v27';
 const ASSETS = [
   './index.html',
   './manifest.json',
