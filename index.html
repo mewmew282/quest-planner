@@ -99,6 +99,67 @@
   .screen{padding:20px 18px 100px;flex:1;}
   h1,h2,h3{font-family:var(--font-display);margin:0;font-weight:700;}
 
+  /* ---------- GUILD ARCHIVE generated-art treatment ---------- */
+  body{
+    background:
+      radial-gradient(ellipse at 50% -12%,rgba(80,100,124,.18),transparent 46%),
+      var(--bg);
+  }
+  #topbar{
+    background:
+      linear-gradient(90deg,rgba(16,23,34,.98) 0%,rgba(16,23,34,.92) 62%,rgba(16,23,34,.74) 100%),
+      url('assets/generated/guild-hall.png') right 8px bottom 8px / auto 82px no-repeat,
+      #101722;
+    border-bottom:1px solid rgba(216,189,130,.35);
+  }
+  #screen-home .home-profile{
+    position:relative;isolation:isolate;overflow:hidden;
+    background:
+      linear-gradient(110deg,rgba(20,31,45,.98) 0%,rgba(20,31,45,.92) 57%,rgba(20,31,45,.65) 100%),
+      url('assets/generated/guild-hall.png') right center / auto 100% no-repeat,
+      var(--card);
+    border-color:rgba(216,189,130,.5);
+    box-shadow:inset 0 1px 0 rgba(255,239,196,.06),0 10px 28px rgba(0,0,0,.16);
+  }
+  #screen-home .home-profile::after{
+    content:"";position:absolute;right:0;top:0;bottom:0;width:38%;z-index:-1;
+    background:linear-gradient(90deg,rgba(20,31,45,0),rgba(20,31,45,.18));
+    pointer-events:none;
+  }
+  #screen-quest .quest-card,
+  #screen-calendar .quest-card,
+  #screen-shop .quest-card{
+    border-color:rgba(216,189,130,.25);
+    box-shadow:inset 0 1px 0 rgba(255,239,196,.035),0 4px 14px rgba(0,0,0,.09);
+  }
+  .ui-ico{
+    object-fit:contain;image-rendering:auto;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.24));
+    vertical-align:middle;
+  }
+  .quest-card .ui-ico,.shop-item .ui-ico,.bm-item .ui-ico{
+    width:34px;height:34px;flex:0 0 34px;
+  }
+  #screen-shop .shop-banner,
+  #screen-shop .shop-hero,
+  #screen-world .world-banner,
+  #screen-explore .explore-banner{
+    background-image:linear-gradient(90deg,rgba(16,23,34,.15),rgba(16,23,34,.02)),url('assets/generated/guild-hall.png');
+    background-position:center;background-size:cover;
+    border:1px solid rgba(216,189,130,.4);
+  }
+  #screen-character .char-portrait,
+  #screen-character .class-portrait{
+    object-fit:contain;filter:drop-shadow(0 4px 7px rgba(0,0,0,.28));
+  }
+  .home-profile .char-aura{
+    border-color:rgba(216,189,130,.68);
+    box-shadow:0 0 0 3px rgba(216,189,130,.07),inset 0 0 0 1px rgba(255,239,196,.08);
+  }
+  .quest-card,.home-profile,.shop-item,.bm-item,.diary-entry,.stat-card{
+    backdrop-filter:blur(2px);
+  }
+
   /* ---------- onboarding ---------- */
   #onboarding{
     display:flex;flex-direction:column;justify-content:center;
