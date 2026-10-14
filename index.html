@@ -17,29 +17,30 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
   :root{
-    --bg:#20241F;
-    --bg-elev:#2A3028;
-    --card:#2A3028;
-    --card-hi:#30372D;
-    --border:#4A5045;
-    --text:#F4EFEA;
-    --text-dim:#A196C0;
-    --text-faint:#6E6390;
-    --gold:#D5C39A;
-    --gold-dim:#8A6E2E;
-    --danger:#E0665C;
-    --success:#5FB88A;
-    --bm-purple:#7A3B2E;
-    --bm-purple-dim:#3A2622;
-    --warrior:#D9503F;
-    --mage:#5B8DEF;
-    --archer:#4FAE7A;
-    --rogue:#A15DE8;
-    --paladin:#E8C468;
-    --alchemist:#43BFC0;
-    --radius-s:10px;
-    --radius-m:16px;
-    --radius-l:24px;
+    /* GUILD ARCHIVE — 짙은 남색, 오래된 양피지, 청동과 금빛 */
+    --bg:#101722;
+    --bg-elev:#182231;
+    --card:#1B2635;
+    --card-hi:#263346;
+    --border:#4A5360;
+    --text:#F3EBDD;
+    --text-dim:#B7B0A2;
+    --text-faint:#827B70;
+    --gold:#D8BD82;
+    --gold-dim:#8A6B3E;
+    --danger:#D87568;
+    --success:#79B79A;
+    --bm-purple:#4B3429;
+    --bm-purple-dim:#261F1C;
+    --warrior:#C98D63;
+    --mage:#8D9FC7;
+    --archer:#86A88A;
+    --rogue:#B49BCF;
+    --paladin:#D8BD82;
+    --alchemist:#83B5B3;
+    --radius-s:8px;
+    --radius-m:12px;
+    --radius-l:18px;
     --font-display:Georgia,'Noto Serif KR','Apple SD Gothic Neo',serif;
     --font-body:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
   }
@@ -560,7 +561,11 @@
   /* ---------- top bar ---------- */
   #topbar{
     position:sticky;top:0;z-index:20;
-    background:rgba(32,36,31,0.92);backdrop-filter:blur(6px);
+    background:
+      linear-gradient(90deg,rgba(16,23,34,.97) 0%,rgba(16,23,34,.92) 64%,rgba(16,23,34,.72) 100%),
+      url('assets/generated/guild-hall.png') right 8px bottom 12px / auto 86px no-repeat,
+      #101722;
+    backdrop-filter:blur(8px);
     padding:14px 18px 12px;
     border-bottom:1px solid var(--border);
   }
@@ -2083,7 +2088,10 @@
      ================================================================ */
   /* 홈: 프로필 + 오늘 요약 + 진행도를 하나의 기록 패널로 묶는다 */
   .home-profile{
-    background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:var(--radius-m);
+    background:
+      linear-gradient(145deg,rgba(27,38,53,.97),rgba(17,25,37,.97)),
+      url('assets/generated/guild-hall.png') right -24px top -20px / 150px auto no-repeat;
+    border:1px solid rgba(216,189,130,.38);border-radius:var(--radius-m);box-shadow:inset 0 1px 0 rgba(255,240,200,.045),0 8px 22px rgba(0,0,0,.12);
     padding:14px;margin-top:4px;
   }
   .home-profile .char-stage{
@@ -2573,7 +2581,7 @@
   .home-profile .char-stage{min-height:82px;gap:14px;}
   .home-profile .char-aura{width:86px;height:86px;flex:0 0 86px;padding:3px;overflow:hidden;border-radius:15px;background:#111a22;border:1px solid #b18b53;box-shadow:0 0 0 3px rgba(181,143,78,.09);font-size:0;}
   .home-profile .char-aura>span{display:block;width:100%;height:100%;line-height:0;}
-  .class-portrait{display:block;width:100%;height:100%;object-fit:cover;border-radius:10px;}
+  .class-portrait{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom;border-radius:8px;padding:3px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.22));}
   .home-profile .char-title{font-size:20px;letter-spacing:.01em;color:#f0d8a2;}
   .home-profile .char-sub{font-size:13px;color:#b9b5a8;}
   .home-profile .char-go{color:#d7b879;font-size:25px;}
@@ -9044,27 +9052,53 @@ const UI_ICON_BASE = 'icons/ui/'; // 기존 UI 아이콘 PNG 경로
 /* 이미지가 없거나 불러오지 못했을 때 보여줄 기본 이모지 (아이콘 이름 → 이모지) */
 const ICON_FALLBACK = {};
 const GENERATED_ICON_PATHS = {
-  'quest-walk': 'assets/generated/quest-walk.png',
-  'quest-daily': 'assets/generated/quest-scroll.png',
-  'quest-detail': 'assets/generated/quest-scroll.png',
-  'misc-journal': 'assets/generated/quest-ledger.png',
-  'nav-explore': 'assets/generated/compass.png',
-  'stat-xp': 'assets/generated/stat-star.png',
-  'item-potion-mana': 'assets/generated/potion-blue.png',
-  'shop-blackmarket': 'assets/generated/guild-hall.png'
+  'quest-walk':'assets/generated/quest-walk.png',
+  'quest-daily':'assets/generated/quest-scroll.png',
+  'quest-detail':'assets/generated/quest-scroll.png',
+  'quest-dated':'assets/generated/quest-scroll.png',
+  'quest-reward':'assets/generated/treasure-chest.png',
+  'quest-category-exercise':'assets/generated/quest-walk.png',
+  'quest-category-study':'assets/generated/grimoire.png',
+  'quest-category-create':'assets/generated/grimoire.png',
+  'quest-category-life':'assets/generated/treasure-chest.png',
+  'quest-category-social':'assets/generated/combat.png',
+  'quest-category-etc':'assets/generated/stat-star.png',
+  'misc-journal':'assets/generated/quest-ledger.png',
+  'nav-explore':'assets/generated/compass.png',
+  'stat-xp':'assets/generated/stat-star.png',
+  'stat-gold':'assets/generated/gold-coins.png',
+  'item-potion-mana':'assets/generated/potion-blue.png',
+  'item-potion-stamina':'assets/generated/potion-blue.png',
+  'shop-blackmarket':'assets/generated/guild-hall.png',
+  'shop-duel':'assets/generated/combat.png',
+  'shop-minigame':'assets/generated/treasure-chest.png',
+  'equip-weapon':'assets/generated/combat.png',
+  'misc-map':'assets/generated/compass.png',
+  'misc-stats':'assets/generated/stat-star.png'
 };
 function uiIcon(name, alt='', fb){
   const f = fb || ICON_FALLBACK[name] || '';
-  const iconSrc = GENERATED_ICON_PATHS[name] || `${UI_ICON_BASE}${name}.png`;
+  /* generated art where available; otherwise retain the repository's existing SVG icon */
+  const iconSrc = GENERATED_ICON_PATHS[name] || `${UI_ICON_BASE}${name}.svg`;
   return `<img class="ui-ico" src="${iconSrc}" alt="${alt}" data-fb="${f}" draggable="false">`;
 }
 /* 로드 실패 대체: 깨진 이미지 대신 기본 이모지(없으면 대체 글자)를 보여 준다 */
 document.addEventListener('error', e=>{
   const img = e.target;
-  if(!img || img.tagName!=='IMG' || !img.classList.contains('ui-ico') || img.dataset.failed) return;
-  img.dataset.failed = '1';
-  img.style.visibility = 'hidden';
-  img.setAttribute('aria-hidden', 'true');
+  if(!img || img.tagName!=='IMG' || img.dataset.failed) return;
+  if(img.classList.contains('ui-ico') && img.src.includes('/assets/generated/')){
+    img.dataset.failed='1';
+    const name=img.getAttribute('src').split('/').pop().replace(/\.png$/,'');
+    const svgMap={'quest-walk':'quest-walk','quest-scroll':'quest-scroll','quest-ledger':'quest-scroll','compass':'nav-explore','stat-star':'stat-star','gold-coins':'stat-gold','potion-blue':'item-potion-mana','guild-hall':'shop-blackmarket','combat':'shop-duel','grimoire':'quest-daily','treasure-chest':'quest-reward'};
+    const mapped=svgMap[name];
+    if(mapped){img.src=`${UI_ICON_BASE}${mapped}.svg`;return;}
+    img.style.visibility='hidden';
+    img.setAttribute('aria-hidden','true');
+    return;
+  }
+  if(img.classList.contains('ui-ico') && !img.dataset.failed){
+    img.dataset.failed='1';img.style.visibility='hidden';img.setAttribute('aria-hidden','true');
+  }
 }, true);
 /* 직업 아이콘 (직업 데이터의 이모지는 그대로 두고 화면 표시만 이미지로) */
 const CLASS_ICON = {warrior:'class-warrior', mage:'class-mage', archer:'class-archer', rogue:'class-rogue', paladin:'class-paladin', alchemist:'item-potion-mana'};
