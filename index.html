@@ -5,32 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>QUEST PLANNER</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#20241F">
+<meta name="theme-color" content="#14101F">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Quest Planner">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
+
   :root{
-    --bg:#20241F;
-    --bg-elev:#2A3028;
-    --card:#2A3028;
-    --card-hi:#30372D;
-    --border:#4A5045;
+    --bg:#14101F;
+    --bg-elev:#1B1730;
+    --card:#221C3B;
+    --card-hi:#2C2450;
+    --border:#372C55;
     --text:#F4EFEA;
     --text-dim:#A196C0;
     --text-faint:#6E6390;
-    --gold:#D5C39A;
+    --gold:#E7B549;
     --gold-dim:#8A6E2E;
     --danger:#E0665C;
     --success:#5FB88A;
-    --bm-purple:#7A3B2E;
-    --bm-purple-dim:#3A2622;
+    --bm-purple:#8B5FBF;
+    --bm-purple-dim:#3A2A52;
     --warrior:#D9503F;
     --mage:#5B8DEF;
     --archer:#4FAE7A;
@@ -55,7 +54,7 @@
     max-width:480px;
     min-height:100vh;
     background:
-      radial-gradient(ellipse 600px 300px at 50% -10%, rgba(213,195,154,0.10), transparent 60%),
+      radial-gradient(ellipse 600px 300px at 50% -10%, rgba(231,181,73,0.10), transparent 60%),
       var(--bg);
     position:relative;
     display:flex;
@@ -77,7 +76,7 @@
   }
   .btn:active{transform:scale(0.97);}
   .btn-gold{
-    background:linear-gradient(180deg,#D5C39A,#80613A);
+    background:linear-gradient(180deg,#F0C463,#D9A438);
     color:#1B1300;
     border:none;
   }
@@ -147,7 +146,7 @@
   }
   .diary-banner .diary-banner-title{
     font-family:var(--font-display);font-weight:700;font-size:19px;color:var(--gold);
-    letter-spacing:.4px;text-shadow:0 0 14px rgba(213,195,154,.25);
+    letter-spacing:.4px;text-shadow:0 0 14px rgba(231,181,73,.25);
   }
   .diary-banner .diary-banner-sub{font-size:11px;color:var(--text-faint);margin-top:3px;font-style:italic;}
   .diary-streak-pill{
@@ -283,8 +282,8 @@
   .diary-entry:nth-child(even){--tilt:0.5deg;}
   .diary-entry::before{ /* 위쪽 마스킹 테이프 */
     content:'';position:absolute;top:-7px;left:50%;transform:translateX(-50%) rotate(-2deg);
-    width:50px;height:16px;background:rgba(213,195,154,.4);
-    border:1px solid rgba(213,195,154,.25);box-shadow:0 1px 3px rgba(0,0,0,.25);
+    width:50px;height:16px;background:rgba(231,181,73,.4);
+    border:1px solid rgba(231,181,73,.25);box-shadow:0 1px 3px rgba(0,0,0,.25);
   }
   .diary-entry::after{ /* 스프링 제본 구멍 */
     content:'';position:absolute;left:9px;top:16px;bottom:16px;width:7px;
@@ -311,7 +310,7 @@
   .diary-empty{
     text-align:center;padding:36px 16px;color:var(--text-faint);font-size:13px;
     border:1px dashed var(--gold-dim);border-radius:var(--radius-m);margin-top:14px;
-    background:radial-gradient(ellipse at center, rgba(213,195,154,.05), transparent 70%);
+    background:radial-gradient(ellipse at center, rgba(231,181,73,.05), transparent 70%);
   }
   .diary-empty .diary-empty-ic{font-size:28px;display:block;margin-bottom:8px;opacity:.55;}
   .diary-edit-btn{
@@ -427,7 +426,7 @@
   /* ---- 범용 바텀시트 ---- */
   .bottom-sheet-overlay{
     position:fixed;inset:0;z-index:95;display:flex;align-items:flex-end;justify-content:center;
-    background:rgba(12,14,11,0.72);opacity:0;pointer-events:none;transition:opacity .2s;
+    background:rgba(10,8,18,0.72);opacity:0;pointer-events:none;transition:opacity .2s;
   }
   .bottom-sheet-overlay.show{opacity:1;pointer-events:auto;}
   .bottom-sheet{
@@ -474,7 +473,7 @@
   .diary-photo-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
   .diary-photo-del{
     position:absolute;top:5px;right:5px;width:28px;height:28px;min-width:28px;border-radius:50%;
-    background:rgba(12,14,11,.65);color:#fff;border:none;font-size:13px;cursor:pointer;
+    background:rgba(10,8,18,.65);color:#fff;border:none;font-size:13px;cursor:pointer;
   }
   .diary-photo-add-btn{
     display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:44px;margin-top:4px;
@@ -560,7 +559,7 @@
   /* ---------- top bar ---------- */
   #topbar{
     position:sticky;top:0;z-index:20;
-    background:rgba(32,36,31,0.92);backdrop-filter:blur(6px);
+    background:rgba(20,16,31,0.92);backdrop-filter:blur(6px);
     padding:14px 18px 12px;
     border-bottom:1px solid var(--border);
   }
@@ -576,7 +575,7 @@
     background:var(--gold);color:#1B1300;border-radius:8px;padding:3px 8px;flex-shrink:0;
   }
   .xp-bar-track{flex:1;height:8px;background:var(--bg-elev);border-radius:5px;overflow:hidden;border:1px solid var(--border);}
-  .xp-bar-fill{height:100%;background:linear-gradient(90deg,#80613A,#D5C39A);border-radius:5px;transition:width .5s ease;}
+  .xp-bar-fill{height:100%;background:linear-gradient(90deg,#D9A438,#F0C463);border-radius:5px;transition:width .5s ease;}
   .xp-num{font-size:10px;color:var(--text-faint);white-space:nowrap;}
 
   /* ---------- home ---------- */
@@ -589,7 +588,7 @@
     display:flex;align-items:center;justify-content:center;
     background:radial-gradient(circle at 50% 40%, var(--card-hi), var(--card) 70%);
     border:2px solid var(--class-color,var(--gold));
-    box-shadow:0 0 0 6px rgba(213,195,154,0.06), 0 0 30px -8px var(--class-color,var(--gold));
+    box-shadow:0 0 0 6px rgba(231,181,73,0.06), 0 0 30px -8px var(--class-color,var(--gold));
     font-size:64px;
     position:relative;
   }
@@ -622,7 +621,7 @@
   .quest-card.done .quest-title{text-decoration:line-through;color:var(--text-faint);}
   .quest-meta{font-size:11px;color:var(--text-faint);margin-top:2px;display:flex;gap:6px;align-items:center;}
   .quest-reward{font-size:11px;color:var(--gold);font-weight:700;white-space:nowrap;display:flex;flex-direction:column;align-items:flex-end;gap:1px;line-height:1.3;}
-  .quest-reward .g{color:#D5C39A;font-size:10px;}
+  .quest-reward .g{color:#F0C463;font-size:10px;}
   .quest-del{color:var(--text-faint);font-size:16px;padding:4px 6px;background:none;}
   .quest-edit{color:var(--text-faint);font-size:15px;padding:4px 6px;background:none;flex-shrink:0;}
 
@@ -649,7 +648,7 @@
     position:fixed;bottom:88px;
     right:calc(max(0px, (100vw - 480px)/2) + 18px);
     width:52px;height:52px;border-radius:50%;
-    background:linear-gradient(180deg,#D5C39A,#80613A);
+    background:linear-gradient(180deg,#F0C463,#D9A438);
     color:#1B1300;font-size:26px;font-weight:700;
     display:flex;align-items:center;justify-content:center;
     box-shadow:0 6px 18px -4px rgba(0,0,0,0.5);
@@ -724,14 +723,14 @@
   .achv-desc{font-size:11.5px;color:var(--text-faint);margin-top:2px;}
 
   /* ---------- achievement dex ---------- */
-  .achievement-dex-launch{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px;background:linear-gradient(135deg,rgba(213,195,154,.15),rgba(52,43,76,.5));border:1px solid var(--gold-dim);border-radius:var(--radius-m);color:var(--text);text-align:left;}
+  .achievement-dex-launch{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px;background:linear-gradient(135deg,rgba(231,181,73,.15),rgba(52,43,76,.5));border:1px solid var(--gold-dim);border-radius:var(--radius-m);color:var(--text);text-align:left;}
   .achievement-dex-launch:active{transform:scale(.985)}
   .dex-launch-title{display:block;font-size:15px;font-weight:800}.dex-launch-sub{display:block;font-size:12px;color:var(--text-dim);margin-top:4px}.dex-launch-arrow{font-size:24px;color:var(--gold)}
   .achievement-dex-sheet{max-width:760px;max-height:88vh;overflow:hidden;padding:18px 16px 20px}
   .dex-topline{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.dex-topline h3{margin:0;color:var(--gold);font-family:var(--font-display);letter-spacing:1px}.dex-close{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:18px}
-  .dex-progress{text-align:center;color:var(--text-dim);font-size:12px;margin-bottom:13px}.dex-progress b{color:var(--gold);font-size:15px}.dex-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.dex-tab{min-height:40px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text-dim);font-weight:700}.dex-tab.active.general{border-color:var(--gold-dim);color:var(--gold);background:rgba(213,195,154,.12)}.dex-tab.active.secret{border-color:#B9A6D0;color:#CDBDE0;background:rgba(112,75,160,.18)}
+  .dex-progress{text-align:center;color:var(--text-dim);font-size:12px;margin-bottom:13px}.dex-progress b{color:var(--gold);font-size:15px}.dex-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.dex-tab{min-height:40px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text-dim);font-weight:700}.dex-tab.active.general{border-color:var(--gold-dim);color:var(--gold);background:rgba(231,181,73,.12)}.dex-tab.active.secret{border-color:#9673d7;color:#cebaff;background:rgba(112,75,160,.18)}
   .dex-book{position:relative;min-height:330px;padding:15px;border:1px solid var(--border);border-radius:16px;background:linear-gradient(135deg,rgba(37,30,55,.92),rgba(25,21,38,.95));overflow:hidden;touch-action:pan-y}.dex-book.secret-book{background:linear-gradient(135deg,rgba(35,25,58,.95),rgba(17,15,31,.98));border-color:rgba(150,115,215,.55)}.dex-book.turn-next{animation:dexNext .24s ease}.dex-book.turn-prev{animation:dexPrev .24s ease}@keyframes dexNext{from{opacity:.35;transform:translateX(16px) rotateY(-3deg)}to{opacity:1;transform:none}}@keyframes dexPrev{from{opacity:.35;transform:translateX(-16px) rotateY(3deg)}to{opacity:1;transform:none}}
-  .dex-page-label{text-align:center;font-family:var(--font-display);letter-spacing:2px;color:var(--gold);font-size:11px;margin:0 0 12px}.secret-book .dex-page-label{color:#CDBDE0}.dex-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.dex-card{min-height:116px;padding:10px 8px;border-radius:12px;border:1px solid var(--border);background:linear-gradient(145deg,rgba(59,49,80,.95),rgba(35,29,51,.95));color:var(--text);text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;box-shadow:inset 0 1px rgba(255,255,255,.05)}.dex-card.unlocked{border-color:var(--gold-dim)}.secret-book .dex-card.unlocked{border-color:#B9A6D0;background:linear-gradient(145deg,rgba(75,54,111,.92),rgba(37,29,59,.97))}.dex-card.locked{opacity:.58;filter:saturate(.45);border-style:dashed}.dex-card-icon{font-size:28px;line-height:1}.dex-card-name{font-size:12px;font-weight:800;line-height:1.25;word-break:keep-all}.dex-card-state{font-size:10px;color:var(--text-faint)}.dex-card.unlocked .dex-card-state{color:var(--gold)}.secret-book .dex-card.unlocked .dex-card-state{color:#CDBDE0}
+  .dex-page-label{text-align:center;font-family:var(--font-display);letter-spacing:2px;color:var(--gold);font-size:11px;margin:0 0 12px}.secret-book .dex-page-label{color:#cebaff}.dex-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.dex-card{min-height:116px;padding:10px 8px;border-radius:12px;border:1px solid var(--border);background:linear-gradient(145deg,rgba(59,49,80,.95),rgba(35,29,51,.95));color:var(--text);text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;box-shadow:inset 0 1px rgba(255,255,255,.05)}.dex-card.unlocked{border-color:var(--gold-dim)}.secret-book .dex-card.unlocked{border-color:#9673d7;background:linear-gradient(145deg,rgba(75,54,111,.92),rgba(37,29,59,.97))}.dex-card.locked{opacity:.58;filter:saturate(.45);border-style:dashed}.dex-card-icon{font-size:28px;line-height:1}.dex-card-name{font-size:12px;font-weight:800;line-height:1.25;word-break:keep-all}.dex-card-state{font-size:10px;color:var(--text-faint)}.dex-card.unlocked .dex-card-state{color:var(--gold)}.secret-book .dex-card.unlocked .dex-card-state{color:#cebaff}
   .dex-nav{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:10px;margin-top:13px}.dex-nav button{height:40px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--gold);font-size:24px}.dex-nav button:disabled{opacity:.3}.dex-nav-status{text-align:center;font-family:var(--font-display);font-size:11px;letter-spacing:1px;color:var(--text-dim)}.achv-detail-card{border-color:var(--gold-dim);max-width:360px}.achv-detail-icon{font-size:42px;margin-bottom:8px}.achv-detail-reward{margin:15px 0;padding:10px;border-radius:10px;background:var(--card);font-size:13px;color:var(--gold)}
   @media(min-width:600px){.dex-card-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.dex-card{min-height:106px}.dex-book{min-height:300px}}
 
@@ -761,7 +760,7 @@
     font-size:11px;font-weight:700;
   }
   .fx-achv-desc{font-size:13px;color:var(--text-dim);line-height:1.55;max-width:260px;margin:0 auto 14px;}
-  .fx-achv-reward-tag{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(213,195,154,0.16);color:var(--gold);}
+  .fx-achv-reward-tag{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(231,181,73,0.16);color:var(--gold);}
 
   /* ---------- explore timeline ---------- */
   .tl-section-label{font-size:12px;font-weight:700;color:var(--text-faint);margin-bottom:6px;}
@@ -793,7 +792,7 @@
   .equip-card .equip-status{
     display:inline-block;margin-top:8px;padding:3px 9px;border-radius:999px;font-size:9.5px;font-weight:700;
   }
-  .equip-card .equip-status.on{background:rgba(213,195,154,0.18);color:var(--gold);}
+  .equip-card .equip-status.on{background:rgba(231,181,73,0.18);color:var(--gold);}
   .equip-card .equip-status.empty{background:rgba(110,99,144,0.2);color:var(--text-faint);}
   .equip-card .equip-status.none{background:rgba(110,99,144,0.14);color:var(--text-faint);}
 
@@ -809,12 +808,12 @@
   .equip-pick-row .nm-wrap{flex:1;min-width:0;}
   .equip-pick-row .nm-wrap .nm{font-size:13px;font-weight:700;}
   .equip-pick-row .nm-wrap .eff{font-size:10.5px;color:var(--gold);margin-top:2px;line-height:1.4;}
-  .equip-pick-row .equip-status{flex:0 0 auto;padding:3px 9px;border-radius:999px;font-size:9.5px;font-weight:700;background:rgba(213,195,154,0.18);color:var(--gold);}
+  .equip-pick-row .equip-status{flex:0 0 auto;padding:3px 9px;border-radius:999px;font-size:9.5px;font-weight:700;background:rgba(231,181,73,0.18);color:var(--gold);}
 
   /* ---------- shop UI ---------- */
   .shop-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
   .shop-banner{
-    background:linear-gradient(135deg, rgba(213,195,154,0.18), rgba(91,141,239,0.10));
+    background:linear-gradient(135deg, rgba(231,181,73,0.18), rgba(91,141,239,0.10));
     border:1px solid var(--border);border-radius:var(--radius-m);padding:14px 16px;text-align:center;margin-bottom:12px;
   }
   .shop-banner-title{font-family:var(--font-display);font-size:15px;font-weight:700;letter-spacing:0.04em;color:var(--gold);}
@@ -833,7 +832,7 @@
     display:flex;flex-direction:column;align-items:stretch;gap:5px;background:var(--card);border:1.5px solid var(--border);
     border-radius:12px;padding:9px;min-width:0;margin:0;
   }
-  .shop-item.owned{border-color:rgba(213,195,154,0.4);}
+  .shop-item.owned{border-color:rgba(231,181,73,0.4);}
   .shop-item .ic{font-size:28px;width:auto;text-align:center;flex-shrink:0;height:34px;line-height:34px;}
   .shop-item .info{flex:1;min-width:0;text-align:center;}
   .shop-item .info .nm{font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px;line-height:1.25;}
@@ -842,7 +841,7 @@
   .shop-item button{font-size:10.5px;padding:7px 8px;width:100%;flex-shrink:0;}
   .shop-item button:disabled{opacity:0.5;}
   .shop-badge{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:999px;}
-  .shop-badge.equipped{color:var(--gold);background:rgba(213,195,154,0.18);}
+  .shop-badge.equipped{color:var(--gold);background:rgba(231,181,73,0.18);}
   .shop-badge.owned{color:var(--text-faint);background:rgba(110,99,144,0.18);}
 
   /* ---------- black market: compact profile button ---------- */
@@ -850,30 +849,30 @@
   .bm-mini-wrap{position:relative;flex-shrink:0;}
   .bm-mini-btn{
     width:32px;height:32px;padding:0;display:flex;align-items:center;justify-content:center;
-    border:1px solid rgba(122,59,46,.55);border-radius:10px;
-    background:rgba(122,59,46,.14);color:var(--text);font-size:16px;
+    border:1px solid rgba(139,95,191,.55);border-radius:10px;
+    background:rgba(139,95,191,.14);color:var(--text);font-size:16px;
     transition:transform .18s ease, background .18s ease, border-color .18s ease, filter .18s ease;
   }
-  .bm-mini-btn.live{border-color:rgba(213,195,154,.7);background:rgba(122,59,46,.25);box-shadow:0 0 10px rgba(122,59,46,.22);}
+  .bm-mini-btn.live{border-color:rgba(231,181,73,.7);background:rgba(139,95,191,.25);box-shadow:0 0 10px rgba(139,95,191,.22);}
   .bm-mini-btn.closed-shake{animation:bmMiniShake .42s ease-out; background:rgba(210,65,65,.28);border-color:var(--danger);box-shadow:0 0 12px rgba(224,102,92,.18);}
   @keyframes bmMiniShake{0%,100%{transform:translateX(0)}18%{transform:translateX(-4px)}36%{transform:translateX(4px)}54%{transform:translateX(-3px)}72%{transform:translateX(3px)}88%{transform:translateX(-1px)}}
   .bm-whisper{
     position:fixed;right:auto;top:auto;z-index:99999;width:min(236px,calc(100vw - 28px));
-    padding:9px 11px;border:1px solid rgba(122,59,46,.5);border-radius:12px;
+    padding:9px 11px;border:1px solid rgba(139,95,191,.5);border-radius:12px;
     background:rgba(24,19,34,.98);color:var(--text-dim);font-size:11px;line-height:1.45;
     box-shadow:0 10px 24px rgba(0,0,0,.34);opacity:0;
     transform:translateY(-5px) scale(.97);pointer-events:none;
     transition:opacity .18s ease,transform .18s ease;overflow-wrap:break-word;word-break:keep-all;
   }
   .bm-whisper.show{opacity:1;transform:translateY(0) scale(1);}
-  .bm-whisper.open{border-color:rgba(213,195,154,.45);}
+  .bm-whisper.open{border-color:rgba(231,181,73,.45);}
   .bm-whisper[data-side=below]::before,.bm-whisper[data-side=above]::before{
     content:"";position:absolute;width:8px;height:8px;background:rgba(24,19,34,.98);
-    border-left:1px solid rgba(122,59,46,.5);border-top:1px solid rgba(122,59,46,.5);
+    border-left:1px solid rgba(139,95,191,.5);border-top:1px solid rgba(139,95,191,.5);
   }
   .bm-whisper[data-side=below]::before{left:var(--tail-left,50%);top:-5px;transform:translateX(-50%) rotate(45deg);}
   .bm-whisper[data-side=above]::before{left:var(--tail-left,50%);bottom:-5px;transform:translateX(-50%) rotate(225deg);}
-  .bm-home-alert{display:flex;align-items:center;gap:9px;margin:10px 0 12px;padding:10px 12px;border:1px solid rgba(122,59,46,.38);border-radius:12px;background:rgba(122,59,46,.10);font-size:11.5px;line-height:1.45;color:var(--text-dim);animation:bmAlertIn .35s ease-out;}
+  .bm-home-alert{display:flex;align-items:center;gap:9px;margin:10px 0 12px;padding:10px 12px;border:1px solid rgba(139,95,191,.38);border-radius:12px;background:rgba(139,95,191,.10);font-size:11.5px;line-height:1.45;color:var(--text-dim);animation:bmAlertIn .35s ease-out;}
   .bm-home-alert .ic{font-size:18px;flex-shrink:0;}
   .bm-home-alert b{color:var(--gold);}
   @keyframes bmAlertIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
@@ -897,7 +896,7 @@
   /* ---------- black market: sheet ---------- */
   .bm-sheet{border-color:var(--bm-purple) !important;}
   .bm-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
-  .bm-gold-pill{background:rgba(122,59,46,0.18);border-color:var(--bm-purple);color:var(--gold);}
+  .bm-gold-pill{background:rgba(139,95,191,0.18);border-color:var(--bm-purple);color:var(--gold);}
   .bm-tabs{display:flex;gap:6px;margin-bottom:14px;}
   .bm-tab{
     flex:1;padding:9px 6px;border-radius:999px;border:1px solid var(--bm-purple);
@@ -905,7 +904,7 @@
   }
   .bm-tab.active{background:var(--bm-purple);color:#fff;}
   .bm-shelf-note{font-size:11px;color:var(--text-faint);margin-bottom:10px;line-height:1.5;}
-  .shop-item.bm{border-color:rgba(122,59,46,0.5);}
+  .shop-item.bm{border-color:rgba(139,95,191,0.5);}
   .shop-item.bm.owned{border-color:var(--gold);}
 
   /* ---------- black market: duel ---------- */
@@ -924,12 +923,12 @@
     flex:1;padding:10px 6px;border-radius:var(--radius-s);border:1.5px solid var(--border);
     background:var(--card);color:var(--text);font-size:13px;font-weight:700;cursor:pointer;
   }
-  .duel-bet-btn.selected{border-color:var(--gold);background:rgba(213,195,154,0.14);color:var(--gold);}
+  .duel-bet-btn.selected{border-color:var(--gold);background:rgba(231,181,73,0.14);color:var(--gold);}
   .duel-bet-btn:disabled{opacity:0.4;}
   .duel-result-card{
     text-align:center;border-radius:var(--radius-m);padding:16px;margin-bottom:14px;border:1.5px solid;
   }
-  .duel-result-card.win{border-color:var(--gold);background:rgba(213,195,154,0.1);}
+  .duel-result-card.win{border-color:var(--gold);background:rgba(231,181,73,0.1);}
   .duel-result-card.lose{border-color:var(--danger);background:rgba(224,102,92,0.1);}
   .duel-result-card .dr-ic{font-size:34px;}
   .duel-result-card .dr-title{font-size:14.5px;font-weight:700;margin-top:6px;}
@@ -963,7 +962,7 @@
     background:var(--card);color:var(--text);font-size:12.5px;font-weight:700;cursor:pointer;text-align:center;
   }
   .mg-diff-btn .r{display:block;font-size:10.5px;color:var(--gold);font-weight:600;margin-top:2px;}
-  .mg-diff-btn.selected{border-color:var(--gold);background:rgba(213,195,154,0.14);color:var(--gold);}
+  .mg-diff-btn.selected{border-color:var(--gold);background:rgba(231,181,73,0.14);color:var(--gold);}
   .mg-diff-btn:disabled{opacity:0.4;}
 
   .mg-timer-track{height:7px;border-radius:6px;background:rgba(255,255,255,0.08);border:1px solid var(--border);margin:10px 0;overflow:hidden;}
@@ -986,14 +985,14 @@
     font-size:18px;border-radius:10px;backface-visibility:hidden;border:1.5px solid var(--border);background:var(--card);
   }
   .mg-card-front{transform:rotateY(180deg);}
-  .mg-card-cell.matched .mg-card-front{border-color:var(--gold);background:rgba(213,195,154,0.16);animation:mgGoldFlash .3s ease-out;}
+  .mg-card-cell.matched .mg-card-front{border-color:var(--gold);background:rgba(231,181,73,0.16);animation:mgGoldFlash .3s ease-out;}
   .mg-card-cell.selected .mg-card-inner{transform:rotateY(180deg) scale(1.06);}
   @keyframes mgCardWrong{ 0%,100%{ transform:rotateY(180deg) translateX(0);} 25%{ transform:rotateY(180deg) translateX(-3px);} 75%{ transform:rotateY(180deg) translateX(3px);} }
-  @keyframes mgGoldFlash{ 0%{ box-shadow:0 0 0 rgba(213,195,154,0);} 50%{ box-shadow:0 0 14px rgba(213,195,154,.6);} 100%{ box-shadow:0 0 0 rgba(213,195,154,0);} }
+  @keyframes mgGoldFlash{ 0%{ box-shadow:0 0 0 rgba(231,181,73,0);} 50%{ box-shadow:0 0 14px rgba(231,181,73,.6);} 100%{ box-shadow:0 0 0 rgba(231,181,73,0);} }
 
   .mg-eo-stage{display:flex;flex-direction:column;align-items:center;padding:16px 0;}
   .mg-coin{
-    width:76px;height:76px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#3a2f57,#20241F);
+    width:76px;height:76px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#3a2f57,#14101F);
     border:2px solid var(--gold-dim);display:flex;align-items:center;justify-content:center;
     font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--gold);
   }
@@ -1004,18 +1003,18 @@
     flex:1;padding:14px 6px;border-radius:var(--radius-m);border:1.5px solid var(--border);
     background:var(--card);color:var(--text);font-size:14px;font-weight:700;cursor:pointer;text-align:center;
   }
-  .mg-eo-choice.selected{border-color:var(--gold);background:rgba(213,195,154,0.14);color:var(--gold);transform:scale(1.03);}
+  .mg-eo-choice.selected{border-color:var(--gold);background:rgba(231,181,73,0.14);color:var(--gold);transform:scale(1.03);}
 
   .mg-bet-row{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap;}
   .mg-bet-btn{
     flex:1;min-width:56px;padding:10px 6px;border-radius:var(--radius-s);border:1.5px solid var(--border);
     background:var(--card);color:var(--text);font-size:13px;font-weight:700;cursor:pointer;
   }
-  .mg-bet-btn.selected{border-color:var(--gold);background:rgba(213,195,154,0.14);color:var(--gold);}
+  .mg-bet-btn.selected{border-color:var(--gold);background:rgba(231,181,73,0.14);color:var(--gold);}
   .mg-bet-btn.insufficient{opacity:0.4;}
   .mg-bet-btn.shake{animation:bmShake .25s ease-in-out;}
 
-  @keyframes mgJackpotRing{ 0%{ box-shadow:0 0 0 rgba(213,195,154,.6);} 100%{ box-shadow:0 0 26px rgba(213,195,154,0);} }
+  @keyframes mgJackpotRing{ 0%{ box-shadow:0 0 0 rgba(231,181,73,.6);} 100%{ box-shadow:0 0 26px rgba(231,181,73,0);} }
 
   .mg-vault-pattern{
     text-align:center;padding:22px 0;font-family:var(--font-display);font-size:32px;font-weight:700;
@@ -1036,10 +1035,10 @@
 
   /* 암시장 게임 결과: 게임 화면 위 오버레이 + 3버튼 UX */
   .mg-result-overlay{position:fixed;inset:0;z-index:6500;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(7,5,12,.72);backdrop-filter:blur(5px);animation:mgResultOverlayIn .22s ease-out;}
-  .mg-result-sheet{width:min(390px,100%);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:20px 16px 16px;background:linear-gradient(155deg,#2A3028,#100d19);box-shadow:0 24px 80px rgba(0,0,0,.58);}
+  .mg-result-sheet{width:min(390px,100%);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:20px 16px 16px;background:linear-gradient(155deg,#1b1730,#100d19);box-shadow:0 24px 80px rgba(0,0,0,.58);}
   @keyframes mgResultOverlayIn{from{opacity:0}to{opacity:1}}
   .mg-result-card{text-align:center;border-radius:16px;padding:16px 12px;margin:0 0 14px;border:1.5px solid;opacity:0;transform:translateY(14px) scale(.97);animation:mgResultEnter .45s cubic-bezier(.22,1,.36,1) forwards;}
-  .mg-result-card.win{border-color:var(--gold);background:rgba(213,195,154,0.1);}
+  .mg-result-card.win{border-color:var(--gold);background:rgba(231,181,73,0.1);}
   .mg-result-card.lose{border-color:var(--danger);background:rgba(224,102,92,0.1);}
   @keyframes mgResultEnter{to{opacity:1;transform:translateY(0) scale(1)}}
   .mg-result-card .mg-r-ic{font-size:32px}.mg-result-card .mg-r-title{font-size:17px;font-weight:800;margin-top:6px;font-family:var(--font-display)}
@@ -1055,27 +1054,27 @@
   .tb-settings-btn:active{transform:rotate(18deg) scale(.94);background:var(--card-hi);}
 
   /* ---------- immersive shop ---------- */
-  .shopkeeper-card{position:relative;overflow:hidden;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:linear-gradient(135deg,rgba(213,195,154,.16),rgba(76,60,112,.22));border:1px solid var(--gold-dim);border-radius:18px;padding:14px;margin-bottom:10px;}
-  .shopkeeper-card:after{content:'✦';position:absolute;right:72px;top:8px;color:rgba(213,195,154,.25);font-size:34px;transform:rotate(15deg);}
+  .shopkeeper-card{position:relative;overflow:hidden;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:linear-gradient(135deg,rgba(231,181,73,.16),rgba(76,60,112,.22));border:1px solid var(--gold-dim);border-radius:18px;padding:14px;margin-bottom:10px;}
+  .shopkeeper-card:after{content:'✦';position:absolute;right:72px;top:8px;color:rgba(231,181,73,.25);font-size:34px;transform:rotate(15deg);}
   .shop-npc-ic{font-size:38px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.35));}
   .shop-npc-name{font-family:var(--font-display);font-size:14px;font-weight:800;color:var(--gold);}
   .shop-npc-role{font-size:10px;color:var(--text-faint);margin-top:2px;}
   .shop-npc-line{font-size:11.5px;line-height:1.45;margin-top:6px;color:var(--text-dim);}
-  .shop-npc-badge{font-size:9px;padding:4px 7px;border-radius:999px;background:rgba(213,195,154,.12);color:var(--gold);border:1px solid var(--gold-dim);white-space:nowrap;}
+  .shop-npc-badge{font-size:9px;padding:4px 7px;border-radius:999px;background:rgba(231,181,73,.12);color:var(--gold);border:1px solid var(--gold-dim);white-space:nowrap;}
   .shop-story{padding:11px 13px;margin-bottom:12px;border-left:3px solid var(--gold);background:rgba(255,255,255,.025);border-radius:0 12px 12px 0;font-size:11px;line-height:1.55;color:var(--text-faint);}
   .shop-counter{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0 12px;padding:10px 12px;border:1px solid var(--border);border-radius:13px;background:var(--card);}
   .shop-counter .left{min-width:0}.shop-counter .title{font-size:12px;font-weight:800}.shop-counter .sub{font-size:10px;color:var(--text-faint);margin-top:2px;}
   .coin-stock-controls{display:flex;align-items:center;gap:5px;flex-shrink:0}.coin-stock-controls button{width:29px;height:29px;border-radius:9px;border:1px solid var(--border);background:var(--card-hi);color:var(--text);font-weight:800}.coin-stock-controls input{width:48px;height:29px;text-align:center;border:1px solid var(--gold-dim);background:var(--bg);color:var(--gold);border-radius:8px;font-weight:800;}
-  .shop-coin-card{display:flex;align-items:center;gap:11px;padding:12px;border:1px solid var(--gold-dim);border-radius:15px;background:linear-gradient(100deg,rgba(213,195,154,.10),rgba(213,195,154,.03));margin-bottom:12px;}
+  .shop-coin-card{display:flex;align-items:center;gap:11px;padding:12px;border:1px solid var(--gold-dim);border-radius:15px;background:linear-gradient(100deg,rgba(231,181,73,.10),rgba(231,181,73,.03));margin-bottom:12px;}
   .shop-coin-icon{font-size:28px}.shop-coin-info{flex:1;min-width:0}.shop-coin-name{font-weight:800;font-size:13px}.shop-coin-sub{font-size:10.5px;color:var(--text-faint);line-height:1.4;margin-top:2px}.shop-coin-price{color:var(--gold);font-weight:800;font-size:12px;margin-top:4px;}
   .shop-npc-chat{display:flex;gap:7px;margin:7px 0 12px;align-items:flex-start}.shop-npc-chat .mini{font-size:20px}.shop-npc-chat .bubble-wrap{display:flex;gap:7px;align-items:center;flex:1;min-width:0}.shop-npc-chat .bubble{position:relative;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px 10px;font-size:10.5px;color:var(--text-dim);line-height:1.45;flex:1;min-width:0;}
   .shop-npc-chat .bubble:before{content:'';position:absolute;left:-5px;top:9px;width:9px;height:9px;background:var(--card);border-left:1px solid var(--border);border-bottom:1px solid var(--border);transform:rotate(45deg);}
-  .shop-gift-btn{width:42px;height:42px;flex:0 0 42px;border:1px solid var(--gold);border-radius:13px;background:linear-gradient(145deg,rgba(213,195,154,.22),rgba(213,195,154,.07));box-shadow:0 0 14px rgba(213,195,154,.08);font-size:21px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s ease,opacity .15s ease;}
+  .shop-gift-btn{width:42px;height:42px;flex:0 0 42px;border:1px solid var(--gold);border-radius:13px;background:linear-gradient(145deg,rgba(231,181,73,.22),rgba(231,181,73,.07));box-shadow:0 0 14px rgba(231,181,73,.08);font-size:21px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s ease,opacity .15s ease;}
   .shop-gift-btn:active{transform:scale(.92)}.shop-gift-btn:disabled{opacity:.42;cursor:default;filter:grayscale(.35);}
   .shop-rack{display:flex;gap:7px;overflow:auto;padding:3px 1px 8px;margin-bottom:5px}.shop-rack span{flex:0 0 auto;padding:6px 9px;border-radius:9px;background:rgba(255,255,255,.035);border:1px solid var(--border);font-size:10px;color:var(--text-faint);}
   /* ---------- dedicated shop tab ---------- */
   .shop-screen-banner{
-    background:linear-gradient(135deg,rgba(213,195,154,.18),rgba(91,141,239,.10));
+    background:linear-gradient(135deg,rgba(231,181,73,.18),rgba(91,141,239,.10));
     border:1px solid var(--border);border-radius:var(--radius-m);padding:16px;margin-bottom:14px;
   }
   .shop-screen-banner .title{font-family:var(--font-display);font-size:16px;font-weight:800;color:var(--gold);}
@@ -1099,7 +1098,7 @@
   .dmg-home-card{
     border-radius:var(--radius-m);padding:14px 16px;margin:14px 0;
     border:1px solid var(--gold-dim);
-    background:linear-gradient(135deg, rgba(213,195,154,0.14), rgba(30,26,20,0.3));
+    background:linear-gradient(135deg, rgba(231,181,73,0.14), rgba(30,26,20,0.3));
   }
   .dmg-home-card .dmg-home-title{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:6px;}
   .dmg-home-card .dmg-home-sub{font-size:11.5px;color:var(--text-dim);margin-top:4px;line-height:1.5;}
@@ -1108,7 +1107,7 @@
   .dmg-home-btns button.done{opacity:0.65;}
   .dmg-sheet{border-color:var(--gold-dim) !important;}
   .mg-countdown-wrap{display:flex;align-items:center;justify-content:center;padding:70px 0;}
-  .mg-countdown-num{font-size:64px;font-weight:800;color:var(--gold);text-shadow:0 0 24px rgba(213,195,154,.5);animation:mgCountdownPop .9s cubic-bezier(.22,1,.36,1);}
+  .mg-countdown-num{font-size:64px;font-weight:800;color:var(--gold);text-shadow:0 0 24px rgba(231,181,73,.5);animation:mgCountdownPop .9s cubic-bezier(.22,1,.36,1);}
   @keyframes mgCountdownPop{ 0%{ transform:scale(1.6); opacity:0;} 30%{ transform:scale(1); opacity:1;} 80%{ transform:scale(1); opacity:1;} 100%{ transform:scale(.92); opacity:.4;} }
 
   /* ---------- 슬롯머신 (3릴) ---------- */
@@ -1120,16 +1119,16 @@
   .mg-slot-stage.win .mg-slot-reels{animation:mgSlotWinScale .4s cubic-bezier(.22,1,.36,1);}
   .mg-slot-stage.big-win{animation:bmShake .3s ease-in-out 2;}
   .mg-slot-stage.jackpot{animation:mgJackpotRing .5s ease-out 3, mgJackpotColor 1.05s ease-in-out 3;}
-  .mg-slot-stage.jackpot .mg-slot-reel{border-color:var(--gold);box-shadow:0 0 22px rgba(213,195,154,.55);background:linear-gradient(145deg,rgba(213,195,154,.20),rgba(255,255,255,.06));}
+  .mg-slot-stage.jackpot .mg-slot-reel{border-color:var(--gold);box-shadow:0 0 22px rgba(231,181,73,.55);background:linear-gradient(145deg,rgba(231,181,73,.20),rgba(255,255,255,.06));}
   .mg-slot-stage.jackpot .mg-slot-reel.jackpot-reel{animation:mgJackpotReel .7s cubic-bezier(.22,1,.36,1) infinite;}
   @keyframes mgSlotWinScale{ 0%{ transform:scale(.85);} 60%{ transform:scale(1.05);} 100%{ transform:scale(1);} }
-  @keyframes mgJackpotColor{0%,100%{filter:none;box-shadow:inset 0 0 34px rgba(0,0,0,.65)}50%{filter:saturate(1.8) brightness(1.28);box-shadow:inset 0 0 80px rgba(213,195,154,.35),0 0 34px rgba(213,195,154,.35)}}
+  @keyframes mgJackpotColor{0%,100%{filter:none;box-shadow:inset 0 0 34px rgba(0,0,0,.65)}50%{filter:saturate(1.8) brightness(1.28);box-shadow:inset 0 0 80px rgba(231,181,73,.35),0 0 34px rgba(231,181,73,.35)}}
   @keyframes mgJackpotReel{0%,100%{transform:scale(1)}45%{transform:scale(1.12) rotate(-2deg)}65%{transform:scale(1.06) rotate(2deg)}}
-  .mg-jackpot-overlay{position:fixed;inset:0;z-index:9990;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at center,rgba(213,195,154,.28),rgba(7,5,12,.88) 58%,rgba(7,5,12,.96));backdrop-filter:blur(4px);pointer-events:none;animation:mgJackpotOverlayIn .35s ease-out forwards;}
-  .mg-jackpot-banner{position:relative;width:min(520px,94vw);padding:30px 20px 24px;text-align:center;border:2px solid var(--gold);border-radius:24px;background:linear-gradient(145deg,rgba(42,31,14,.97),rgba(15,11,23,.98));box-shadow:0 0 0 1px rgba(255,255,255,.06) inset,0 0 60px rgba(213,195,154,.38),0 25px 100px rgba(0,0,0,.72);animation:mgJackpotBanner .7s cubic-bezier(.22,1,.36,1) forwards;}
+  .mg-jackpot-overlay{position:fixed;inset:0;z-index:9990;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at center,rgba(231,181,73,.28),rgba(7,5,12,.88) 58%,rgba(7,5,12,.96));backdrop-filter:blur(4px);pointer-events:none;animation:mgJackpotOverlayIn .35s ease-out forwards;}
+  .mg-jackpot-banner{position:relative;width:min(520px,94vw);padding:30px 20px 24px;text-align:center;border:2px solid var(--gold);border-radius:24px;background:linear-gradient(145deg,rgba(42,31,14,.97),rgba(15,11,23,.98));box-shadow:0 0 0 1px rgba(255,255,255,.06) inset,0 0 60px rgba(231,181,73,.38),0 25px 100px rgba(0,0,0,.72);animation:mgJackpotBanner .7s cubic-bezier(.22,1,.36,1) forwards;}
   .mg-jackpot-crown{font-size:46px;line-height:1;margin-bottom:8px;animation:mgJackpotCrown .75s ease-out infinite;}
-  .mg-jackpot-777{font-size:clamp(48px,13vw,82px);font-weight:1000;letter-spacing:7px;line-height:1;color:var(--gold);text-shadow:0 0 12px rgba(255,255,255,.7),0 0 30px rgba(213,195,154,.8),0 0 60px rgba(213,195,154,.55);animation:mgJackpot777 .75s cubic-bezier(.22,1,.36,1) infinite;}
-  .mg-jackpot-title{margin-top:12px;font-size:clamp(25px,7vw,42px);font-weight:1000;color:#fff;letter-spacing:2px;text-shadow:0 0 18px rgba(213,195,154,.8);}
+  .mg-jackpot-777{font-size:clamp(48px,13vw,82px);font-weight:1000;letter-spacing:7px;line-height:1;color:var(--gold);text-shadow:0 0 12px rgba(255,255,255,.7),0 0 30px rgba(231,181,73,.8),0 0 60px rgba(231,181,73,.55);animation:mgJackpot777 .75s cubic-bezier(.22,1,.36,1) infinite;}
+  .mg-jackpot-title{margin-top:12px;font-size:clamp(25px,7vw,42px);font-weight:1000;color:#fff;letter-spacing:2px;text-shadow:0 0 18px rgba(231,181,73,.8);}
   .mg-jackpot-sub{margin-top:8px;font-size:14px;font-weight:800;color:var(--text-dim);}
   .mg-jackpot-win{margin-top:14px;font-size:24px;font-weight:1000;color:var(--gold);}
   .mg-jackpot-particle{position:absolute;font-size:22px;animation:mgJackpotParticle 1.5s ease-out forwards;opacity:0;}
@@ -1173,7 +1172,7 @@
      ================================================================ */
 
   /* 3. 암시장 OPEN 연출 -- 카드 전체에 은은한 보라색 glow pulse */
-  @keyframes bmMarketGlow{ 0%,100%{ box-shadow:0 0 0 rgba(122,59,46,0); } 50%{ box-shadow:0 0 22px rgba(122,59,46,.38); } }
+  @keyframes bmMarketGlow{ 0%,100%{ box-shadow:0 0 0 rgba(139,95,191,0); } 50%{ box-shadow:0 0 22px rgba(139,95,191,.38); } }
   .bm-home-card.live{ animation:bmMarketGlow 2.4s ease-in-out infinite; }
   .bm-home-card.card-enter{ animation:bmCardFadeIn .35s cubic-bezier(.22,1,.36,1); }
   @keyframes bmCardFadeIn{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:translateY(0);} }
@@ -1213,10 +1212,10 @@
   .shop-item.bm:active{ transform:scale(.98); transition:transform .1s ease; }
 
   /* 8. 희귀(전설) 장비 shimmer -- 최상급 3종에만 적용 */
-  .shop-item.bm.legendary{ border-color:rgba(213,195,154,0.55); overflow:hidden; }
+  .shop-item.bm.legendary{ border-color:rgba(231,181,73,0.55); overflow:hidden; }
   .shop-item.bm.legendary::after{
     content:''; position:absolute; inset:0; pointer-events:none;
-    background:linear-gradient(100deg, transparent 40%, rgba(213,195,154,0.28) 50%, transparent 60%);
+    background:linear-gradient(100deg, transparent 40%, rgba(231,181,73,0.28) 50%, transparent 60%);
     background-size:220% 220%; animation:bmShimmer 2.2s ease-in-out infinite;
   }
   @keyframes bmShimmer{ 0%{ background-position:150% 0; } 45%,100%{ background-position:-60% 0; } }
@@ -1224,9 +1223,9 @@
   /* 10~12. 구매 버튼 / 골드 변화 / 구매 성공 연출 */
   .shop-item.bm.purchased{ animation:bmPurchaseGlow .6s ease-out; }
   @keyframes bmPurchaseGlow{
-    0%{ box-shadow:0 0 0 rgba(213,195,154,0); }
-    35%{ box-shadow:0 0 0 2px rgba(213,195,154,.6), 0 0 20px rgba(213,195,154,.35); }
-    100%{ box-shadow:0 0 0 rgba(213,195,154,0); }
+    0%{ box-shadow:0 0 0 rgba(231,181,73,0); }
+    35%{ box-shadow:0 0 0 2px rgba(231,181,73,.6), 0 0 20px rgba(231,181,73,.35); }
+    100%{ box-shadow:0 0 0 rgba(231,181,73,0); }
   }
   .shop-item.bm.purchased .ic{ animation:bmIconPop .5s ease-out; }
   @keyframes bmIconPop{ 0%{ transform:scale(1);} 40%{ transform:scale(1.35);} 100%{ transform:scale(1);} }
@@ -1381,7 +1380,7 @@
   @keyframes bmRewardPop{ 0%{ opacity:0; transform:translateY(6px);} 100%{ opacity:1; transform:translateY(0);} }
 
   .bm-loss-npc-overlay{position:fixed;inset:0;z-index:6800;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(5,4,9,.78);backdrop-filter:blur(6px);animation:bmLossNpcIn .28s ease-out;}
-  .bm-loss-npc-card{width:min(380px,100%);padding:24px 18px 17px;border-radius:20px;border:1px solid rgba(213,195,154,.35);background:linear-gradient(155deg,#201a2d,#100d18);box-shadow:0 24px 90px rgba(0,0,0,.65);text-align:center;}
+  .bm-loss-npc-card{width:min(380px,100%);padding:24px 18px 17px;border-radius:20px;border:1px solid rgba(231,181,73,.35);background:linear-gradient(155deg,#201a2d,#100d18);box-shadow:0 24px 90px rgba(0,0,0,.65);text-align:center;}
   .bm-loss-npc-ic{font-size:44px}.bm-loss-npc-name{font-family:var(--font-display);font-weight:800;font-size:14px;color:var(--gold);margin-top:6px}.bm-loss-npc-lines{margin:14px 0 16px;padding:13px;border:1px solid var(--border);border-radius:14px;background:rgba(255,255,255,.035)}
   .bm-loss-line{font-size:12.5px;line-height:1.7;color:var(--text-dim);opacity:0;animation:bmLossLineIn .3s ease-out forwards}.bm-loss-npc-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.bm-loss-npc-actions .btn{min-height:44px;font-weight:800}
   @keyframes bmLossNpcIn{from{opacity:0}to{opacity:1}}@keyframes bmLossLineIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
@@ -1413,7 +1412,7 @@
   #bottomnav{
     position:fixed;bottom:0;left:50%;transform:translateX(-50%);
     width:100%;max-width:480px;
-    background:rgba(42,48,40,0.95);backdrop-filter:blur(8px);
+    background:rgba(27,23,48,0.95);backdrop-filter:blur(8px);
     border-top:1px solid var(--border);
     display:flex;z-index:30;
     padding:6px 4px calc(6px + env(safe-area-inset-bottom));
@@ -1437,7 +1436,7 @@
   .fx-overlay{
     position:fixed;inset:0;z-index:60;
     display:flex;align-items:center;justify-content:center;
-    background:rgba(12,14,11,0.7);
+    background:rgba(10,8,18,0.7);
     opacity:0;pointer-events:none;transition:opacity .2s;
   }
   .fx-overlay.show{opacity:1;pointer-events:auto;}
@@ -1447,13 +1446,13 @@
     transform:scale(0.8);transition:transform .3s cubic-bezier(.34,1.56,.64,1);
   }
   .fx-overlay.show .fx-card{transform:scale(1);}
-  .fx-overlay.evolution .fx-card{border-color:var(--gold);box-shadow:0 0 32px rgba(213,195,154,0.35);}
+  .fx-overlay.evolution .fx-card{border-color:var(--gold);box-shadow:0 0 32px rgba(231,181,73,0.35);}
   .fx-clear-ic{font-size:40px;}
   .fx-clear-title{font-family:var(--font-display);font-size:12px;letter-spacing:3px;color:var(--gold);margin:10px 0 6px;}
   .fx-quest-name{font-size:17px;font-weight:700;margin-bottom:16px;}
   .fx-reward-row{display:flex;justify-content:center;gap:18px;font-size:14px;font-weight:700;}
   .fx-reward-row .xp{color:var(--gold);}
-  .fx-reward-row .gold{color:#D5C39A;}
+  .fx-reward-row .gold{color:#F0C463;}
   .fx-stat-row{display:flex;justify-content:center;gap:12px;font-size:12px;font-weight:700;color:var(--success);margin-top:8px;flex-wrap:wrap;}
 
   .lu-arrow{font-size:20px;color:var(--text-faint);margin:2px 0;}
@@ -1619,7 +1618,7 @@
   .confirm-overlay{
     position:fixed;inset:0;z-index:80;
     display:flex;align-items:center;justify-content:center;
-    background:rgba(12,14,11,0.72);padding:24px;
+    background:rgba(10,8,18,0.72);padding:24px;
     opacity:0;pointer-events:none;transition:opacity .2s;
   }
   .confirm-overlay.show{opacity:1;pointer-events:auto;}
@@ -1637,7 +1636,7 @@
   .confirm-btn-row{display:flex;gap:10px;}
   .confirm-btn-row .btn{flex:1;}
 
-  .daily-coin-reward-card{border-color:var(--gold);box-shadow:0 0 18px rgba(213,195,154,.06);}
+  .daily-coin-reward-card{border-color:var(--gold);box-shadow:0 0 18px rgba(231,181,73,.06);}
   .coin-exchange-qty{display:flex;align-items:center;gap:4px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;max-width:190px;}
   .coin-exchange-qty button:not(.btn){width:28px;height:28px;border:1px solid var(--border);background:var(--card-hi);color:var(--text);border-radius:8px;font-weight:800;}
   .coin-exchange-qty input{width:42px;height:28px;text-align:center;background:var(--bg);color:var(--gold);border:1px solid var(--gold-dim);border-radius:8px;}
@@ -1668,7 +1667,7 @@
   #coin-exchange-overlay .sheet{max-width:520px;padding:20px 18px 24px;}
   .coin-exchange-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
   .coin-exchange-head h3{margin:0;}
-  .coin-exchange-balance{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;margin:0 0 12px;border:1px solid var(--gold-dim);border-radius:13px;background:linear-gradient(135deg,rgba(213,195,154,.11),rgba(255,255,255,.025));}
+  .coin-exchange-balance{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;margin:0 0 12px;border:1px solid var(--gold-dim);border-radius:13px;background:linear-gradient(135deg,rgba(231,181,73,.11),rgba(255,255,255,.025));}
   .coin-exchange-balance .label{font-size:10.5px;color:var(--text-faint);}
   .coin-exchange-balance .value{font-size:16px;font-weight:800;color:var(--gold);white-space:nowrap;}
   .coin-exchange-guide{font-size:10.5px;line-height:1.5;color:var(--text-faint);padding:9px 11px;margin-bottom:12px;border-radius:11px;background:rgba(255,255,255,.025);border:1px solid var(--border);}
@@ -1884,199 +1883,27 @@
 .jail-ticket-actions{display:grid;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}.jail-visit-count,.jail-fine-paid{margin:10px 0;padding:9px;border-radius:10px;background:rgba(255,255,255,.05);font-size:13px}.jail-fine-paid{color:#ffd66d}
 .shop-item.ticket-item{border-color:rgba(255,193,72,.35);background:linear-gradient(135deg,rgba(255,193,72,.08),rgba(255,255,255,.02))}
 .mg-game-card.mg-game-closed{opacity:.68;filter:saturate(.55);cursor:not-allowed;border-color:rgba(255,100,90,.35);background:rgba(100,30,30,.08)}.mg-game-closed .nm{color:#ff8b83}.mg-game-closed .arrow{color:#ff756d;font-weight:1000}
-  /* ================================================================
-     GUILD ARCHIVE — 1단계: 디자인 토큰 + 공통 컴포넌트
-     (명세서 3장 디자인 시스템 / 7장 접근성 기준)
-     - 마크업·JS·저장 구조는 건드리지 않고, 기존 토큰을 재정의한다
-     - 화면별 개편(홈/퀘스트/상점/일기 등)은 다음 단계에서 진행
-     ================================================================ */
+
+  /* ===== 새 기능 화면용 스타일 (원래 보라색 톤으로 맞춤) ===== */
+  /* ---- 새 컴포넌트용 토큰: 원래 보라색 팔레트로 연결 ---- */
   :root{
-    /* 명세서 3.1 색상 토큰 */
-    --bg-primary:#20241F;
-    --bg-panel:#2A3028;
-    --bg-raised:#30372D;
-    --bg-paper:#E6D9BC;
-    --text-primary:#F0E5D0;
-    --text-secondary:#B4B8A8;
-    --text-muted:#979D8D;      /* 명세 외 보조값: 패널 위 대비 4.5:1 이상 */
-    --text-dark:#30342E;
-    --accent-bronze:#80613A;
-    --accent-bronze-light:#D5C39A;
-    --accent-forest:#343D32;
-    --border-subtle:#4A5045;
-    --warning:#D3AD69;
-    --cta-text:#F6EEDC;        /* 브론즈 버튼 위 글자 (대비 4.9:1) */
-
-    /* 기존 토큰 → 길드 아카이브 토큰으로 연결 (기존 CSS 전체에 일괄 반영) */
-    --bg:var(--bg-primary);
-    --bg-elev:var(--bg-panel);
-    --card:var(--bg-panel);
-    --card-hi:var(--bg-raised);
-    --border:var(--border-subtle);
-    --text:var(--text-primary);
-    --text-dim:var(--text-secondary);
-    --text-faint:var(--text-muted);
-    --gold:var(--accent-bronze-light);
-    --gold-dim:var(--accent-bronze);
-    --success:#9EAF8C;
-    --danger:#D08476;          /* 명세값 #B96C60은 글자 대비 3.5:1 → 접근성 우선 조정 */
-
-    /* 3.4 모서리 */
-    --radius-s:8px;
-    --radius-m:10px;
-    --radius-l:12px;
-
-    /* 3.3 타이포그래피: 장식 서체는 제목에만 */
-    --font-display:'Noto Serif KR',Georgia,'AppleMyungjo','Batang',serif;
-    --font-body:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
-
-    --dur-fast:150ms;
-    --dur-sheet:220ms;
-    --focus-ring:0 0 0 2px var(--bg-primary),0 0 0 4px var(--accent-bronze-light);
+    --bg-primary:#14101F; --bg-panel:#221C3B; --bg-raised:#2C2450; --border-subtle:#372C55;
+    --text-primary:#F4EFEA; --text-secondary:#A196C0; --text-muted:#8A7FAD;
+    --accent-bronze:#8A6E2E; --accent-bronze-light:#E7B549; --warning:#E7B549; --cta-text:#1B1300;
+    --dur-fast:150ms; --dur-sheet:220ms;
   }
-
-  /* 외부 폰트·이미지 실패에 대비한 단색 배경 (그라데이션 제거) */
-  #app{background:var(--bg-primary);}
-  html,body{background:var(--bg-primary);}
-  body{font-size:15px;line-height:1.5;}
-
-  /* ---------- Typography ---------- */
-  h1,h2,h3{font-family:var(--font-display);font-weight:700;letter-spacing:-.01em;color:var(--text-primary);}
-  .section-head h2{font-size:17px;}
-  .section-head .meta{font-size:12px;color:var(--text-secondary);}
-
-  /* ---------- Focus (키보드 포커스 표시 유지) ---------- */
-  :is(button,a,input,textarea,select,[role=button],[tabindex]):focus-visible{
-    outline:2px solid var(--accent-bronze-light);outline-offset:2px;
-  }
-
-  /* ---------- Button ---------- */
-  .btn{
-    min-height:44px;border-radius:var(--radius-s);
-    background:var(--bg-raised);color:var(--text-primary);
-    border:1px solid var(--border-subtle);
-    font-size:14px;font-weight:600;box-shadow:none;
-    transition:background var(--dur-fast) ease,border-color var(--dur-fast) ease,transform var(--dur-fast) ease;
-  }
-  .btn:active{transform:translateY(1px);}
-  .btn:disabled,.btn[disabled]{opacity:.5;cursor:not-allowed;}
-  /* 주요 CTA: 단색 앤틱 브론즈 (그라데이션·발광 없음) */
-  .btn-gold{
-    background:var(--accent-bronze);color:var(--cta-text);
-    border:1px solid #96744A;box-shadow:none;
-  }
-  .btn-gold:active{background:#6E5332;}
-  .btn-ghost{background:transparent;border:1px solid var(--border-subtle);color:var(--text-secondary);}
-
-  /* ---------- Status label (pill → 각진 라벨) ---------- */
-  .pill{
-    border-radius:4px;padding:2px 8px;font-size:12px;font-weight:600;
-    background:var(--bg-raised);color:var(--text-secondary);border:1px solid var(--border-subtle);
-  }
-
-  /* ---------- Inputs ---------- */
-  input[type=text],input[type=date],textarea,select{
-    background:var(--bg-primary);color:var(--text-primary);
-    border:1px solid var(--border-subtle);border-radius:var(--radius-s);
-    font-size:16px; /* iOS 확대 방지 + 본문 크기 */
-  }
-  input[type=text]:focus,input[type=date]:focus,textarea:focus{
-    outline:none;border-color:var(--accent-bronze-light);box-shadow:0 0 0 1px var(--accent-bronze-light);
-  }
-  ::placeholder{color:var(--text-muted);}
-
-  /* ---------- Chip / Tab: 선택 상태는 색 + 테두리 + 굵기로 동시 표현 ---------- */
-  .chip,.shop-tab{
-    min-height:40px;border-radius:var(--radius-s);
-    background:var(--bg-panel);color:var(--text-secondary);border:1px solid var(--border-subtle);
-  }
-  .chip.active,.shop-tab.active,.diary-filter-opt.active{
-    background:var(--bg-raised);color:var(--accent-bronze-light);
-    border-color:var(--accent-bronze-light);font-weight:700;box-shadow:none;
-  }
-
-  /* ---------- Panel (카드 기본값: 1px 테두리 + 명도차, 그림자 없음) ---------- */
-  .quest-card,.progress-strip,.metric-card{
-    background:var(--bg-panel);border:1px solid var(--border-subtle);
-    border-radius:var(--radius-m);box-shadow:none;
-  }
-  .empty-note{border:1px dashed var(--border-subtle);border-radius:var(--radius-m);color:var(--text-secondary);}
-
-  /* ---------- Progress bar (발광·그라데이션 제거) ---------- */
-  .progress-track,.xp-bar-track{background:var(--bg-primary);border:1px solid var(--border-subtle);border-radius:3px;}
-  .progress-fill{background:var(--success);border-radius:2px;}
-  .xp-bar-fill{background:var(--accent-bronze-light);border-radius:2px;box-shadow:none;}
-  .stat-fill{background:var(--accent-bronze-light);border-radius:2px;}
-  .evo-item.reached::before{background:var(--accent-bronze-light);}
-
-  /* ---------- Top bar ---------- */
-  #topbar{
-    background:var(--bg-panel);backdrop-filter:none;-webkit-backdrop-filter:none;
-    border-bottom:1px solid var(--border-subtle);
-  }
-  .tb-name{font-size:15px;font-weight:700;}
-  .tb-title{font-size:12px;color:var(--text-secondary);}
-  .tb-gold{font-size:15px;color:var(--accent-bronze-light);font-variant-numeric:tabular-nums;}
-  .tb-settings-btn{
-    width:44px !important;height:44px !important;flex-basis:44px !important;
-    border-radius:var(--radius-s);background:var(--bg-raised);border:1px solid var(--border-subtle);
-  }
-  .tb-settings-btn:active{transform:none;}
-  .lv-badge{
-    background:transparent;color:var(--accent-bronze-light);
-    border:1px solid var(--accent-bronze);border-radius:4px;
-    font-family:var(--font-display);font-size:13px;
-  }
-  .xp-num{font-size:12px;color:var(--text-secondary);}
-
-  /* ---------- Modal / Sheet: 앞에 뜨는 요소에만 그림자 ---------- */
-  .sheet-overlay,.bottom-sheet-overlay{background:rgba(12,14,11,.66);}
-  .sheet,.bottom-sheet{
-    background:var(--bg-panel);border:1px solid var(--border-subtle);border-bottom:none;
-    border-radius:var(--radius-l) var(--radius-l) 0 0;
-    box-shadow:0 -12px 32px rgba(0,0,0,.45);
-    transition-duration:var(--dur-sheet);
-  }
-
-  /* ---------- Quick add (거대한 원형 FAB → 절제된 사각 버튼) ---------- */
-  .fab{
-    width:48px;height:48px;border-radius:var(--radius-m);
-    bottom:calc(84px + env(safe-area-inset-bottom));
-    background:var(--accent-bronze);color:var(--cta-text);
-    border:1px solid #96744A;font-size:24px;
-    box-shadow:0 4px 12px rgba(0,0,0,.4);
-  }
-
-  /* ---------- Bottom nav: 고정형, 48px 터치 영역, 활성 상태는 상단 막대 + 색 ---------- */
-  #bottomnav{
-    background:var(--bg-panel);backdrop-filter:none;-webkit-backdrop-filter:none;
-    border-top:1px solid var(--border-subtle);
-  }
-  .nav-item{
-    position:relative;min-height:56px;font-size:12px;color:var(--text-muted);
-    border-radius:0;background:none;
-  }
-  .nav-item .ic{filter:grayscale(1) opacity(.65);}
-  .nav-item.active{color:var(--accent-bronze-light);font-weight:700;}
-  .nav-item.active .ic{filter:none;}
-  .nav-item.active::before{
-    content:'';position:absolute;top:-7px;left:22%;right:22%;height:2px;background:var(--accent-bronze-light);
-  }
-
-
-  /* 하단 내비: 일러스트 아이콘 (리소스 가이드) — 비활성은 채도·명도를 낮추고 활성만 원색 */
-  .nav-item .ic{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;font-size:0;line-height:1;}
-  .nav-item .ic img{width:28px;height:28px;display:block;object-fit:contain;}
-  .nav-item .ic,.nav-item.active .ic{filter:none;} /* 알림 점(::after)은 원색 유지 */
-  .nav-item .ic .ui-ico-fb{font-size:22px;}
-  .nav-item .ic img{filter:grayscale(.45) brightness(.92);transition:filter var(--dur-fast) ease;}
-  .nav-item.active .ic img{filter:none;}
-
-  /* ---------- UI 아이콘: 글자 크기에 맞춰 이모지 자리에 들어간다 ---------- */
-  img.ui-ico{
-    width:1.3em;height:1.3em;object-fit:contain;vertical-align:-.3em;
-    display:inline-block;flex-shrink:0;user-select:none;-webkit-user-drag:none;
-  }
+  :is(button,a,input,textarea,select,[role=button],[tabindex]):focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+  input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--gold) !important;outline-offset:1px;}
+  .nav-item{min-height:56px;font-size:11px;}
+  .nav-item .ic{font-size:21px;}
+  .nav-item.active{color:var(--gold);}
+  .fab{bottom:calc(84px + env(safe-area-inset-bottom));}
+  .btn{min-height:44px;}
+  .tb-settings-btn{flex:0 0 44px;width:44px;height:44px;}
+  .btn-danger{background:transparent;color:var(--danger);border:1px solid var(--danger);}
+  .settings-card.danger-card{border-color:rgba(224,102,92,.55);}
+  .settings-card.danger-card h3{color:var(--danger);}
+  .shop-badge{font-size:11.5px;border-radius:6px;padding:1px 6px;}
 
   /* ================================================================
      GUILD ARCHIVE — 2단계: 홈 / 퀘스트 (명세서 5.1, 5.2)
@@ -2089,18 +1916,12 @@
   .home-profile .char-stage{
     flex-direction:row;align-items:center;gap:14px;padding:0;min-height:72px;
   }
-  .home-profile .char-aura{
-    width:72px;height:72px;flex:0 0 72px;border-radius:var(--radius-m);font-size:40px;
-    background:var(--bg-raised);border:1px solid var(--class-color,var(--border-subtle));box-shadow:none;
-  }
-  .home-profile .char-aura > span{line-height:1;}
   .home-profile .char-info{flex:1;min-width:0;}
   .home-profile .char-title{font-size:19px;margin:0;text-align:left;max-width:none;}
   .home-profile .char-sub{font-size:13px;margin-top:2px;text-align:left;max-width:none;color:var(--text-secondary);}
   .home-profile .char-badges{margin-top:6px;min-height:0;gap:4px;}
   .home-profile .char-badges:empty{display:none;}
   .home-profile .char-go{font-size:22px;color:var(--text-muted);flex-shrink:0;}
-
   .home-summary{
     display:grid;grid-template-columns:repeat(3,1fr);margin:14px 0 0;
     border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);
@@ -2112,25 +1933,11 @@
     margin:2px 0 0;font-size:17px;font-weight:700;color:var(--text-primary);
     font-variant-numeric:tabular-nums;white-space:nowrap;
   }
-  .home-summary dd img.ui-ico{width:1.05em;height:1.05em;vertical-align:-.15em;margin-right:2px;}
   .home-profile .progress-strip{background:none;border:none;border-radius:0;padding:12px 0 0;margin:0;}
   .home-profile .streak-row{margin-top:12px;}
   .home-profile #checkin-btn{min-height:44px;padding:8px 16px;font-size:14px;}
   .home-profile .npc-bubble{margin:12px 0 0;}
-
   /* 퀘스트 목록: 카드 나열 대신 하나의 장부(패널) 안에 구분선으로 나눈 행 */
-  .quest-list:has(.quest-card){
-    background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:var(--radius-m);overflow:hidden;
-  }
-  .quest-list > .quest-card{
-    margin:0;border:none;border-radius:0;background:transparent;box-shadow:none;
-    padding:8px 4px 8px 0;gap:6px;align-items:center;min-height:64px;
-  }
-  .quest-list > .quest-card + .quest-card{border-top:1px solid var(--border-subtle);}
-  .quest-card.done{opacity:1;}
-  .quest-card.done .quest-title{color:var(--text-secondary);text-decoration:line-through;text-decoration-color:var(--text-muted);}
-  .quest-card.done .quest-type,.quest-card.done .quest-diff,.quest-card.done .pill,.quest-card.done .quest-reward{opacity:.6;}
-
   /* 완료 버튼: 시각 24px, 터치 영역 48px */
   .quest-check{
     width:48px;height:48px;flex:0 0 48px;border:none;border-radius:var(--radius-s);background:none;padding:0;
@@ -2141,18 +1948,11 @@
     display:flex;align-items:center;justify-content:center;
     transition:background var(--dur-fast) ease,border-color var(--dur-fast) ease;
   }
-  .quest-card.done .quest-check{background:none;border:none;}
-  .quest-card.done .quest-check .qc-box{background:var(--success);border-color:var(--success);}
-  .quest-card.done .quest-check .qc-box::after{
-    content:'';width:6px;height:11px;border:solid var(--bg-primary);border-width:0 2.5px 2.5px 0;
-    transform:translateY(-1px) rotate(45deg);
-  }
   .quest-body{cursor:pointer;padding:2px 0;}
   .quest-title{font-size:15px;font-weight:600;line-height:1.4;word-break:keep-all;overflow-wrap:anywhere;}
   .quest-meta{margin-top:4px;gap:4px 8px;font-size:12px;color:var(--text-secondary);flex-wrap:wrap;align-items:center;}
   .quest-meta .pill{font-size:11.5px;}
   .quest-type,.quest-diff{display:inline-flex;align-items:center;gap:3px;white-space:nowrap;}
-  .quest-type img.ui-ico,.quest-diff img.ui-ico{width:16px;height:16px;vertical-align:0;}
   .quest-status-done{
     display:inline-flex;align-items:center;font-size:11.5px;font-weight:700;color:var(--success);
     border:1px solid var(--success);border-radius:4px;padding:0 6px;
@@ -2162,24 +1962,19 @@
     align-items:flex-end;gap:2px;font-variant-numeric:tabular-nums;
   }
   .quest-reward .g{color:var(--accent-bronze-light);font-size:12px;display:inline-flex;align-items:center;gap:2px;}
-  .quest-reward .g img.ui-ico{width:14px;height:14px;vertical-align:0;}
   .quest-actions{display:flex;flex-direction:column;flex-shrink:0;}
   .quest-edit,.quest-del{
     width:40px;height:32px;padding:0;border-radius:var(--radius-s);font-size:15px;color:var(--text-muted);
     display:flex;align-items:center;justify-content:center;
   }
   .quest-del:hover,.quest-del:focus-visible{color:var(--danger);}
-
   /* 빈 상태 */
   .quest-empty{display:flex;flex-direction:column;align-items:center;gap:8px;padding:22px 16px;}
-  .quest-empty img.ui-ico{width:44px;height:44px;opacity:.85;}
   .quest-empty p{margin:0;font-size:14px;color:var(--text-secondary);}
   .quest-empty .btn{margin-top:4px;min-width:140px;}
-
   /* 분류 필터: 한 줄 가로 스크롤 (페이지 가로 스크롤은 생기지 않음) */
   .chip-row-scroll{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-left:-16px;margin-right:-16px;padding:0 16px;}
   .chip-row-scroll .chip{flex:0 0 auto;}
-
   /* ================================================================
      GUILD ARCHIVE — 3단계: 장비 / 상점 / 암시장 (명세서 5.4, 5.5)
      ================================================================ */
@@ -2203,7 +1998,6 @@
     grid-area:ic;width:48px;height:48px;font-size:28px;line-height:1;display:flex;align-items:center;justify-content:center;
     background:var(--bg-primary);border:1px solid var(--border-subtle);border-radius:var(--radius-s);
   }
-  .shop-item .ic img.ui-ico{width:36px;height:36px;vertical-align:0;}
   .shop-item .info{grid-area:info;text-align:left;}
   .shop-item .info .nm{font-size:15px;justify-content:flex-start;gap:6px;}
   .shop-item .info .sub{font-size:13px;color:var(--text-secondary);-webkit-line-clamp:unset;display:block;margin-top:2px;}
@@ -2216,25 +2010,16 @@
   .item-compare{font-size:12px;color:var(--text-secondary);margin-top:4px;display:flex;flex-wrap:wrap;gap:2px 8px;}
   .item-compare .up{color:var(--success);font-weight:700;}
   .item-compare .down{color:var(--danger);font-weight:700;}
-  .shop-badge{font-size:11.5px;border-radius:4px;padding:1px 6px;border:1px solid currentColor;background:none;}
-  .shop-badge.equipped{color:var(--accent-bronze-light);background:none;}
-  .shop-badge.owned{color:var(--text-secondary);background:none;}
   .shop-screen-gold .value{font-variant-numeric:tabular-nums;}
-
   /* 장비 슬롯: 장착/빈 슬롯/미보유를 글자 + 테두리로 함께 구분 */
   .equip-card{
     background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:var(--radius-m);box-shadow:none;min-height:150px;
   }
   .equip-card.equipped{border-color:var(--accent-bronze-light);box-shadow:none;}
-  .equip-card:not(.equipped){border-style:dashed;}
   .equip-card .slot-label{font-size:12px;color:var(--text-secondary);}
   .equip-card .nm{font-size:13px;}
   .equip-card .eff{font-size:12px;color:var(--text-secondary);}
-  .equip-card .equip-status{border-radius:4px;font-size:11.5px;}
-  .equip-card .equip-status.on{background:none;color:var(--accent-bronze-light);border:1px solid var(--accent-bronze-light);}
-  .equip-card .equip-status.empty,.equip-card .equip-status.none{background:none;color:var(--text-muted);border:1px dashed var(--border-subtle);}
   .equip-pick-row .item-compare{margin-top:2px;}
-
   /* 상태 메시지(토스트) 통일: 왼쪽 막대 + 아이콘으로 성공/오류 구분 */
   .toast{
     background:var(--bg-raised);border:1px solid var(--border-subtle);border-left:4px solid var(--accent-bronze-light);
@@ -2244,47 +2029,44 @@
   .toast.toast-error{border-left-color:var(--danger);}
   .toast.toast-success::before{content:'✓ ';color:var(--success);font-weight:700;}
   .toast.toast-error::before{content:'! ';color:var(--danger);font-weight:700;}
-
   /* 암시장: 일반 상점과 구분되는 적갈색·먹색 테마 (본문 대비 유지) */
   #bm-overlay{
-    --bm-ink:#1E1715;--bm-panel:#2B201C;--bm-raised:#362823;--bm-line:#5A3F35;--bm-accent:#D9A88A;--bm-cta:#7A3B2E;
+    --bm-ink:#1B1330;--bm-panel:#271C42;--bm-raised:#3A2A52;--bm-line:#4D3A75;--bm-accent:#cebaff;--bm-cta:#8B5FBF;
   }
   #bm-overlay .sheet.bm-sheet{background:var(--bm-ink);border-color:var(--bm-line) !important;}
-  #bm-overlay h3{color:#F0E5D0;}
-  #bm-overlay .hint{color:#C9B6A8;}
+  #bm-overlay h3{color:#F4EFEA;}
+  #bm-overlay .hint{color:#BFB0E0;}
   .bm-tabs{gap:6px;}
   .bm-tab{
-    min-height:44px;border-radius:var(--radius-s);background:var(--bm-panel);color:#C9B6A8;border:1px solid var(--bm-line);
+    min-height:44px;border-radius:var(--radius-s);background:var(--bm-panel);color:#BFB0E0;border:1px solid var(--bm-line);
   }
   .bm-tab.active{background:var(--bm-raised);color:var(--bm-accent);border-color:var(--bm-accent);font-weight:700;}
-  .btn-bm{background:var(--bm-cta,#7A3B2E);color:#F6EEDC;border:1px solid #965040;}
-  .btn-bm:active{background:#652F24;}
-  .btn-duel{background:#8E3A30;color:#F6EEDC;border:1px solid #A9483C;}
+  .btn-bm{background:var(--bm-cta,#8B5FBF);color:#F4EFEA;border:1px solid #A478D6;}
+  .btn-bm:active{background:#7449A8;}
+  .btn-duel{background:#C0392B;color:#F4EFEA;border:1px solid #E0665C;}
   #bm-shop-panel:has(.shop-item){background:var(--bm-panel);border:1px solid var(--bm-line);border-radius:var(--radius-m);overflow:hidden;}
   #bm-overlay .shop-item + .shop-item{border-top-color:var(--bm-line);}
   #bm-overlay .shop-item .ic{background:var(--bm-ink);border-color:var(--bm-line);}
   #bm-overlay .shop-item .info .price{color:var(--bm-accent);}
   #bm-overlay .bm-shelf-note,#bm-overlay .mg-daily-note{
-    background:none;border:none;border-left:3px solid var(--bm-line);border-radius:0;padding:6px 10px;color:#C9B6A8;font-size:13px;
+    background:none;border:none;border-left:3px solid var(--bm-line);border-radius:0;padding:6px 10px;color:#BFB0E0;font-size:13px;
   }
   .duel-card,.mg-game-card{background:var(--bm-panel);border:1px solid var(--bm-line);border-radius:var(--radius-m);box-shadow:none;}
   .duel-card.selected{border-color:var(--bm-accent);background:var(--bm-raised);}
   .duel-bet-btn{min-height:44px;border-radius:var(--radius-s);}
   .duel-bet-btn.selected{border-color:var(--bm-accent);color:var(--bm-accent);}
   .duel-result-card,.mg-result-card{border-radius:var(--radius-m);box-shadow:none;}
-
   /* 게임 시작 전 정보 / 결과의 증감·잔액 */
   .game-brief{display:grid;grid-template-columns:repeat(3,1fr);margin:0 0 8px;border:1px solid var(--bm-line,var(--border-subtle));border-radius:var(--radius-s);}
   .game-brief > div{padding:8px 4px;text-align:center;min-width:0;}
   .game-brief > div + div{border-left:1px solid var(--bm-line,var(--border-subtle));}
-  .game-brief dt{font-size:12px;color:#C9B6A8;}
-  .game-brief dd{margin:2px 0 0;font-size:14px;font-weight:700;color:#F0E5D0;font-variant-numeric:tabular-nums;}
-  .game-expect{font-size:13px;color:#E3CFC0;margin:0 0 10px;}
+  .game-brief dt{font-size:12px;color:#BFB0E0;}
+  .game-brief dd{margin:2px 0 0;font-size:14px;font-weight:700;color:#F4EFEA;font-variant-numeric:tabular-nums;}
+  .game-expect{font-size:13px;color:#E5DCF5;margin:0 0 10px;}
   .result-gold{font-size:22px;font-weight:800;margin-top:8px;font-variant-numeric:tabular-nums;}
   .result-gold.up{color:var(--success);}
   .result-gold.down{color:var(--danger);}
   .result-balance{font-size:13px;color:var(--text-secondary);margin-top:2px;}
-
   /* ================================================================
      GUILD ARCHIVE — 4단계: 일기 / 탐험 / 통계 / 설정 (명세서 5.6~5.8)
      ================================================================ */
@@ -2300,7 +2082,6 @@
   .diary-save-btn[data-state="saving"]{opacity:.75;cursor:progress;}
   .diary-save-btn[data-state="saved"]{background:var(--success);border-color:var(--success);color:var(--bg-primary);}
   .diary-save-btn[data-state="failed"]{background:transparent;border:1px solid var(--danger);color:var(--danger);}
-
   /* 탐험: 지도가 주 콘텐츠 -- 높이를 키우고 상태를 아이콘+글자로 */
   .explore-map-wrap{height:min(52vh,420px);min-height:260px;}
   .explore-status{
@@ -2315,7 +2096,6 @@
   .explore-status[data-kind="error"],.explore-status[data-kind="unsupported"]{border-left-color:var(--danger);}
   #walk-toggle-btn{min-width:132px;min-height:48px;}
   #walk-toggle-btn.walk-stop{background:transparent;color:var(--danger);border:1px solid var(--danger);}
-
   /* 통계: 7일 막대 그래프 (단일 계열 · 값 라벨은 최댓값/오늘만 · 표 보기 제공) */
   .week-chart-card{
     background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:var(--radius-m);padding:14px;margin-bottom:10px;
@@ -2343,29 +2123,18 @@
   .week-chart-table th,.week-chart-table td{padding:5px 6px;border-bottom:1px solid var(--border-subtle);text-align:right;font-variant-numeric:tabular-nums;}
   .week-chart-table th:first-child,.week-chart-table td:first-child{text-align:left;}
   .metric-card .lbl{font-size:12px;color:var(--text-secondary);}
-
   /* 캐릭터 화면: 과한 발광 제거, 비율 유지 */
-  #screen-character .char-aura{box-shadow:none;border-width:1px;background:var(--bg-raised);width:120px;height:120px;border-radius:var(--radius-l);font-size:60px;}
-  .char-aura{background-repeat:no-repeat;}
-
   /* 업적 상세: 상태 / 조건 / 보상을 나눠 표시 */
   #achievement-detail-reward{display:flex;flex-direction:column;gap:6px;align-items:center;}
   .ad-state{font-weight:700;font-size:13px;padding:2px 8px;border-radius:4px;border:1px solid currentColor;}
   .ad-state.on{color:var(--success);}
   .ad-state.off{color:var(--text-muted);}
   .ad-reward{font-size:13px;color:var(--accent-bronze-light);}
-  .dex-card.locked .dex-card-state{color:var(--text-muted);}
-  .dex-card.unlocked .dex-card-state{color:var(--success);}
-
   /* 설정: 위험 구역 구분 + 아코디언 포커스 */
   .settings-card > h3[role="button"]{min-height:48px;}
   .settings-card > h3[role="button"]:focus-visible{outline:2px solid var(--accent-bronze-light);outline-offset:-2px;border-radius:var(--radius-m);}
-  .settings-card.danger-card{border-color:rgba(208,132,118,.55);}
-  .settings-card.danger-card h3{color:var(--danger);}
-  .btn-danger{background:transparent;color:var(--danger);border:1px solid var(--danger);}
-  .confirm-card .btn-danger{background:#8E3A30;color:#F6EEDC;border-color:#A9483C;}
+  .confirm-card .btn-danger{background:#C0392B;color:#F4EFEA;border-color:#E0665C;}
   .confirm-detail{display:inline-block;margin-top:6px;font-size:13px;color:var(--text-secondary);}
-
   /* ================================================================
      GUILD ARCHIVE — 구조 개편: 연출 · 던전 · 데일리 미니게임 (명세서 5.3, 8)
      ================================================================ */
@@ -2402,15 +2171,11 @@
   #fx-levelup-overlay .lu-stat-gain{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:4px;margin-top:4px;}
   #fx-levelup-overlay .lu-stat-chip{font-size:12px;padding:1px 6px;border:1px solid var(--border-subtle);border-radius:4px;background:none;}
   /* 진화(칭호 변경)는 브론즈 테두리로만 강조 -- 발광 없음 */
-  .fx-overlay.evolution .fx-card{border-color:var(--accent-bronze-light);box-shadow:0 10px 28px rgba(0,0,0,.5);}
   /* 업적 알림만 눌러서 닫을 수 있게 카드에 한해 포인터 허용 */
   #fx-achv-overlay.show .fx-card{pointer-events:auto;cursor:pointer;}
   .fx-achv-desc{font-size:12.5px;color:var(--text-secondary);}
   .fx-achv-reward-tag{font-size:12.5px;font-weight:700;color:var(--accent-bronze-light);}
   /* 화면 전체 번쩍임 제거 (명세 8: 짧고 기능적인 연출) */
-  .fx-flash{display:none !important;}
-  .fx-particle{background:var(--accent-bronze-light);}
-
   /* 데일리 미니게임 홈 카드: 게임별 한 줄 */
   .dmg-home-card{background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:var(--radius-m);padding:14px;margin-top:12px;box-shadow:none;}
   .dmg-home-title{font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--text-primary);}
@@ -2424,7 +2189,6 @@
   .dmg-row-info .sub{font-size:12.5px;color:var(--accent-bronze-light);margin-top:1px;}
   .dmg-row.done .dmg-row-info .sub{color:var(--success);}
   .dmg-row .btn{min-width:76px;min-height:44px;}
-
   /* ================================================================
      GUILD ARCHIVE — 내비게이션 (명세 4장): 하단 5개 + 더보기, PC 좌측 메뉴
      ================================================================ */
@@ -2434,12 +2198,10 @@
   .more-row:active{background:var(--bg-raised);}
   .more-ic{width:40px;height:40px;flex:0 0 40px;display:flex;align-items:center;justify-content:center;font-size:24px;
     background:var(--bg-primary);border:1px solid var(--border-subtle);border-radius:var(--radius-s);}
-  .more-ic img.ui-ico{width:30px;height:30px;vertical-align:0;}
   .more-txt{flex:1;min-width:0;display:flex;flex-direction:column;}
   .more-txt b{font-size:15px;}
   .more-txt small{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
   .more-go{font-size:22px;color:var(--text-muted);}
-
   /* PC(1024px 이상): 같은 메뉴를 같은 순서로 좌측 세로 메뉴로 */
   @media (min-width:1024px){
     #bottomnav{
@@ -2453,7 +2215,6 @@
     .screen{padding-bottom:40px;}
     .fab{bottom:28px;}
   }
-
   /* 퀘스트 관리(⋯) 버튼 48px + 관리 시트 */
   .quest-more{
     width:48px;height:48px;flex:0 0 48px;padding:0;border-radius:var(--radius-s);background:none;
@@ -2462,7 +2223,6 @@
   .quest-more:hover,.quest-more:focus-visible{background:var(--bg-raised);color:var(--text-primary);}
   .quest-action-sheet h3{font-size:16px;margin-bottom:12px;overflow-wrap:anywhere;}
   .quest-action-sheet .btn{min-height:48px;margin-top:8px;font-size:15px;}
-
   /* 장비 등급 (명세 3.2: 희귀도 색은 등급 표현에만) */
   .grade-tag{
     display:inline-flex;align-items:center;font-size:11.5px;font-weight:700;line-height:1.4;
@@ -2471,77 +2231,32 @@
   }
   .equip-card .nm{flex-direction:column;}
   .equip-card .nm .grade-tag{margin:4px 0 0;}
-
   .week-chart-period{display:flex;gap:6px;margin-bottom:10px;}
   .week-chart-period .chip{min-height:36px;padding:6px 12px;font-size:13px;}
   .week-chart.dense .wc-bar{width:min(10px,80%);border-radius:2px 2px 0 0;}
   .week-chart.dense .wc-val{font-size:10.5px;}
   .week-chart.dense .wc-x{font-size:10px;white-space:nowrap;overflow:visible;}
-
   /* 장식용 반복 애니메이션은 몇 번만 재생 (명세 3.4: 무한 반복 금지).
      실제 진행 상태를 뜻하는 것(슬롯 릴 회전 중, GPS 탐색, 실제 날씨 표시)은 그대로 둔다 */
-  .coin-card.shimmer::after{animation-iteration-count:2;}
-  .bm-raid-overlay.show{animation-iteration-count:4;}
-  .mg-slot-stage.jackpot .mg-slot-reel.jackpot-reel,.mg-jackpot-crown,.mg-jackpot-777{animation-iteration-count:3;}
-  .bm-home-card.live{animation-iteration-count:3;}
-  .bm-ending-pulse{animation-iteration-count:3;}
-  .shop-item.bm.legendary::after{animation-iteration-count:2;}
-
   /* ================================================================
      GUILD ARCHIVE — 나머지 화면: 능력치 · 코인도감 · 업적도감 · 소셜 · 암시장 잔여 색
      ================================================================ */
-  :root{ --bm-purple:#7A3B2E; --bm-purple-dim:#3A2622; } /* 예전 보라 암시장 색 → 적갈색 (명세 5.5) */
+  /* 예전 보라 암시장 색 → 적갈색 (명세 5.5) */
   .stat-row{display:grid;grid-template-columns:84px 1fr 40px;align-items:center;column-gap:10px;row-gap:2px;margin-bottom:14px;}
   .stat-label{font-size:14px;width:auto;}
   .stat-val{font-size:15px;font-weight:700;width:auto;text-align:right;font-variant-numeric:tabular-nums;}
   .stat-note{grid-column:2 / -1;font-size:12px;color:var(--text-secondary);line-height:1.4;}
-  .stat-track{height:8px;background:var(--bg-primary);border:1px solid var(--border-subtle);border-radius:3px;}
-
-  .coin-card{background:var(--bg-panel);border-radius:var(--radius-m);box-shadow:none;}
-  .coin-card .ct{display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap;font-size:12px;}
-  .coin-card .ct .grade-tag{margin-left:0;}
-
-  .dex-book,.dex-book.secret-book{background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:var(--radius-m);}
-  .dex-book.secret-book{background:#2A2530;border-color:#5A4E66;}
-  .dex-card,.secret-book .dex-card.unlocked{background:var(--bg-raised);box-shadow:none;border-radius:var(--radius-m);}
-  .dex-card.unlocked{border:1px solid var(--accent-bronze-light);}
-  .secret-book .dex-card.unlocked{border-color:#B9A6D0;}
-  .dex-card.locked{opacity:.7;filter:none;border:1px dashed var(--border-subtle);}
-  .dex-card-name{font-size:13px;}
-  .dex-card-state{font-size:12px;}
-  .dex-tab{min-height:44px;border-radius:var(--radius-s);}
-  .dex-tab.active.general{background:var(--bg-raised);color:var(--accent-bronze-light);border-color:var(--accent-bronze-light);}
-  .dex-tab.active.secret{background:var(--bg-raised);color:#CDBDE0;border-color:#B9A6D0;}
-  .dex-close{width:44px;height:44px;border-radius:var(--radius-s);}
-  .dex-nav button{height:44px;border-radius:var(--radius-s);color:var(--accent-bronze-light);}
-  .dex-page-label,.dex-topline h3{color:var(--accent-bronze-light);}
-  .secret-book .dex-page-label{color:#CDBDE0;}
-  .achievement-dex-launch{background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:var(--radius-m);box-shadow:none;}
-  .achv-detail-card{border-color:var(--border-subtle);}
-  .achv-detail-reward{background:var(--bg-primary);border:1px solid var(--border-subtle);border-radius:var(--radius-s);}
-
   /* 소셜: 카드 나열 → 한 장부 안의 행 */
   /* 행이 #soc-body 바로 아래 형제로 그려지므로 래퍼 없이 구분선 목록으로 표시 */
   #screen-social .soc-row{margin:0;border-radius:0;border-width:0 0 1px;border-color:var(--border-subtle);background:transparent;min-height:56px;}
   #screen-social .soc-row.me{background:var(--bg-panel);border:1px solid var(--accent-bronze);border-radius:var(--radius-s);margin-bottom:8px;}
   #screen-social .soc-row .rk{color:var(--accent-bronze-light);}
-  .soc-msg{border-radius:var(--radius-m);}
-  .soc-prof-card{border-radius:var(--radius-l);background:var(--bg-panel);}
-
   /* 일기 저장 직후: 목록에서 방금 쓴 글 강조, 서버 동기화 실패 안내 */
   .diary-entry.just-saved{outline:2px solid var(--accent-bronze-light);outline-offset:2px;}
   .diary-autosave-indicator .sync-fail{color:var(--danger);}
   .diary-autosave-indicator .link-btn{background:none;border:none;color:inherit;text-decoration:underline;font-size:inherit;min-height:32px;padding:0 4px;}
-
   /* 아이콘 공통 (에셋 가이드): 장식 이미지는 클릭을 가로채지 않고, 로드 실패 시 대체 이모지를 같은 크기로 */
-  img.ui-ico{pointer-events:none;}
-  .ui-ico-fb{font-size:1em;line-height:1;display:inline-block;vertical-align:-.1em;}
   /* 직업 아이콘: 원형 판 모양이라 선택 카드·상단바에서 조금 크게 */
-  .class-card .ic img.ui-ico{width:44px;height:44px;vertical-align:0;}
-  #tb-cls-ic img.ui-ico{width:26px;height:26px;vertical-align:-.45em;}
-  .current-tag img.ui-ico,.confirm-body img.ui-ico{width:1.5em;height:1.5em;vertical-align:-.4em;}
-  .duel-fighter-ic img.ui-ico{width:56px;height:56px;vertical-align:0;}
-  .soc-prof-ic img.ui-ico,.soc-row .nm img.ui-ico{width:1.5em;height:1.5em;}
   /* ---------- Motion: prefers-reduced-motion 존중 ---------- */
   @media (prefers-reduced-motion: reduce){
     #explore-weather-fx *{animation:none !important;}
@@ -3116,11 +2831,11 @@
 
     <!-- 하단 내비 (명세 4장): 핵심 목적지 4개 + 더보기. 나머지 화면은 '더보기'에서 진입 -->
     <nav id="bottomnav" aria-label="주요 메뉴">
-      <button class="nav-item active" data-tab="home" onclick="switchTab('home')"><span class="ic"><img class="ui-ico" src="icons/ui/nav-home.png" alt="" data-fb="🏠" width="28" height="28"></span>홈</button>
-      <button class="nav-item" data-tab="quest" onclick="switchTab('quest')"><span class="ic"><img class="ui-ico" src="icons/ui/nav-quest.png" alt="" data-fb="📜" width="28" height="28"></span>퀘스트</button>
-      <button class="nav-item" data-tab="growth" onclick="switchTab('growth')"><span class="ic"><img class="ui-ico" src="icons/ui/nav-diary.png" alt="" data-fb="📖" width="28" height="28"></span>모험일지</button>
-      <button class="nav-item" data-tab="world" onclick="switchTab('world')"><span class="ic"><img class="ui-ico" src="icons/ui/nav-explore.png" alt="" data-fb="🗺️" width="28" height="28"></span>탐험</button>
-      <button class="nav-item" data-tab="more" onclick="switchTab('more')"><span class="ic"><img class="ui-ico" src="icons/ui/nav-more.png" alt="" data-fb="⋯" width="28" height="28"></span>더보기</button>
+      <button class="nav-item active" data-tab="home" onclick="switchTab('home')"><span class="ic">🏠</span>홈</button>
+      <button class="nav-item" data-tab="quest" onclick="switchTab('quest')"><span class="ic">📜</span>퀘스트</button>
+      <button class="nav-item" data-tab="growth" onclick="switchTab('growth')"><span class="ic">📖</span>모험일지</button>
+      <button class="nav-item" data-tab="world" onclick="switchTab('world')"><span class="ic">🗺️</span>탐험</button>
+      <button class="nav-item" data-tab="more" onclick="switchTab('more')"><span class="ic">⋯</span>더보기</button>
     </nav>
   </div>
 
@@ -8978,11 +8693,13 @@ function renderAll(){
 /* 화면의 이모지를 일러스트 아이콘으로 바꿔 보여준다.
    - 데이터·문구 원본은 그대로 두고, DOM에 그려진 텍스트만 바꾼다 (alt에 원래 이모지 보존)
    - 사용자가 직접 쓴 글(퀘스트 제목, 일기, 채팅, 닉네임)과 입력창은 건드리지 않는다 */
+const UI_ICON_IMAGES = false; // 아이콘 이미지 사용 여부: false면 원래 이모지 그대로 표시 (파일은 icons/ui/ 에 보관)
 const UI_ICON_BASE = 'icons/ui/'; // 아이콘 파일 경로는 여기 한 곳에서만 지정한다 (파일명 규칙: <분류>-<이름>.png)
 /* 이미지가 없거나 불러오지 못했을 때 보여줄 기본 이모지 (아이콘 이름 → 이모지) */
 const ICON_FALLBACK = {};
 function uiIcon(name, alt='', fb){
   const f = fb || ICON_FALLBACK[name] || '';
+  if(!UI_ICON_IMAGES) return f;
   return `<img class="ui-ico" src="${UI_ICON_BASE}${name}.png" alt="${alt}" data-fb="${f}" draggable="false">`;
 }
 /* 로드 실패 대체: 깨진 이미지 대신 기본 이모지(없으면 대체 글자)를 보여 준다 */
@@ -9050,6 +8767,7 @@ const EmojiIcons = (()=>{
     nodes.forEach(decorateText);
   }
   function start(){
+    if(!UI_ICON_IMAGES) return;
     decorate(document.body);
     new MutationObserver(muts=>{
       for(const m of muts){
